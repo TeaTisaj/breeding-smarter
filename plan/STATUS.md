@@ -6,7 +6,7 @@ Standing instructions for the autonomous run: `plan/GOAL.md` (gates pre-approved
 | Phase | Status | Gate report | Approved by Tea |
 |---|---|---|---|
 | P0 Setup | done | [P0](gates/P0_report.md) | pre-approved (GOAL.md) |
-| P1 Data model | not started | | |
+| P1 Data model | done | [P1](gates/P1_report.md) | pre-approved (GOAL.md) |
 | P2 Pedigree engine | not started | | |
 | P3 Population simulator | not started | | |
 | P4 Genetics | not started | | |
@@ -24,6 +24,9 @@ Status values: not started, in progress, at gate (waiting for review), done.
 
 ### P0
 - [x] 0.1 Project  - [x] 0.2 Tooling  - [x] 0.3 Skeleton  - [x] 0.4 CLI  - [x] 0.5 Repo files  - [x] 0.6 CI  - [x] 0.7 Plan, docs, ADRs  - [x] 0.8 Smoke test
+
+### P1
+- [x] 1.1 Schema module  - [x] 1.2 IO  - [x] 1.3 Config framework  - [x] 1.4 Species and breed YAML  - [x] 1.5 Fixtures  - [x] 1.6 Microchip convention (ICAR 999 confirmed)
 
 ## HUMAN tasks (Tea or colleague)
 - [ ] Email info@orthoing.com: confirm a slot (talk, poster or demo) and whether a late full paper by 15 Oct is possible.

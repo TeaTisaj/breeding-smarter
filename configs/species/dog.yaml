@@ -1,0 +1,21 @@
+species: dog
+gestation_days: {value: 63, assumption: true, note: "textbook mean, range 56-70"}
+gestation_sd_days: {value: 2.0, assumption: true, note: "P3 task 3.6: 63 +/- 2 days"}
+min_breeding_age_months:
+  female: {value: 15, source: hks-pravilnik, note: "HKS hunting breeds, non-small"}
+  male: {value: 12, assumption: true}
+max_breeding_age_years:
+  female: {value: 8, source: hks-pravilnik}
+  male: {value: 12, assumption: true}
+lifespan_weibull: {shape: 4.0, scale_years: 12.5, assumption: true}
+sex_ratio_male: {value: 0.5, assumption: true}
+death_cause_shares:
+  value: {age: 0.80, disease: 0.12, accident: 0.05, unknown: 0.03}
+  assumption: true
+  note: "P3 task 3.4: mostly age, small shares otherwise"
+inbreeding_litter_slope:
+  value: 10.0
+  source: chu-2019
+  note: "about one puppy fewer per 10% genomic COI in Golden Retrievers; assumption that it transfers to all breeds and to realised IBD"
+attractiveness_sd: {value: 1.0, assumption: true, note: "P3 task 3.6, sigma_a = 1"}
+fertility_log_sd: {value: 0.15, assumption: true, note: "P3 task 3.6, LogNormal(0, 0.15)"}

@@ -44,6 +44,19 @@ def main(
     _configure_logging(verbose)
 
 
+schema_app = typer.Typer(help="Data contract tools.", no_args_is_help=True)
+app.add_typer(schema_app, name="schema")
+
+
+@schema_app.command("dictionary")
+def schema_dictionary() -> None:
+    """Regenerate docs/data_dictionary.md from the table specs."""
+    from breeding_smarter.schema.dictionary import write_dictionary
+
+    path = write_dictionary()
+    console.print(f"wrote {path}")
+
+
 def _stub(name: str) -> None:
     console.print(f"{name}: not implemented yet")
 

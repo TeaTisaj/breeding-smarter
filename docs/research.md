@@ -160,5 +160,6 @@ University of Zagreb Faculty of Veterinary Medicine and Faculty of Agriculture (
 | meuwissen-1997 | Meuwissen 1997, optimum contribution selection |
 | optisel | optiSel on CRAN, v2.1.0 |
 | alphasimr | AlphaSimR on CRAN, v2.1.0 |
+| icar-999 | ICAR, misuse of the 999 code: ISO 11784 code 999 is reserved for test transponders (added in P1 task 1.6, icar.org) |
 
 Full URLs are in the original research report (`docs/research_report_full.md` if Tea adds it).

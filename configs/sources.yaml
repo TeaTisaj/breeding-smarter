@@ -1,0 +1,87 @@
+# Citation keys. Mirrors docs/research.md section 9 (test: tests/unit/test_config.py).
+# Extra keys added during implementation are marked `added_in`.
+sources:
+  bmvm-site:
+    ref: "biomedvetmech.com (home, leadership, schedule pages)"
+  bmvm-submission:
+    ref: "biomedvetmech.com/paper-submission"
+  eurlex-2026-1818:
+    ref: "eur-lex.europa.eu/eli/reg/2026/1818"
+  consilium-2026:
+    ref: "Council press release, 22 May 2026"
+  ep-2026:
+    ref: "European Parliament press release 20260423IPR41833"
+  euroweekly-2026:
+    ref: "Euro Weekly News, 2 May 2026 (secondary)"
+  catster-2026:
+    ref: "Catster (secondary)"
+  fci-strategies:
+    ref: "FCI International Breeding Strategies"
+  leroy-rognon-2012:
+    ref: "Leroy G, Rognon X (2012), popular sire and FCI 5% rule"
+  kc-coi:
+    ref: "Kennel Club UK COI pages / Mate Select"
+  vettimes-coi:
+    ref: "Vet Times, breed average COI update"
+  pde-2011:
+    ref: "Pedigree Dogs Exposed blog, May 2011, Mate Select critique"
+  rvb-vfr:
+    ref: "Raad van Beheer VFR template (via breed club sites)"
+  rvb-foknormen:
+    ref: "houdenvanhonden.nl, foknormen news"
+  hks-pravilnik:
+    ref: "HKS Pravilnik o uzgoju i upisu pasa / Pravilnik o stručnom radu"
+  fkc-db:
+    ref: "kennelliitto.fi breeding database pages"
+  fkc-strategy:
+    ref: "FKC General Breeding Strategy and JTO template"
+  skk-hd-2020:
+    ref: "Swedish experiences from 60 years of HD screening (2020)"
+  eu-platform-guide:
+    ref: "EU Platform on Animal Welfare, dog breeding guide"
+  bannasch-2021:
+    ref: "Bannasch et al. 2021, Canine Med Genet"
+  chu-2019:
+    ref: "Chu et al. 2019, Mammalian Genome"
+  lewis-2015:
+    ref: "Lewis et al. 2015, Canine Genet Epidemiol"
+  haynes-1915:
+    ref: "Haynes 1915, J Heredity (via Institute of Canine Biology)"
+  calboli-2008:
+    ref: "Calboli et al. 2008, Genetics"
+  kc-demography-2025:
+    ref: "KC demography study 2025, Canine Med Genet"
+  donner-2023:
+    ref: "Donner et al. 2023, PLoS Genetics, Dryad data"
+  borge-2011:
+    ref: "Borge et al. 2011, Theriogenology"
+  tonnessen-2012:
+    ref: "Tønnessen et al., canine perinatal mortality (NKK cohort)"
+  wright-1922:
+    ref: "Wright 1922, Am Nat"
+  meuwissen-luo-1992:
+    ref: "Meuwissen and Luo 1992, Genet Sel Evol"
+  colleau-2002:
+    ref: "Colleau 2002, Genet Sel Evol"
+  sargolzaei-2005:
+    ref: "Sargolzaei, Iwaisaki, Colleau 2005, J Anim Breed Genet"
+  ballou-2001:
+    ref: "Ballou, Earnhardt, Thompson 2001 (MSI)"
+  lacy-2012:
+    ref: "Lacy 2012, PMx"
+  gutierrez-2008:
+    ref: "Gutiérrez et al. 2008/2009, individual increase in inbreeding"
+  lacy-1989:
+    ref: "Lacy 1989, founder equivalents"
+  lacy-1995:
+    ref: "Lacy 1995 / Ballou and Lacy 1995, founder genome equivalents"
+  meuwissen-1997:
+    ref: "Meuwissen 1997, optimum contribution selection"
+  optisel:
+    ref: "optiSel on CRAN, v2.1.0"
+  alphasimr:
+    ref: "AlphaSimR on CRAN, v2.1.0"
+  icar-999:
+    ref: "ICAR, Misuse of the 999 code (ISO 11784 test transponder code); ICAR Code of Conduct 2025, Appendix A3"
+    url: "https://www.icar.org/wp-content/uploads/documents/ICAR-Misuse-999-code.pdf"
+    added_in: P1 task 1.6

@@ -1,0 +1,37 @@
+breed_id: SYN_S
+display_name: Synthetic Breed S
+size_class: small
+is_local_breed: true
+archetype_description: "Small local breed with a limited gene pool, few breeders and a small number of sires."
+studbook: HR
+population:
+  registrations_per_year:
+    points: [[1980, 40], [2026, 90]]
+    assumption: true
+    note: "(year, registrations) points, linear interpolation; P3 table"
+  founders_base_generation: {value: 25, assumption: true}
+  burn_in_size_fraction: {value: 0.5, assumption: true, note: "hidden burn-in size as a fraction of the 1980 level"}
+  split_year: {value: 1965, assumption: true, note: "domestic and foreign subpopulations split"}
+reproduction:
+  litter_size_mean: {value: 4.0, source: borge-2011, assumption: true, note: "chosen inside the borge-2011 range 3.5 to 7.1 (overall mean 5.4)"}
+  litter_size_dispersion: {value: 8, assumption: true, note: "negative binomial size parameter"}
+  perinatal_loss_rate: {value: 0.05, assumption: true, note: "per puppy; tuned so about 24.6% of litters lose at least one (tonnessen-2012)"}
+  registration_rate: {value: 0.95, assumption: true, note: "share of live puppies registered"}
+  caesarean_rate: {value: 0.15, assumption: true}
+  max_litters_per_dam: {value: 6, assumption: true, note: "lifetime"}
+  min_months_between_litters: {value: 10, assumption: true}
+market:
+  female_candidate_share: {value: 0.35, assumption: true, note: "about 20% of dogs bred (calboli-2008, secondary)"}
+  male_candidate_share: {value: 0.35, assumption: true}
+  popular_sire_alpha:
+    points: [[1980, 0.8], [2026, 0.8]]
+    assumption: true
+    note: "rich-get-richer exponent; tuned in P5 against sire concentration targets"
+  attractiveness_beta: {value: 1.0, assumption: true, note: "tuned in P5"}
+  import_rate: {value: 0.1, assumption: true, note: "share of new breeding animals imported"}
+  foreign_ai_sire_share: {value: 0.15, assumption: true}
+  ai_frozen_share: {value: 0.6, assumption: true, note: "share of foreign AI matings with frozen (vs chilled) semen"}
+  import_pedigree_depth: {value: 3, source: pde-2011, note: "imports often carry only 3 to 5 recorded generations"}
+  close_mating_avoidance: {value: 0.9, assumption: true}
+coat_colours: ["wheaten", "grey brindle", "black"]
+expected_ne: {value: [25, 50], source: lewis-2015, note: "archetype band derived from the distribution in lewis-2015 (target for P5)"}

@@ -1,0 +1,18 @@
+name: default
+seed: 42
+registry_start_year: 1980
+end_year: 2026
+generation_interval_years: {value: 4.5, assumption: true, note: "research says 4 to 5 years; confirm in P5"}
+burn_in_generations: 10
+species: dog
+breeds: [syn_large, syn_medium, syn_small]
+scale: 1.0          # multiplies all population sizes; tests use 0.02
+foreign:
+  size_factor: {value: 1.0, assumption: true, note: "foreign registrations per year relative to the domestic 1980 level"}
+  countries: [SI, AT, HU, IT, DE, RS, CZ, PL, SE, FI, NL]
+market:
+  distance_scale_km: {value: 300, assumption: true, note: "exp(-distance / 300 km) weight, P3 task 3.5"}
+  same_kennel_exclusion_prob: {value: 0.5, assumption: true, note: "breeders often use outside studs"}
+  prime_age_years: {value: [2, 8], assumption: true}
+  off_prime_age_factor: {value: 0.5, assumption: true}
+  max_resample_retries: {value: 5, assumption: true}
