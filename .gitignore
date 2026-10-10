@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+htmlcov/
+dist/
+build/
+.venv/
+
+# data (large artifacts are never committed)
+data/**
+!data/README.md
+*.parquet
+!tests/fixtures/**/*.parquet
+bundle/
+release/**
+!release/zenodo_metadata.json
+.streamlit/secrets.toml
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/

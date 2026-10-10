@@ -1,0 +1,94 @@
+[project]
+name = "breeding-smarter"
+version = "0.1.0"
+description = "Open, explainable, rule-aware mate matching for genetic diversity in dogs, with a calibrated synthetic pedigree benchmark."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.12,<3.13"
+authors = [{ name = "Tea Ćetojević Tisaj" }, { name = "TODO colleague" }]
+dependencies = [
+    "numpy",
+    "pandas",
+    "pyarrow",
+    "duckdb",
+    "scipy",
+    "numba",
+    "pydantic>=2",
+    "pyyaml",
+    "typer",
+    "matplotlib",
+    "rich",
+]
+
+[project.optional-dependencies]
+app = ["streamlit", "plotly", "graphviz"]
+release = ["huggingface_hub"]
+conference = ["qrcode[pil]", "python-pptx"]
+
+[project.scripts]
+bsm = "breeding_smarter.cli:app"
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "hypothesis",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+    "pandas-stubs",
+    "types-PyYAML",
+    "pre-commit",
+    "breeding-smarter[app,release,conference]",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/breeding_smarter"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["docs/reference"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "SIM", "RUF", "NPY", "PD"]
+ignore = [
+    "PD011", # .values is used deliberately for numpy interop
+    "N803",  # math-style argument names (A, D, F) match the papers
+    "N806",  # math-style variable names
+    "N802",  # function names like A_times follow the plan
+    "RUF001",
+    "RUF002",
+    "RUF003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["N", "PD"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_unused_ignores = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = [
+    "breeding_smarter.pedigree.*",
+    "breeding_smarter.rules.*",
+    "breeding_smarter.matching.*",
+]
+disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["numba", "numba.*", "duckdb", "streamlit", "streamlit.*", "plotly.*", "graphviz", "scipy", "scipy.*", "pyarrow", "pyarrow.*", "qrcode", "pptx", "pptx.*", "huggingface_hub"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "slow: statistical tests, benchmarks, full-size runs",
+    "integration: end-to-end tests over generated runs",
+]
+addopts = "-ra"

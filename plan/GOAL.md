@@ -1,0 +1,14 @@
+# Goal (standing instructions from Tea, 2026-10-10)
+
+## Instructions (verbatim)
+
+Implement every MVP task in plan/ from P0 to P11, in phase order. Before each phase, read CLAUDE.md, plan/00_OVERVIEW.md, plan/STATUS.md, the earlier gate reports and that phase's file. Skip [STRETCH] tasks. Skip [HUMAN] tasks and anything that needs Tea's accounts or hands (logins, deployment, GitHub repo creation, Zenodo, Hugging Face tokens, printing, recording), but prepare everything those steps need and write click-by-click instructions in plan/STATUS.md. For each task: implement it yourself, write its tests, run the check suite (uv run ruff check . ; uv run ruff format --check . ; uv run mypy src ; uv run pytest -m "not slow"), fix until everything passes, tick the task in plan/STATUS.md, commit with a conventional message, then move to the next task. Tea is away and pre-approves every gate, which replaces the CLAUDE.md "stop at gate" rule: at the end of each phase, run every item of its acceptance checklist including the slow tests it defines, write plan/gates/PX_report.md, commit, git push if a remote named origin exists, and continue to the next phase without waiting. In P5, apply the best calibration result yourself and record it. In P8, follow task 8.7 yourself: if E1 plus E2 would take more than 6 hours, reduce replicates (never generations), record why, run long jobs in the background and keep working meanwhile. Never delete or weaken a test or a calibration target to make it pass, and never tune away results that contradict the expected story. If the plan is wrong or a task is blocked, record it under "Deviations" or "Open questions" in the gate report and continue with the next task instead of stopping. Do not invent numbers: anything not in docs/research.md is marked assumption: true. Done when gate reports P0 to P11 exist in plan/gates/ with every MVP checklist item ticked or explained, STATUS.md is up to date, and your last message shows the full check suite passing with the pytest summary line pasted. Or stop after 400 turns and write exactly where you stopped in plan/STATUS.md.
+
+## Scope answers and decisions
+
+- **Scope:** implement every MVP task, including strategy S4. Do not apply the single-person cut list up front; if time forces a cut, follow the cut order in `00_OVERVIEW.md` section 3 and record it in the gate report.
+- **E3 (carrier policy ablation):** run only after P9, P10 and P11 are done.
+- **Colleague name:** leave as `TODO` (CITATION.cff, author lists, poster, slides).
+- **Licences:** Apache-2.0 for code, CC BY 4.0 for data (plan defaults).
+- **Git:** repo root is this folder; no `origin` remote exists yet, so nothing is pushed until Tea adds one.
+- **Do not ask Tea questions.** Decide, and record every decision (with reasoning) in the relevant gate report under "Deviations" or "Open questions".

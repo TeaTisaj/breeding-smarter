@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this software or dataset, please cite it as below."
+title: "Breeding Smarter: A Data-Driven Matching System for Genetic Diversity in Dogs and Beyond"
+version: 0.1.0
+date-released: 2026-10-24
+license: Apache-2.0
+repository-code: "https://github.com/TODO/breeding-smarter"
+doi: "TODO-DOI"
+authors:
+  - family-names: "Ćetojević Tisaj"
+    given-names: "Tea"
+    affiliation: "University of Zagreb, Faculty of Electrical Engineering and Computing (FER)"
+  - family-names: "TODO"
+    given-names: "TODO colleague"
+    affiliation: "University of Zagreb, Faculty of Electrical Engineering and Computing (FER)"
+keywords:
+  - pedigree
+  - inbreeding
+  - mate selection
+  - dogs
+  - synthetic data
