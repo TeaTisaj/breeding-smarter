@@ -104,6 +104,18 @@ def generate(
 
 
 @app.command()
+def ebv(run: str = typer.Option(..., "--run", help="Run id or folder.")) -> None:
+    """(Re)compute HD EBVs from registry data only (pedigree BLUP)."""
+    from breeding_smarter.config.loader import load_genetics
+    from breeding_smarter.evaluation.blup import evaluate_run
+    from breeding_smarter.io.cache import resolve_run
+
+    cfg = load_genetics()
+    path = evaluate_run(resolve_run(run).root, cfg.hd_heritability.value, cfg)
+    console.print(f"wrote {path}")
+
+
+@app.command()
 def validate() -> None:
     """Validate a generated run."""
     _stub("validate")

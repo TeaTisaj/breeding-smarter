@@ -93,19 +93,25 @@ def _check_foreign_keys(chk: _Checker, tables: dict[str, pd.DataFrame]) -> None:
             chk.add(name, f"foreign_key:{col}->{fk.ref_table}.{ref_col}", bad)
 
 
+def _lookup(keys: pd.Series, index: pd.Series, values: pd.Series) -> tuple[np.ndarray, np.ndarray]:
+    """Values for `keys` looked up in `index` (positions); returns (values, found mask)."""
+    pos = pd.Index(index.to_numpy()).get_indexer(keys.astype("int64").to_numpy())
+    found = pos >= 0
+    return values.to_numpy()[np.maximum(pos, 0)], found
+
+
 def _check_animals(chk: _Checker, a: pd.DataFrame, species: SpeciesConfig) -> None:
     t = "registry/animals"
-    by_idx = a.set_index("idx")
     for col, sex in (("sire_idx", "M"), ("dam_idx", "F")):
         has = a[a[col].notna()]
-        psex = has[col].map(by_idx["sex"])
-        chk.add(t, f"{col}_sex_is_{sex}", has[psex.notna() & (psex != sex)])
-        chk.add(t, f"{col}_before_idx", has[has[col] >= has["idx"]])
-        pbirth = has[col].map(by_idx["birth_date"])
+        psex, found = _lookup(has[col], a["idx"], a["sex"])
+        chk.add(t, f"{col}_sex_is_{sex}", has[found & (psex != sex)])
+        chk.add(t, f"{col}_before_idx", has[(has[col] >= has["idx"]).to_numpy(dtype=bool)])
+        pbirth, found = _lookup(has[col], a["idx"], a["birth_date"])
         months = species.min_breeding_age_months.for_sex(sex)
-        age_days = (has["birth_date"] - pbirth).dt.days.to_numpy(dtype=float, na_value=np.nan)
-        too_young = age_days < months * DAYS_PER_MONTH
-        chk.add(t, f"{col}_min_breeding_age", has[pbirth.notna().to_numpy() & too_young])
+        age_days = (has["birth_date"].to_numpy() - pbirth) / np.timedelta64(1, "D")
+        too_young = found & (age_days < months * DAYS_PER_MONTH)
+        chk.add(t, f"{col}_min_breeding_age", has[too_young])
     dead = a[a["death_date"].notna()]
     chk.add(t, "death_after_birth", dead[dead["death_date"] < dead["birth_date"]])
     chk.add(t, "reg_no_unique", a[a["reg_no"].duplicated(keep=False)])
@@ -132,9 +138,10 @@ def _check_litters(chk: _Checker, lit: pd.DataFrame, a: pd.DataFrame) -> None:
         "litter_counts_consistent",
         lit[(lit["n_born_alive"] > lit["n_born"]) | (lit["n_registered"] > lit["n_born_alive"])],
     )
-    by_idx = a.set_index("idx")["sex"]
-    chk.add(t, "sire_sex_is_M", lit[lit["sire_idx"].map(by_idx).fillna("M") != "M"])
-    chk.add(t, "dam_sex_is_F", lit[lit["dam_idx"].map(by_idx).fillna("F") != "F"])
+    ssex, sf = _lookup(lit["sire_idx"], a["idx"], a["sex"])
+    dsex, df_ = _lookup(lit["dam_idx"], a["idx"], a["sex"])
+    chk.add(t, "sire_sex_is_M", lit[sf & (ssex != "M")])
+    chk.add(t, "dam_sex_is_F", lit[df_ & (dsex != "F")])
     members = a[a["litter_id"].notna()].merge(
         lit[["litter_id", "sire_idx", "dam_idx"]], on="litter_id", suffixes=("", "_litter")
     )

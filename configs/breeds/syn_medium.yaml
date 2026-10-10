@@ -35,3 +35,10 @@ market:
   close_mating_avoidance: {value: 0.95, assumption: true}
 coat_colours: ["red", "liver", "liver and white", "black"]
 expected_ne: {value: [80, 150], source: lewis-2015, note: "archetype band derived from the distribution in lewis-2015 (target for P5)"}
+health:
+  hd_screening_start_year: {value: 1985, assumption: true}
+  hd_screening_rate_candidates: {value: 0.7, assumption: true}
+  hd_screening_rate_others: {value: 0.05, assumption: true}
+  hd_base_distribution: {value: {A: 0.55, B: 0.25, C: 0.12, D: 0.06, E: 0.02}, assumption: true, note: "base-population FCI grade shares"}
+  hd_exclude_grades: {value: [E], source: hks-pravilnik, note: "E/I and E/II exclude from a breeding licence"}
+  dna_test_rate_2026: {value: 0.6, assumption: true}

@@ -1,0 +1,14 @@
+# Genetics model and observation processes (P4).
+n_neutral_loci: {value: 200, assumption: true, note: "SE of individual realised IBD about sqrt(F(1-F)/200)"}
+hd_heritability: {value: 0.35, source: skk-hd-2020, assumption: true, note: "chosen inside the reported 0.25 to 0.7"}
+hd_screening_age_months: {value: [12, 24], assumption: true}
+dna_test_min_age_months: {value: 12, assumption: true}
+dna_test_rate_initial: {value: 0.1, assumption: true, note: "test rate in the year a test becomes available"}
+dna_test_rate_ramp_end_year: {value: 2026, assumption: true}
+import_dna_test_prob: {value: 0.7, assumption: true, note: "imports and foreign AI sires tested on entry"}
+affected_exclusion_prob: {value: 0.8, assumption: true, note: "known affected animals not bred"}
+carrier_pair_resample_prob: {value: 0.9, assumption: true, note: "known carrier x carrier pairs resampled"}
+labs: ["Synthetica Canine Genomics", "LabSyn Diagnostics", "Fictive DNA Services"]
+evaluation_date: "2026-09-30"
+ebv_birth_year_group_years: {value: 5, assumption: true}
+ebv_index_sd_window_years: {value: 5, assumption: true, note: "index SD from animals born in the last 5 years"}

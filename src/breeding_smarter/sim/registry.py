@@ -63,6 +63,48 @@ def register_with_ancestors(
     return new
 
 
+def import_animals(
+    state: SimState,
+    setup: SimSetup,
+    breed: int,
+    year: int,
+    n: int,
+    genetics: GeneticsModel,
+    rng: np.random.Generator,
+    sex: int | None = None,
+    alive_through: int | None = None,
+) -> np.ndarray:
+    """Move up to `n` young foreign breeding candidates (optionally of one sex) into domestic
+    breeder kennels. In the registry era they are registered with stub pedigrees of
+    `import_pedigree_depth` generations and DNA tested on entry (via the genetics model)."""
+    a = state.animals
+    lo, hi = IMPORT_AGE_YEARS
+    mask = (
+        (a.breed == breed)
+        & (a.subpop == FOREIGN)
+        & a.is_candidate
+        & (a.birth_year >= year - hi)
+        & (a.birth_year <= year - lo)
+        & (a.death_year > (alive_through if alive_through is not None else year + 1))
+    )
+    if sex is not None:
+        mask &= a.sex == sex
+    pool = np.flatnonzero(mask)
+    if n <= 0 or pool.size == 0:
+        return np.zeros(0, np.int64)
+    gids = np.sort(rng.choice(pool, size=min(n, pool.size), replace=False))
+    a.subpop[gids] = DOMESTIC
+    a.kennel[gids] = pick_kennels(state, breed, DOMESTIC, gids.size, rng)
+    a.import_flag[gids] = True
+    a.import_year[gids] = year
+    if year >= setup.sim.registry_start_year:
+        depth = setup.breeds[breed].market.import_pedigree_depth.value
+        for g in gids:
+            register_with_ancestors(state, int(g), depth, year, root_is_stub=False)
+    genetics.on_import(state, gids, year, rng)
+    return gids
+
+
 def run_imports(
     state: SimState,
     setup: SimSetup,
@@ -73,31 +115,9 @@ def run_imports(
     rng: np.random.Generator,
 ) -> np.ndarray:
     """Move `import_rate * n_new_candidates` young foreign candidates into domestic kennels."""
-    cfg = setup.breeds[breed]
-    expected = cfg.market.import_rate.value * n_new_candidates
+    expected = setup.breeds[breed].market.import_rate.value * n_new_candidates
     n = int(np.floor(expected)) + int(rng.random() < expected - np.floor(expected))
-    a = state.animals
-    lo, hi = IMPORT_AGE_YEARS
-    pool = np.flatnonzero(
-        (a.breed == breed)
-        & (a.subpop == FOREIGN)
-        & a.is_candidate
-        & (a.birth_year >= year - hi)
-        & (a.birth_year <= year - lo)
-        & (a.death_year > year + 1)
-    )
-    if n == 0 or pool.size == 0:
-        return np.zeros(0, np.int64)
-    gids = np.sort(rng.choice(pool, size=min(n, pool.size), replace=False))
-    a.subpop[gids] = DOMESTIC
-    a.kennel[gids] = pick_kennels(state, breed, DOMESTIC, gids.size, rng)
-    a.import_flag[gids] = True
-    a.import_year[gids] = year
-    depth = cfg.market.import_pedigree_depth.value
-    for g in gids:
-        register_with_ancestors(state, int(g), depth, year, root_is_stub=False)
-    genetics.on_import(state, gids, year, rng)
-    return gids
+    return import_animals(state, setup, breed, year, n, genetics, rng)
 
 
 def split_population(

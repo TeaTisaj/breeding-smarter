@@ -1,0 +1,35 @@
+# Mendelian disease loci. All allele frequencies are illustrative assumptions (the dataset card
+# says so). NOVEL_X is fictional and untestable: it exists only in truth tables.
+loci:
+  - id: PRCD_PRA     # progressive rod-cone degeneration
+    gene: PRCD
+    mode: recessive
+    penetrance: {value: 0.95, assumption: true}
+    test_available_from: {value: 2005, assumption: true}
+  - id: SOD1_DM      # degenerative myelopathy, incomplete penetrance
+    gene: SOD1
+    mode: recessive
+    penetrance: {value: 0.5, assumption: true}
+    test_available_from: {value: 2009, assumption: true}
+  - id: ABCB1_MDR1   # multidrug sensitivity
+    gene: ABCB1
+    mode: recessive
+    penetrance: {value: 1.0, assumption: true, note: "phenotype = drug sensitivity"}
+    test_available_from: {value: 2004, assumption: true}
+  - id: DNM1_EIC     # exercise-induced collapse
+    gene: DNM1
+    mode: recessive
+    penetrance: {value: 0.8, assumption: true}
+    test_available_from: {value: 2008, assumption: true}
+  - id: NOVEL_X      # fictional untested recessive, never testable
+    gene: none
+    mode: recessive
+    penetrance: {value: 1.0, assumption: true}
+    test_available_from: null
+base_allele_frequency:
+  assumption: true
+  note: "risk-allele frequencies in the base founders; illustrative (P4 task 4.3)"
+  value:
+    SYN_L: {PRCD_PRA: 0.08, SOD1_DM: 0.25, ABCB1_MDR1: 0.0, DNM1_EIC: 0.10, NOVEL_X: 0.05}
+    SYN_M: {PRCD_PRA: 0.05, SOD1_DM: 0.15, ABCB1_MDR1: 0.12, DNM1_EIC: 0.0, NOVEL_X: 0.05}
+    SYN_S: {PRCD_PRA: 0.12, SOD1_DM: 0.10, ABCB1_MDR1: 0.0, DNM1_EIC: 0.0, NOVEL_X: 0.05}

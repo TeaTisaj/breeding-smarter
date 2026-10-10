@@ -141,9 +141,11 @@ def snapshot_configs(setup: SimSetup, config_path: Path, dest: Path) -> None:
         for nm in names:
             shutil.copy(configs_dir() / sub / f"{nm}.yaml", dest / sub / f"{nm}.yaml")
     shutil.copy(configs_dir() / "sources.yaml", dest / "sources.yaml")
-    loci = configs_dir() / "loci"
-    if loci.is_dir():
-        shutil.copytree(loci, dest / "loci", dirs_exist_ok=True)
+    for sub, name in (("loci", setup.sim.loci), ("genetics", setup.sim.genetics)):
+        src = configs_dir() / sub / f"{name}.yaml"
+        if src.exists():
+            (dest / sub).mkdir(exist_ok=True)
+            shutil.copy(src, dest / sub / f"{name}.yaml")
 
 
 def setup_hash(setup: SimSetup) -> str:
@@ -182,6 +184,8 @@ def generate(
     for tname, df in tables.items():
         write_table(df, TABLES[tname], paths.root / TABLES[tname].filename)
     snapshot_configs(setup, config_path, paths.config_snapshot)
+    if hasattr(genetics, "post_write"):
+        genetics.post_write(paths.root)
     save_state(paths.state, state, rng, genetics)
     wall = time.perf_counter() - t0
     manifest = {
@@ -200,14 +204,26 @@ def generate(
         "genetics": type(genetics).__name__,
     }
     write_manifest(paths.manifest, **manifest)
-    if validate:
-        res = validate_run(paths.root)
-        from breeding_smarter.io.manifest import update_manifest
+    from breeding_smarter.io.manifest import update_manifest
 
+    update_manifest(
+        paths.manifest,
+        row_counts={name: pq_rows(paths.root / spec.filename) for name, spec in TABLES.items()},
+    )
+    if validate:
+        from breeding_smarter.config.loader import load_loci
+
+        res = validate_run(paths.root, allowed_loci=set(load_loci(sim.loci).ids))
         update_manifest(paths.manifest, validation_ok=res.ok, validation_summary=res.summary())
         if not res.ok:
             log.error("validation failed:\n%s", res.summary())
     return paths.root
+
+
+def pq_rows(path: Path) -> int:
+    import pyarrow.parquet as pq
+
+    return int(pq.ParquetFile(path).metadata.num_rows) if path.exists() else 0
 
 
 def make_genetics(kind: str, config_path: Path, scale: float | None = None) -> GeneticsModel:

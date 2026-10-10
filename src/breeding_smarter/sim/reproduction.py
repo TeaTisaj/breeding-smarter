@@ -13,6 +13,7 @@ from breeding_smarter.sim.kennels import pick_kennels
 from breeding_smarter.sim.market import MarketStrategy
 from breeding_smarter.sim.registry import (
     found_registry,
+    import_animals,
     register_with_ancestors,
     run_imports,
     split_population,
@@ -48,7 +49,9 @@ def split_done(setup: SimSetup, breed: int, year: int) -> bool:
     return year > split_year(setup, breed)
 
 
-def target_litters(setup: SimSetup, breed: int, subpop: int, year: int) -> float:
+def target_litters(
+    setup: SimSetup, breed: int, subpop: int, year: int, mean_dam_f: float = 0.0
+) -> float:
     """Expected litters so that registrations (registry era) or live births (hidden) hit target.
 
     Registry era, domestic: `regs(year) * scale / (litter_mean (1 - loss) registration_rate)`.
@@ -62,7 +65,9 @@ def target_litters(setup: SimSetup, breed: int, subpop: int, year: int) -> float
     cfg = setup.breeds[breed]
     rep = cfg.reproduction
     regs = cfg.population.registrations_per_year
-    per_litter = rep.litter_size_mean.value * (1 - rep.perinatal_loss_rate.value)
+    # expected puppies per litter including inbreeding depression of the available dams
+    mean = max(MIN_LITTER_MEAN, rep.litter_size_mean.value - slope_of(setup) * mean_dam_f)
+    per_litter = mean * (1 - rep.perinatal_loss_rate.value)
     base = regs.at(sim.registry_start_year) * sim.scale
     if subpop == FOREIGN:
         return sim.foreign.size_factor.value * base / per_litter
@@ -99,6 +104,32 @@ def recruit(
     return pick
 
 
+def rescue_imports(
+    state: SimState,
+    setup: SimSetup,
+    breed: int,
+    year: int,
+    sex: int,
+    n: int,
+    genetics: GeneticsModel,
+    rng: np.random.Generator,
+) -> np.ndarray:
+    """Assumption: when the domestic population cannot supply enough breeding animals even
+    after recruitment, breeders bring young candidates in from abroad. Returns those that are
+    eligible this year; counted in `state.meta`."""
+    gids = import_animals(state, setup, breed, year, n, genetics, rng, sex=sex, alive_through=year)
+    if gids.size == 0:
+        return gids
+    key = f"rescue_imports_{setup.breeds[breed].breed_id}_{'F' if sex == 0 else 'M'}"
+    state.meta[key] = state.meta.get(key, 0) + int(gids.size)
+    ok = eligible(state, setup, breed, DOMESTIC, year, sex, genetics)
+    return np.intersect1d(gids, ok)
+
+
+def slope_of(setup: SimSetup) -> float:
+    return setup.species.inbreeding_litter_slope.value
+
+
 def offspring_window(state: SimState, year: int) -> np.ndarray:
     """Offspring (animals) per gid from litters whelped in the 5 years before `year`."""
     lit = state.litters
@@ -131,8 +162,9 @@ def plan_year(
             split_population(state, setup, b, year, share, rng)
         subpops = [DOMESTIC, FOREIGN] if split_done(setup, b, year) else [DOMESTIC]
         for sp in subpops:
-            n_target = stochastic_round(target_litters(setup, b, sp, year), rng)
             dams_el = eligible(state, setup, b, sp, year, 0, genetics)
+            mean_f = float(state.animals.f_true[dams_el].mean()) if dams_el.size else 0.0
+            n_target = stochastic_round(target_litters(setup, b, sp, year, mean_f), rng)
             sires_el = eligible(state, setup, b, sp, year, 1, genetics)
             if dams_el.size < n_target:
                 dams_el = np.union1d(
@@ -144,6 +176,14 @@ def plan_year(
                     sires_el,
                     recruit(state, setup, b, sp, year, 1, MIN_SIRES - sires_el.size, genetics, rng),
                 )
+            if sp == DOMESTIC and split_done(setup, b, year):
+                for sex, short in ((0, n_target - dams_el.size), (1, MIN_SIRES - sires_el.size)):
+                    if short > 0:
+                        got = rescue_imports(state, setup, b, year, sex, short, genetics, rng)
+                        if sex == 0:
+                            dams_el = np.union1d(dams_el, got)
+                        else:
+                            sires_el = np.union1d(sires_el, got)
             if n_target == 0 or dams_el.size == 0:
                 dams = np.zeros(0, np.int64)
                 if n_target > 0:
@@ -223,7 +263,9 @@ def make_litters(
     grp = breed * 2 + subpop
     grp_mean = np.bincount(grp, weights=fert) / np.maximum(np.bincount(grp), 1)
     rel_fert = fert / grp_mean[grp]
-    mu = np.maximum(MIN_LITTER_MEAN, mean * rel_fert * (1.0 - slope * a.f_true[dams]))
+    # Inbreeding depression: about one puppy fewer per 10% dam F (chu-2019), an absolute effect
+    # of `slope * F` puppies (the plan's multiplicative form would remove all puppies at F=0.1).
+    mu = np.maximum(MIN_LITTER_MEAN, mean * rel_fert - slope * a.f_true[dams])
     n_born = np.maximum(1, rng.negative_binomial(disp, disp / (disp + mu)))
     n_alive = rng.binomial(n_born, 1.0 - loss)
     registry_dom = (year >= setup.sim.registry_start_year) & (subpop == DOMESTIC)
@@ -283,6 +325,7 @@ def make_litters(
     for k in np.flatnonzero(registered_litter & ai):
         if not a.registered[sires[k]]:
             register_with_ancestors(state, int(sires[k]), int(depth[k]), year, root_is_stub=True)
+            genetics.on_import(state, sires[k : k + 1], year, rng)
     return gids
 
 

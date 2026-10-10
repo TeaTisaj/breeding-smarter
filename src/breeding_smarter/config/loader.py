@@ -9,7 +9,13 @@ from pathlib import Path
 import yaml
 from pydantic import BaseModel, ValidationError
 
-from breeding_smarter.config.models import BreedConfig, SimConfig, SpeciesConfig
+from breeding_smarter.config.models import (
+    BreedConfig,
+    GeneticsConfig,
+    LociConfig,
+    SimConfig,
+    SpeciesConfig,
+)
 from breeding_smarter.io.paths import configs_dir
 
 
@@ -53,3 +59,11 @@ def load_breed(name: str, base: Path | None = None) -> BreedConfig:
 
 def load_sim(path: Path) -> SimConfig:
     return load_config(path, SimConfig)
+
+
+def load_loci(name: str = "dog_mendelian", base: Path | None = None) -> LociConfig:
+    return load_config((base or configs_dir()) / "loci" / f"{name}.yaml", LociConfig)
+
+
+def load_genetics(name: str = "dog", base: Path | None = None) -> GeneticsConfig:
+    return load_config((base or configs_dir()) / "genetics" / f"{name}.yaml", GeneticsConfig)

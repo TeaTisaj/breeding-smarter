@@ -77,8 +77,26 @@ class MarketParams(Strict):
     close_mating_avoidance: Sourced[float]
 
 
+class HealthParams(Strict):
+    """Breed health programme (P4): HD screening and DNA testing."""
+
+    hd_screening_start_year: Sourced[int]
+    hd_screening_rate_candidates: Sourced[float]
+    hd_screening_rate_others: Sourced[float]
+    hd_base_distribution: Sourced[dict[str, float]]
+    hd_exclude_grades: Sourced[list[str]]
+    dna_test_rate_2026: Sourced[float]
+
+    @model_validator(mode="after")
+    def _dist(self) -> Self:
+        d = self.hd_base_distribution.value
+        if list(d) != ["A", "B", "C", "D", "E"] or abs(sum(d.values()) - 1) > 1e-9:
+            raise ValueError("hd_base_distribution must give A..E shares summing to 1")
+        return self
+
+
 class BreedConfig(Strict):
-    """One synthetic breed archetype. Health and genetics sections are added in P4."""
+    """One synthetic breed archetype."""
 
     breed_id: str
     display_name: str
@@ -91,6 +109,7 @@ class BreedConfig(Strict):
     market: MarketParams
     coat_colours: list[str]
     expected_ne: Sourced[tuple[float, float]]
+    health: HealthParams
 
 
 class ForeignParams(Strict):
@@ -117,6 +136,52 @@ class RegistryParams(Strict):
     min_founders: Sourced[int]
 
 
+class Locus(Strict):
+    id: str
+    gene: str
+    mode: Literal["recessive"]
+    penetrance: Sourced[float]
+    test_available_from: Sourced[int] | None
+
+    @property
+    def testable(self) -> bool:
+        return self.test_available_from is not None
+
+
+class LociConfig(Strict):
+    loci: list[Locus]
+    base_allele_frequency: Sourced[dict[str, dict[str, float]]]
+
+    @property
+    def ids(self) -> list[str]:
+        return [x.id for x in self.loci]
+
+    @model_validator(mode="after")
+    def _freqs(self) -> Self:
+        for breed, f in self.base_allele_frequency.value.items():
+            if set(f) != set(self.ids):
+                raise ValueError(f"{breed}: base frequencies must cover exactly {self.ids}")
+            if any(not 0 <= q <= 1 for q in f.values()):
+                raise ValueError(f"{breed}: frequencies must be in [0, 1]")
+        return self
+
+
+class GeneticsConfig(Strict):
+    n_neutral_loci: Sourced[int]
+    hd_heritability: Sourced[float]
+    hd_screening_age_months: Sourced[tuple[int, int]]
+    dna_test_min_age_months: Sourced[int]
+    dna_test_rate_initial: Sourced[float]
+    dna_test_rate_ramp_end_year: Sourced[int]
+    import_dna_test_prob: Sourced[float]
+    affected_exclusion_prob: Sourced[float]
+    carrier_pair_resample_prob: Sourced[float]
+    labs: list[str]
+    evaluation_date: str
+    ebv_birth_year_group_years: Sourced[int]
+    ebv_index_sd_window_years: Sourced[int]
+
+
 class SimConfig(Strict):
     """Top-level simulation config (`configs/sim/*.yaml`)."""
 
@@ -127,6 +192,8 @@ class SimConfig(Strict):
     generation_interval_years: Sourced[float]
     burn_in_generations: int
     species: str = "dog"
+    genetics: str = "dog"
+    loci: str = "dog_mendelian"
     breeds: list[str]
     scale: float = 1.0
     foreign: ForeignParams
