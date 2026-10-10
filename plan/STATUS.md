@@ -7,7 +7,7 @@ Standing instructions for the autonomous run: `plan/GOAL.md` (gates pre-approved
 |---|---|---|---|
 | P0 Setup | done | [P0](gates/P0_report.md) | pre-approved (GOAL.md) |
 | P1 Data model | done | [P1](gates/P1_report.md) | pre-approved (GOAL.md) |
-| P2 Pedigree engine | not started | | |
+| P2 Pedigree engine | done | [P2](gates/P2_report.md) | pre-approved (GOAL.md) |
 | P3 Population simulator | not started | | |
 | P4 Genetics | not started | | |
 | P5 Calibration | not started | | |
@@ -27,6 +27,9 @@ Status values: not started, in progress, at gate (waiting for review), done.
 
 ### P1
 - [x] 1.1 Schema module  - [x] 1.2 IO  - [x] 1.3 Config framework  - [x] 1.4 Species and breed YAML  - [x] 1.5 Fixtures  - [x] 1.6 Microchip convention (ICAR 999 confirmed)
+
+### P2
+- [x] 2.1 Pedigree container  - [x] 2.2 Known-answer tests  - [x] 2.3 Dense oracle  - [x] 2.4 Meuwissen-Luo (+extend, +py twin)  - [x] 2.5 L-rows, pair kinship, decomposition  - [x] 2.6 Colleau  - [x] 2.7 Completeness  - [x] 2.8 Population metrics  - [x] 2.9 Relationships  - [x] 2.10 CLI + cache  - [x] 2.11 Benchmarks
 
 ## HUMAN tasks (Tea or colleague)
 - [ ] Email info@orthoing.com: confirm a slot (talk, poster or demo) and whether a late full paper by 15 Oct is possible.

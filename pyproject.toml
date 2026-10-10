@@ -60,6 +60,9 @@ ignore = [
     "N803",  # math-style argument names (A, D, F) match the papers
     "N806",  # math-style variable names
     "N802",  # function names like A_times follow the plan
+    "N812",  # `_kernels as K`
+    "N815",  # math-style field names (mean_F)
+    "B008",  # typer.Option in defaults is the typer idiom
     "RUF001",
     "RUF002",
     "RUF003",
