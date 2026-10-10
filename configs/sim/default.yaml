@@ -16,3 +16,8 @@ market:
   prime_age_years: {value: [2, 8], assumption: true}
   off_prime_age_factor: {value: 0.5, assumption: true}
   max_resample_retries: {value: 5, assumption: true}
+registry:
+  limited_registration_share: {value: 0.3, assumption: true, note: "share of non-candidates with limited registration (P3 task 3.8)"}
+  titles_rate: {value: 0.05, assumption: true, note: "titles ~ Poisson(0.05 exp(attractiveness))"}
+  dogs_per_private_owner: {value: 1.5, assumption: true, note: "one owner per 1 to 2 dogs"}
+  min_founders: {value: 10, assumption: true, note: "lower bound on scaled base founders"}

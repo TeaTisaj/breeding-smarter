@@ -108,6 +108,15 @@ class MarketDefaults(Strict):
     max_resample_retries: Sourced[int]
 
 
+class RegistryParams(Strict):
+    """Constants used when writing registry tables (P3 task 3.8)."""
+
+    limited_registration_share: Sourced[float]
+    titles_rate: Sourced[float]
+    dogs_per_private_owner: Sourced[float]
+    min_founders: Sourced[int]
+
+
 class SimConfig(Strict):
     """Top-level simulation config (`configs/sim/*.yaml`)."""
 
@@ -122,6 +131,13 @@ class SimConfig(Strict):
     scale: float = 1.0
     foreign: ForeignParams
     market: MarketDefaults
+    registry: RegistryParams
+
+    @property
+    def start_year(self) -> int:
+        """First simulated year: registry start minus the burn-in generations."""
+        gi = self.generation_interval_years.value
+        return self.registry_start_year - round(self.burn_in_generations * gi)
 
     @model_validator(mode="after")
     def _years(self) -> Self:

@@ -133,3 +133,25 @@ def close_relative_flags(
         Relationship.HALF_SIBLINGS: half,
         Relationship.GRANDPARENT_GRANDCHILD: gp,
     }
+
+
+def pairwise_close_flags(
+    sire_of: IntArray, dam_of: IntArray, dams: IntArray, sires: IntArray
+) -> NDArray[np.bool_]:
+    """Element-wise: is `dams[k] x sires[k]` a parent-offspring, full- or half-sibling or
+    grandparent-grandchild pair? (`sire_of`/`dam_of` are the parent arrays, -1 unknown.)
+
+    Same definitions as `relationship`; vectorised over pairs.
+    """
+    d = np.asarray(dams, dtype=np.int64)
+    s = np.asarray(sires, dtype=np.int64)
+
+    def par(x: IntArray, arr: IntArray) -> IntArray:
+        return np.where(x >= 0, arr[np.maximum(x, 0)], -1)
+
+    ds, dd, ss, sd = par(d, sire_of), par(d, dam_of), par(s, sire_of), par(s, dam_of)
+    po = (ds == s) | (sd == d)
+    sib = ((ds >= 0) & (ds == ss)) | ((dd >= 0) & (dd == sd))
+    gp = (par(ds, sire_of) == s) | (par(dd, sire_of) == s)
+    gp |= (par(ss, dam_of) == d) | (par(sd, dam_of) == d)
+    return np.asarray(po | sib | gp)

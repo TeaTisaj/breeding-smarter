@@ -62,9 +62,45 @@ def _stub(name: str) -> None:
 
 
 @app.command()
-def generate() -> None:
-    """Generate a synthetic dataset."""
-    _stub("generate")
+def generate(
+    config: str = typer.Option("configs/sim/default.yaml", "--config", help="Sim config YAML."),
+    seed: int | None = typer.Option(None, "--seed", help="Master seed (default: config)."),
+    scale: float | None = typer.Option(None, "--scale", help="Override population scale."),
+    out: str | None = typer.Option(None, "--out", help="Output base folder."),
+    run_id: str | None = typer.Option(None, "--run-id", help="Override the run id."),
+    genetics: str = typer.Option("dog", "--genetics", help="dog (P4) or null (structure only)."),
+) -> None:
+    """Simulate a synthetic dataset, write the run folder and validate it."""
+    from pathlib import Path
+
+    from rich.progress import Progress
+
+    from breeding_smarter.io.manifest import read_manifest
+    from breeding_smarter.sim.run import generate as run_generate
+    from breeding_smarter.sim.run import make_genetics
+
+    with Progress(console=console, transient=True) as prog:
+        task = prog.add_task("simulating", total=None)
+
+        def tick(year: int) -> None:
+            if year % 10 == 0:
+                prog.update(task, description=f"simulating: reached {year}")
+
+        path = run_generate(
+            Path(config),
+            seed=seed,
+            scale=scale,
+            out=Path(out) if out else None,
+            genetics=make_genetics(genetics, Path(config), scale),
+            run_id=run_id,
+            progress=tick,
+        )
+    m = read_manifest(path / "manifest.json")
+    console.print(f"wrote {path} in {m['generator_wall_seconds']} s")
+    console.print(m["row_counts"])
+    console.print(f"validation: {m.get('validation_summary')}")
+    if not m.get("validation_ok", False):
+        raise typer.Exit(1)
 
 
 @app.command()

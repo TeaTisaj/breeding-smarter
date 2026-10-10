@@ -8,7 +8,7 @@ Standing instructions for the autonomous run: `plan/GOAL.md` (gates pre-approved
 | P0 Setup | done | [P0](gates/P0_report.md) | pre-approved (GOAL.md) |
 | P1 Data model | done | [P1](gates/P1_report.md) | pre-approved (GOAL.md) |
 | P2 Pedigree engine | done | [P2](gates/P2_report.md) | pre-approved (GOAL.md) |
-| P3 Population simulator | not started | | |
+| P3 Population simulator | done | [P3](gates/P3_report.md) | pre-approved (GOAL.md) |
 | P4 Genetics | not started | | |
 | P5 Calibration | not started | | |
 | P6 Rules | not started | | |
@@ -30,6 +30,9 @@ Status values: not started, in progress, at gate (waiting for review), done.
 
 ### P2
 - [x] 2.1 Pedigree container  - [x] 2.2 Known-answer tests  - [x] 2.3 Dense oracle  - [x] 2.4 Meuwissen-Luo (+extend, +py twin)  - [x] 2.5 L-rows, pair kinship, decomposition  - [x] 2.6 Colleau  - [x] 2.7 Completeness  - [x] 2.8 Population metrics  - [x] 2.9 Relationships  - [x] 2.10 CLI + cache  - [x] 2.11 Benchmarks
+
+### P3
+- [x] 3.1 Configs  - [x] 3.2 SimState  - [x] 3.3 Kennels  - [x] 3.4 Demography  - [x] 3.5 Market  - [x] 3.6 Reproduction  - [x] 3.7 Registry founding and imports  - [x] 3.8 Writer  - [x] 3.9 Run and CLI  - [x] 3.10 Tiny config
 
 ## HUMAN tasks (Tea or colleague)
 - [ ] Email info@orthoing.com: confirm a slot (talk, poster or demo) and whether a late full paper by 15 Oct is possible.

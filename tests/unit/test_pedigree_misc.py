@@ -157,3 +157,16 @@ def test_population_report_runs():
     assert 0 < rep.gene_diversity < 1
     assert rep.founders.sum_contributions == pytest.approx(1.0)
     assert math.isfinite(rep.ne_census.ne)
+
+
+def test_pairwise_close_flags_match_relationship():
+    from breeding_smarter.pedigree.relationships import pairwise_close_flags
+
+    ped = random_pedigree(300, 0.1, seed=5, window=8)
+    females = np.flatnonzero(ped.sex == 0)[-30:]
+    males = np.flatnonzero(ped.sex == 1)
+    dd, ss = np.meshgrid(females, males, indexing="ij")
+    flags = pairwise_close_flags(ped.sire, ped.dam, dd.ravel(), ss.ravel())
+    banned = {R.PARENT_OFFSPRING, R.FULL_SIBLINGS, R.HALF_SIBLINGS, R.GRANDPARENT_GRANDCHILD}
+    for f, d, s in zip(flags, dd.ravel(), ss.ravel(), strict=True):
+        assert f == bool(relationship(ped, int(d), int(s)) & banned)
