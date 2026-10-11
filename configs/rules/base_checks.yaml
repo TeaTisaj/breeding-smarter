@@ -1,0 +1,16 @@
+profile: base_checks
+title: "Basic registry checks (same breed, both parents alive at mating)"
+rules:
+  - id: base_same_breed
+    type: same_breed
+    severity: HARD
+    source: fci-strategies
+    verified: true
+    note: "cross-breeding programmes are out of scope"
+  - id: base_alive
+    type: alive_at_mating
+    params: {frozen_semen_exempt: true}
+    severity: HARD
+    source: hks-pravilnik
+    verified: true
+    note: "a mating certificate names living sire and dam; frozen semen of a dead sire is exempt"

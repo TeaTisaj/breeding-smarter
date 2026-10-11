@@ -1,0 +1,10 @@
+profile: kc_uk
+title: "The Kennel Club (UK)"
+rules:
+  - id: kc_close_relatives
+    type: relationship_ban
+    params: {relationships: [PARENT_OFFSPRING, FULL_SIBLINGS]}
+    severity: HARD
+    source: kc-coi
+    verified: true
+    note: "KC does not register puppies from mother/son, father/daughter or brother/sister matings"

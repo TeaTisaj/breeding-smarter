@@ -1,0 +1,17 @@
+profile: rvb_nl
+title: "Raad van Beheer (Netherlands), VFR template"
+rules:
+  - id: rvb_close_relatives
+    type: relationship_ban
+    params: {relationships: [PARENT_OFFSPRING, FULL_SIBLINGS, GRANDPARENT_GRANDCHILD]}
+    severity: HARD
+    source: rvb-vfr
+    verified: true
+    note: "template bans grandfather, father, brother, son, grandson; 'brother' read as full brother; some breed VFRs also ban half siblings"
+  - id: rvb_stud_lifetime_limit
+    type: max_lifetime_litters
+    params: {sex: M, max: 25}
+    severity: SOFT
+    source: rvb-vfr
+    verified: true
+    note: "example from one breed VFR (lifetime stud limit of 25 matings)"

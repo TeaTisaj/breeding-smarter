@@ -1,0 +1,25 @@
+profile: eu_2026_1818
+title: "EU Regulation 2026/1818 (welfare and traceability of dogs and cats)"
+in_application_from: null      # [HUMAN] fill from the OJ text
+local_breed_derogation_granted: false   # derogation needs a competent-authority decision
+rules:
+  - id: eu_close_relatives
+    type: relationship_ban
+    params: {relationships: [PARENT_OFFSPRING, FULL_SIBLINGS, HALF_SIBLINGS, GRANDPARENT_GRANDCHILD]}
+    severity: HARD
+    derogation: local_breed          # downgraded to SOFT if breed is local AND derogation granted
+    source: eurlex-2026-1818
+    article: null                    # [HUMAN] fill
+    verified: false                  # set true once the article is checked in the OJ text
+  - id: eu_dam_min_age
+    type: min_age
+    params: {sex: F, months: 18}
+    severity: HARD
+    source: euroweekly-2026
+    verified: false                  # press report only
+  - id: eu_dam_litter_frequency
+    type: max_litters_in_window
+    params: {max: 3, window_months: 24}
+    severity: HARD
+    source: euroweekly-2026
+    verified: false                  # press report only

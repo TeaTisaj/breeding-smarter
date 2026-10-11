@@ -1,0 +1,3 @@
+profile: hr_full
+title: "Croatia: EU 2026/1818 + FCI + HKS + EU Platform guide (demo default)"
+include: [base_checks, eu_2026_1818, fci, hks_hr, eu_platform_guide, dna_health]

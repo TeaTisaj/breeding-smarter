@@ -1,0 +1,3 @@
+profile: nl_full
+title: "Netherlands: EU 2026/1818 + FCI + Raad van Beheer + EU Platform guide"
+include: [base_checks, eu_2026_1818, fci, rvb_nl, eu_platform_guide, dna_health]

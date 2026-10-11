@@ -1,0 +1,17 @@
+profile: fci
+title: "FCI International Breeding Strategies"
+rules:
+  - id: fci_registration_type
+    type: registration_type
+    params: {disallowed: [limited]}
+    severity: HARD
+    source: fci-strategies
+    verified: true
+    note: "limited registration is the FCI tool against matador breeding"
+  - id: fci_sire_quota
+    type: sire_quota
+    params: {share: 0.05, window_years: 5}
+    severity: SOFT
+    source: fci-strategies
+    verified: true
+    note: "guideline: no dog more offspring than 5% of breed registrations in 5 years; non-binding in large breeds (leroy-rognon-2012)"

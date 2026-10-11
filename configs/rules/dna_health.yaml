@@ -1,0 +1,18 @@
+profile: dna_health
+title: "DNA-test based health rules (good practice)"
+note: "Not a regulation: FCI breeding strategies recommend using DNA test results; the exact wording is not verified, so both rules are unverified and advisory (SOFT)."
+rules:
+  - id: dna_carrier_pairing
+    type: carrier_pairing
+    params: {loci: all_tested}
+    severity: SOFT
+    source: fci-strategies
+    verified: false
+    note: "both parents known carriers (or affected) at the same tested locus: risk of affected puppies"
+  - id: dna_affected_parent
+    type: affected_exclusion
+    params: {loci: all_tested}
+    severity: SOFT
+    source: fci-strategies
+    verified: false
+    note: "a parent known affected at a tested locus"

@@ -1,0 +1,17 @@
+profile: eu_platform_guide
+title: "EU Platform on Animal Welfare, dog breeding guide (advisory)"
+rules:
+  - id: guide_coi_6_5
+    type: offspring_coi_threshold
+    params: {threshold: 0.065}
+    severity: SOFT
+    source: eu-platform-guide
+    verified: true
+    note: "a combined COI above 6.5% should be avoided"
+  - id: guide_coi_breed_mean
+    type: offspring_coi_threshold
+    params: {relative_to_breed_mean: true}
+    severity: INFO
+    source: kc-coi
+    verified: true
+    note: "KC advice style: predicted COI below the breed average"

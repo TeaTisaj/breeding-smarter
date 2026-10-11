@@ -1,0 +1,3 @@
+profile: uk_full
+title: "United Kingdom: Kennel Club + EU Platform guide (advisory)"
+include: [base_checks, kc_uk, eu_platform_guide, dna_health]

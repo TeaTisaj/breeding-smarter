@@ -1,0 +1,25 @@
+profile: hks_hr
+title: "Hrvatski kinološki savez (Croatia), Pravilnik o uzgoju"
+rules:
+  - id: hks_hd_exclusion
+    type: health_grade_exclusion
+    params: {test_type: HD, exclude: [E], missing: allow}
+    severity: HARD
+    source: hks-pravilnik
+    verified: true
+    note: "HD E/I and E/II exclude from a breeding licence"
+  - id: hks_dam_min_age
+    type: min_age
+    params: {sex: F, months: 15}
+    severity: HARD
+    source: hks-pravilnik
+    verified: false
+    note: "source covers hunting breeds (non-small); unverified for other breeds"
+  - id: hks_dam_max_age
+    type: max_age
+    params: {sex: F, years: 8}
+    severity: HARD
+    source: hks-pravilnik
+    verified: false
+    note: "source covers hunting breeds; unverified for other breeds"
+  # min_interval_between_litters: [HUMAN] add only if the current Pravilnik states one
