@@ -58,6 +58,10 @@ Values with a `source` are cited in `configs/sources.yaml` and not listed here.
 | scoring | soft_warning_caps_tier_at | Acceptable |  |
 | scoring | low_depth_warning_eqg | 3.0 | warn when either parent's EqG is below |
 | scoring | allele_frequency_window_years | 10 |  |
+| coordination | generation_interval_window_years | 5 | L = mean parent age of animals born in the last 5 years |
+| coordination | cap_mk_scaling | True | flat caps can backfire (leroy-rognon-2012); cap = clip(round(base x MK_ref / MK), 1, base) |
+| coordination | health_weight_in_allocation | 1.0 | mate allocation cost = pair kinship + w x P(affected puppy) |
+| coordination | solver | CLARABEL | cvxpy solver name; ADR-007 |
 | breed syn_large | population.registrations_per_year | [(1980, 1200.0), (2026, 3500.0)] | (year, registrations) points, linear interpolation; P3 table |
 | breed syn_large | population.founders_base_generation | 400 |  |
 | breed syn_large | population.burn_in_size_fraction | 0.3 | hidden burn-in size as a fraction of the 1980 level |

@@ -13,6 +13,7 @@ from breeding_smarter.io.paths import configs_dir, repo_root
 
 def config_models(sim_path: Path | None = None) -> list[tuple[str, BaseModel]]:
     from breeding_smarter.config.loader import load_species
+    from breeding_smarter.coordination.config import load_coordination
     from breeding_smarter.matching.config import load_scoring
 
     sim = load_sim(sim_path or configs_dir() / "sim" / "default.yaml")
@@ -22,6 +23,7 @@ def config_models(sim_path: Path | None = None) -> list[tuple[str, BaseModel]]:
         ("genetics", load_genetics(sim.genetics)),
         ("loci", load_loci(sim.loci)),
         ("scoring", load_scoring()),
+        ("coordination", load_coordination()),
     ]
     out += [(f"breed {b}", load_breed(b)) for b in sim.breeds]
     return out

@@ -94,3 +94,37 @@ def test_glossary_covers_every_tooltip():
     assert not missing, missing
     for term in ("COI", "kinship", "mean kinship", "Ne", "EBV", "EqG", "carrier", "tier"):
         assert term in GLOSSARY
+
+
+def test_mate_finder_respects_club_quotas(bundle_path, monkeypatch):
+    from streamlit.testing.v1 import AppTest
+
+    monkeypatch.setenv("BSM_BUNDLE_PATH", str(bundle_path))
+    at = AppTest.from_file(str(APP / "pages" / "3_Mate_finder.py"), default_timeout=180)
+    at.run()
+    n_all = len(at.dataframe[0].value)
+    at.toggle[0].set_value(True).run()
+    assert not at.exception, [e.value for e in at.exception]
+    table = at.dataframe[0].value
+    assert "quota left" in table.columns
+    assert (table["quota left"] > 0).all()
+    assert len(table) <= n_all
+
+
+@pytest.mark.parametrize(
+    ("mode", "budget"), [("OCS", "lowest possible"), ("OCS", "0.5%"), ("cap", "lowest possible")]
+)
+def test_club_planner_modes(bundle_path, monkeypatch, mode, budget):
+    from streamlit.testing.v1 import AppTest
+
+    monkeypatch.setenv("BSM_BUNDLE_PATH", str(bundle_path))
+    at = AppTest.from_file(str(APP / "pages" / "7_Club_planner.py"), default_timeout=180)
+    at.run()
+    at.radio[0].set_value(mode)
+    at.select_slider[0].set_value(budget)
+    at.run()
+    assert not at.exception, [e.value for e in at.exception]
+    sires = at.dataframe[0].value
+    assert {"sire", "MK", "cap", "quota"} <= set(sires.columns)
+    matings = at.dataframe[1].value
+    assert (sires["quota"].clip(lower=0).sum() >= (matings["sire"] != "").sum()) or mode == "cap"

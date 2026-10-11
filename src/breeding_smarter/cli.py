@@ -458,6 +458,14 @@ def experiment_report(
         console.print(f"wrote {p}")
 
 
+@experiment_app.command("hypotheses")
+def experiment_hypotheses() -> None:
+    """Evaluate the pre-registered P12 criteria H1 to H6 from the E5 and E6 summaries."""
+    from breeding_smarter.experiments.hypotheses import write_report
+
+    console.print(f"wrote {write_report()}")
+
+
 export_app = typer.Typer(help="Export the demo bundle and the release.", no_args_is_help=True)
 app.add_typer(export_app, name="export")
 

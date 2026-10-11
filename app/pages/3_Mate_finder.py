@@ -34,11 +34,12 @@ dam = ctx.idx_of(dam_reg)
 st.markdown(f"Dam: **{ctx.rules.label(dam)}**, breed {ctx.breed_of(dam)}")
 
 st.markdown("**2. Settings**")
-s1, s2, s3 = st.columns(3)
+s1, s2, s3, s4 = st.columns(4)
 date = s1.date_input("Mating date", pd.Timestamp(ui.DEMO_DATE)).isoformat()
 profile = s2.selectbox("Rule profile", ["hr_full", "uk_full", "nl_full"])
 use_dist = s3.checkbox("Limit distance")
 max_km = s3.slider("max km", 50, 1000, 300) if use_dist else None
+quotas_on = s4.toggle("Respect club quotas", help=tip("club quota"))
 base = load_scoring()
 with st.expander("Weights", expanded=False):
     st.caption("Weights are breeding priorities and should be set by the breed club.")
@@ -65,6 +66,7 @@ def run(dam: int, date: str, profile: str, weights: tuple, max_km):  # type: ign
         rows.append(
             {
                 "rank": i,
+                "sire_idx": int(r.sire),
                 "sire": c.sire_label,
                 "tier": c.tier,
                 "score": round(c.score, 1),
@@ -89,6 +91,28 @@ def run(dam: int, date: str, profile: str, weights: tuple, max_km):  # type: ign
 
 
 table, cards, excluded, n_c, n_x, n_w = run(dam, date, profile, tuple(sorted(w.items())), max_km)
+
+
+@st.cache_data(show_spinner="Planning club quotas for the season...", max_entries=8)
+def season_quotas(breed: str, date: str) -> dict[int, int]:
+    from breeding_smarter.coordination.club import club_plan
+
+    cp = club_plan(ctx, breed, date)
+    return {int(s): int(q) for s, q in zip(cp.plan.sires, cp.plan.quotas, strict=True)}
+
+
+if quotas_on and len(table):
+    q = season_quotas(ctx.breed_of(dam), date)
+    table["quota left"] = table["sire_idx"].map(lambda s: q.get(int(s), 0))
+    keep = table["quota left"] > 0
+    st.caption(
+        f"Club quotas on: {int((~keep).sum())} of the top {len(table)} sires have no quota left "
+        "this season and are hidden."
+    )
+    cards = {j: cards[int(i)] for j, i in enumerate(table.index[keep])}
+    table = table[keep].reset_index(drop=True)
+    table["rank"] = range(1, len(table) + 1)
+table = table.drop(columns="sire_idx")
 st.markdown(f"**3. Result:** {n_c} candidate sires, {n_x} excluded by rules, {n_w} with warnings.")
 st.markdown("**4. Ranked sires** (select a row for the score card)", help=tip("tier"))
 sel = st.dataframe(

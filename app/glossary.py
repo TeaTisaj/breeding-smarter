@@ -1,6 +1,14 @@
 """Plain-language tooltips for every technical term used in the app."""
 
 GLOSSARY = {
+    "club quota": "How many litters a sire may have this season, set once for the whole breed "
+    "by the club planner so that no sire is overused. Breeders still choose freely among sires "
+    "with quota left.",
+    "optimum contributions": "Optimum contribution selection (OCS): the planner chooses how "
+    "many litters each sire gets so that the expected kinship of the next generation is as low "
+    "as possible (or stays within an inbreeding budget).",
+    "inbreeding budget": "The allowed rate of inbreeding per generation (dF). 1% (Ne 50) is the "
+    "FAO minimum, 0.5% (Ne 100) the usual target.",
     "COI": "Coefficient of inbreeding: the probability that a puppy inherits two copies of the "
     "same ancestral gene from both sides of its pedigree. Shown as a percentage.",
     "predicted COI": "The COI the puppies of this pair would have: equal to the kinship of sire "
