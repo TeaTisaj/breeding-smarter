@@ -1,4 +1,6 @@
-"""Per-year experiment metrics M1 to M11 (P8 section 3). Domestic population of one breed.
+"""Per-year experiment metrics M1 to M11 (P8 section 3) and M12 to M15 (P12 task 12.9).
+
+Domestic population of one breed.
 
 Observed metrics use the registry view (`ObservedRegistry`); truth metrics read the simulator
 state (realised IBD, true genotypes, true breeding values).
@@ -67,6 +69,8 @@ def year_metrics(
     he = living_he(state, genetics, breed, year)
     out["M5_he_neutral"] = he
     out["M5_he_relative"] = he / he0 if he0 else np.nan
+    out["M12_realised_coancestry"] = 1.0 - he  # mean sum p^2 over neutral loci, living animals
+    out["M15_recorded_mean_kinship"] = ref.mean_mk
     for j, locus in enumerate(genetics.loci.loci):
         g = genetics.geno[cohort, j]
         key = "M7" if not locus.testable else "M6"
@@ -97,6 +101,21 @@ def year_metrics(
     out["M10_share_dams_used"] = dams_used / eligible["dams"] if eligible["dams"] else np.nan
     out["M10_share_sires_used"] = sires_used / eligible["sires"] if eligible["sires"] else np.nan
     out["M11_litter_size"] = float(L.n_born[lit].mean()) if lit.size else np.nan
+    ages = [a.birth_year[cohort] - a.birth_year[par] for par in (a.sire[cohort], a.dam[cohort])]
+    known = [ag[p >= 0] for ag, p in zip(ages, (a.sire[cohort], a.dam[cohort]), strict=True)]
+    pooled = np.concatenate(known).astype(float) if cohort.size else np.zeros(0)
+    out["M13_generation_interval"] = float(pooled.mean()) if pooled.size else np.nan
+    lit5 = np.flatnonzero(
+        (L.whelp_year > year - 5) & (L.whelp_year <= year) & (L.breed == breed)
+        & (L.subpop == DOMESTIC)
+    )  # fmt: skip
+    _, per_sire5 = np.unique(L.sire[lit5], return_counts=True)
+    top5 = np.sort(per_sire5)[::-1][:5].sum()
+    out["M14_top5_sire_share"] = float(top5 / per_sire5.sum()) if per_sire5.size else np.nan
+    _, per_sire = np.unique(L.sire[lit], return_counts=True)
+    out["M14_cv_litters_per_sire"] = (
+        float(per_sire.std() / per_sire.mean()) if per_sire.size else np.nan
+    )
     out["n_births"] = float(cohort.size)
     out["n_litters"] = float(lit.size)
     return out

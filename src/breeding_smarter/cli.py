@@ -368,6 +368,62 @@ def match(
     console.print(t)
 
 
+@app.command()
+def coordinate(
+    breed: str = typer.Option(..., "--breed", help="Breed id, e.g. SYN_M."),
+    dataset: str = typer.Option("v1", "--dataset", help="Dataset tag, run id or folder."),
+    date: str = typer.Option("2027-03-01", "--date", help="Planning date YYYY-MM-DD."),
+    dams: str = typer.Option(
+        "auto", "--dams", help="'auto' or a text file with one dam reg_no per line."
+    ),
+    delta_f: float | None = typer.Option(
+        None, "--delta-f", help="Rate of inbreeding per generation (OCS gain under a budget)."
+    ),
+    mode: str = typer.Option("ocs", "--mode", help="ocs (optimum contributions) or cap."),
+    profile: str = typer.Option("hr_full", "--profile", help="Rule profile."),
+    top: int = typer.Option(25, "--top", help="Sires to show."),
+) -> None:
+    """Club-level season plan: litter quotas per sire and a suggested allocation (synthetic)."""
+    from pathlib import Path
+
+    import numpy as np
+    from rich.table import Table
+
+    from breeding_smarter.coordination.club import club_plan
+    from breeding_smarter.matching import load_context
+
+    if mode not in ("ocs", "cap"):
+        raise typer.BadParameter("--mode must be ocs or cap")
+    ctx = load_context(dataset)
+    dam_idx = None
+    if dams != "auto":
+        regs = [x.strip() for x in Path(dams).read_text().splitlines() if x.strip()]
+        dam_idx = np.array([ctx.idx_of(x) for x in regs], dtype=np.int64)
+    cp = club_plan(ctx, breed, date, dam_idx, mode=mode, delta_f=delta_f, profile=profile)
+    d = cp.plan.diagnostics
+    console.print(
+        f"{breed} on {date}, mode {mode}"
+        + (f", dF {100 * delta_f:g}% per generation" if delta_f is not None else "")
+        + f": {d['n_dams']} dams, {d['n_sires']} candidate sires, "
+        f"{d.get('n_sires_with_quota', 0)} with a quota. Synthetic data."
+    )
+    if "achieved_C" in d:
+        extra = f", budget {d['budget']:.4f}" if "budget" in d else ""
+        console.print(f"Expected coancestry of the planned matings {d['achieved_C']:.4f}{extra}.")
+    t = Table(title="Sire quotas (synthetic data)")
+    for col in cp.sires.columns:
+        t.add_column(col)
+    for _, r in cp.sires.head(top).iterrows():
+        t.add_row(*[str(v) for v in r.to_numpy()])
+    console.print(t)
+    m = Table(title="Suggested matings (minimum coancestry within quotas)")
+    for col in cp.matings.columns:
+        m.add_column(col)
+    for _, r in cp.matings.iterrows():
+        m.add_row(*[str(v) for v in r.to_numpy()])
+    console.print(m)
+
+
 experiment_app = typer.Typer(
     help="Breeding-strategy experiments (in silico).", no_args_is_help=True
 )

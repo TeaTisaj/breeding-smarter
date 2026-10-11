@@ -62,7 +62,7 @@ Status values: not started, in progress, at gate (waiting for review), done.
 - [x] numbers.json + rendered texts  - [ ] Paper (draft ready; submission HUMAN)  - [x] Poster content pack (QR codes wait for links)  - [x] Slides outline  - [x] Demo script  - [x] Partner one-pager  - [x] Q&A
 
 ### P12
-- [x] 12.0 Solver spike + ADR-007  - [x] 12.1 Sources + config  - [x] 12.2 Targets  - [x] 12.3 OCS  - [x] 12.4 OCS tests  - [x] 12.5 Caps, quotas, allocation, ledger  - [ ] 12.6 Planner  - [ ] 12.7 Truth kinship  - [ ] 12.8 Strategies + runner  - [ ] 12.9 Metrics  - [ ] 12.10 Experiments E5-E7  - [ ] 12.11 Figures G-L  - [ ] 12.12 CLI + app  - [ ] 12.13 Docs  - [ ] 12.14 Conference (conditional)
+- [x] 12.0 Solver spike + ADR-007  - [x] 12.1 Sources + config  - [x] 12.2 Targets  - [x] 12.3 OCS  - [x] 12.4 OCS tests  - [x] 12.5 Caps, quotas, allocation, ledger  - [x] 12.6 Planner  - [x] 12.7 Truth kinship  - [x] 12.8 Strategies + runner  - [x] 12.9 Metrics  - [ ] 12.10 Experiments E5-E7  - [ ] 12.11 Figures G-L  - [ ] 12.12 CLI + app  - [ ] 12.13 Docs  - [ ] 12.14 Conference (conditional)
 
 ## HUMAN tasks (Tea or colleague)
 - [ ] Email info@orthoing.com: confirm a slot (talk, poster or demo) and whether a late full paper by 15 Oct is possible.

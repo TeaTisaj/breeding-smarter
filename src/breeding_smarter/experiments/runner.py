@@ -41,6 +41,7 @@ log = logging.getLogger(__name__)
 
 class BreedRun(Strict):
     replicates: int
+    extra_strategies: list[str] = Field(default_factory=list)  # run for this breed only
 
 
 class ExperimentConfig(Strict):
@@ -54,6 +55,7 @@ class ExperimentConfig(Strict):
     adoption: list[float] = Field(default_factory=lambda: [1.0])
     profile: str = "exp_pairing"
     scoring: str = "default"
+    coordination: str = "default"
     coi_cap: Sourced[float]
     s3_top_probs: Sourced[list[float]]
     s4_lambda: Sourced[float]
@@ -88,8 +90,8 @@ def report_dir(exp_id: str) -> Path:
 def parts_of(cfg: ExperimentConfig) -> list[Part]:
     out = []
     for breed, br in cfg.breeds.items():
-        for sid in cfg.strategies:
-            adoptions = cfg.adoption if sid == "S3" else [1.0]
+        for sid in [*cfg.strategies, *br.extra_strategies]:
+            adoptions = cfg.adoption if sid in ("S3", "S3q") else [1.0]
             for ad in adoptions:
                 for r in range(br.replicates):
                     out.append(Part(breed, sid, ad, r))
@@ -117,9 +119,15 @@ def replicate_rng(seed: int, n_replicates: int, replicate: int) -> np.random.Gen
     return np.random.Generator(np.random.PCG64(child))
 
 
+def hard_rule_strategy(sid: str) -> bool:
+    """Strategies that promise never to allocate a pair failing a HARD rule."""
+    return sid in ("S2", "S3", "S4", "S3hc", "S3xc", "S3q") or sid.startswith("CC-")
+
+
 class ContractChecker:
     """Debug wrapper: every sire is eligible (domestic eligible or eligible foreign) or -1, of
-    the dam's breed, and (for S2 to S4) no pair fails a HARD rule of the profile."""
+    the dam's breed, (for S2 to S4 and P12 strategies) no pair fails a HARD rule of the
+    profile, and (P12) no sire gets more litters than its quota beyond the logged overflow."""
 
     def __init__(self, inner: Any, hard_rules: bool, profile: str):
         self.inner = inner
@@ -159,6 +167,20 @@ class ContractChecker:
                 )
                 assert not res.failed_hard, f"HARD rule violated: {res.failed_hard}"
             self.checked += 1
+        plan = getattr(self.inner, "last_plan", None)
+        if plan is not None and plan.quotas is not None:
+            obs = self.inner.obs
+            used = obs.idx(np.asarray(out)[np.asarray(out) >= 0])
+            pos = {int(s): k for k, s in enumerate(plan.sires)}
+            counts = np.zeros(plan.sires.size, np.int64)
+            for s in used:
+                if int(s) in pos:
+                    counts[pos[int(s)]] += 1
+            fixed = int(plan.diagnostics.get("n_dams", 0)) - int(
+                plan.diagnostics.get("adopters", plan.diagnostics.get("n_dams", 0))
+            )
+            excess = int(np.maximum(counts - plan.quotas, 0).sum())
+            assert excess <= int(plan.diagnostics.get("overflow", 0)) + fixed, "quota exceeded"
         return out
 
 
@@ -182,10 +204,11 @@ def run_part(
         top_probs=tuple(cfg.s3_top_probs.value),
         adoption=part.adoption,
         s4_lambda=cfg.s4_lambda.value,
+        coordination=cfg.coordination,
     )
     strategy = make_strategy(part.strategy, params, load_scoring(cfg.scoring))
     if debug:
-        hard = part.strategy in ("S2", "S3", "S4", "S3hc", "S3xc")
+        hard = hard_rule_strategy(part.strategy)
         profile = "exp_pairing_hard_carrier" if part.strategy == "S3hc" else cfg.profile
         strategy = ContractChecker(strategy, hard, profile)
     start = state.year
@@ -210,6 +233,7 @@ def run_part(
             obs.evaluate_ebv(state, year, h2)
         ctx_end = obs.context(state, year + 1)
         m = year_metrics(state, genetics, obs, ctx_end, bidx, year, elig, he0)
+        m.update(plan_diagnostics(strategy))
         for k, v in m.items():
             rows.append({"metric": k, "value": v, "year": year})
     df = pd.DataFrame(rows)
@@ -225,6 +249,33 @@ def run_part(
         df.to_parquet(out_dir / f"{part.name}.parquet", index=False)
     log.info("%s done in %.1f s", part.name, time.perf_counter() - t0)
     return df
+
+
+DIAGNOSTICS = {
+    "budget": "D1_budget",
+    "achieved_C": "D2_achieved_C",
+    "infeasible": "D3_infeasible",
+    "n_sires_with_quota": "D4_n_sires_with_quota",
+    "solver_seconds": "D5_solver_seconds",
+    "relaxed_caps": "D6_relaxed_caps",
+    "overflow": "D7_overflow",
+    "C_now": "D8_C_now",
+    "L": "D9_generation_interval_used",
+}
+
+
+def plan_diagnostics(strategy: Any) -> dict[str, float]:
+    """Per-year planner diagnostics of P12 strategies (empty for others); resets the plan."""
+    inner = getattr(strategy, "inner", strategy)
+    plan = getattr(inner, "last_plan", None)
+    if plan is None:
+        return {}
+    inner.last_plan = None
+    return {
+        name: float(plan.diagnostics[key])
+        for key, name in DIAGNOSTICS.items()
+        if key in plan.diagnostics and plan.diagnostics[key] is not None
+    }
 
 
 def _drop_other_breeds(state: SimState, genetics: DogGenetics, breed: int) -> None:

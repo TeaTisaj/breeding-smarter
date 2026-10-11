@@ -140,3 +140,136 @@ def test_summary_statistics():
     est, ne = ne_from_series(gens, f)
     assert est == pytest.approx(dF)
     assert ne == pytest.approx(25.0)
+
+
+# ---------------------------------------------------------------- P12 coordination
+
+P12_IDS = [
+    "CC-none-rand",
+    "CC-none-mc1",
+    "CC-mkx-rand",
+    "CC-mkx-mc1",
+    "CC-cap-rand",
+    "CC-cap-mc1",
+    "CC-ocs-rand",
+    "CC-ocs-mc1",
+    "CC-ocs-mc1-oracle",
+    "CC-gain050-mc1",
+    "S3q",
+]
+
+
+@pytest.mark.parametrize("sid", P12_IDS)
+def test_p12_strategy_contract(tiny, sid):
+    """Valid sires, no HARD-rule pair, quotas never exceeded beyond logged overflow."""
+    _, cfg = tiny
+    df = run_part(cfg, Part("SYN_L", sid, 1.0, 0), debug=True)
+    metrics = set(df["metric"])
+    assert {"M12_realised_coancestry", "M13_generation_interval", "M14_top5_sire_share"} <= metrics
+    if "ocs" in sid or "gain" in sid or sid == "S3q":
+        assert "D2_achieved_C" in metrics
+    if "gain" in sid:
+        assert {"D1_budget", "D8_C_now"} <= metrics
+
+
+def test_s3q_partial_adoption_contract(tiny):
+    _, cfg = tiny
+    run_part(cfg, Part("SYN_L", "S3q", 0.5, 0), debug=True)
+
+
+@pytest.mark.parametrize("sid", ["CC-ocs-mc1", "S3q"])
+def test_p12_determinism(tiny, sid):
+    _, cfg = tiny
+    a = run_part(cfg, Part("SYN_L", sid, 1.0, 1)).drop(columns="seconds")
+    b = run_part(cfg, Part("SYN_L", sid, 1.0, 1)).drop(columns="seconds")
+    a = a[a["metric"] != "D5_solver_seconds"].reset_index(drop=True)
+    b = b[b["metric"] != "D5_solver_seconds"].reset_index(drop=True)
+    pd.testing.assert_frame_equal(a, b)
+
+
+def test_true_kinship_incremental_equals_rebuild(tiny):
+    from breeding_smarter.experiments.truth_kinship import TrueKinship
+
+    run, _ = tiny
+    state, _ = SimState.load(prepared_state(str(run), "SYN_L"))
+    setup = experiment_setup(run, 0, 1.0)
+    g = DogGenetics.from_setup(setup)
+    g.load_arrays(state.extra)
+    tk = TrueKinship(state, 0)
+    rng = np.random.default_rng(3)
+    for y in range(state.year + 1, state.year + 4):
+        simulate_year(state, setup, y, g, MarketStrategy(), rng, active_breeds={0})
+        assert tk.update(state) > 0
+    full = TrueKinship(state, 0)
+    np.testing.assert_array_equal(tk.gid, full.gid)
+    np.testing.assert_allclose(tk.F, full.F, atol=1e-12)
+    np.testing.assert_allclose(tk.D, full.D, atol=1e-12)
+    # true-pedigree F of the newest animals equals the engine on the full true pedigree
+    kids = tk.gid[-5:]
+    K = tk.kinship(kids)
+    np.testing.assert_allclose(np.diag(K), 0.5 * (1 + tk.F[-5:]), atol=1e-12)
+
+
+def test_realised_coancestry_is_one_minus_he():
+    from breeding_smarter.experiments.metrics import expected_heterozygosity
+    from breeding_smarter.experiments.truth_kinship import realised_coancestry
+
+    alleles = np.random.default_rng(0).integers(0, 4, (30, 7, 2)).astype(np.uint16)
+    assert realised_coancestry(alleles) == pytest.approx(1 - expected_heterozygosity(alleles))
+    same = np.zeros((5, 3, 2), np.uint16)
+    assert realised_coancestry(same) == pytest.approx(1.0)
+
+
+@pytest.fixture(scope="module")
+def season(tiny):
+    """A registry context one year into the experiment, with that year's candidates."""
+    from breeding_smarter.sim.demography import eligible
+    from breeding_smarter.sim.state import DOMESTIC
+
+    run, _ = tiny
+    state, g, setup, obs = _continue(run, 1)
+    year = state.year + 1
+    ctx = obs.context(state, year)
+    dams = obs.idx(eligible(state, setup, 0, DOMESTIC, year, 0, g))[:12]
+    sires = obs.idx(eligible(state, setup, 0, DOMESTIC, year, 1, g))
+    return ctx, obs, year, dams[dams >= 0], sires[sires >= 0]
+
+
+@pytest.mark.parametrize("control", ["none", "mkx", "cap", "ocs", "ocs_gain"])
+@pytest.mark.parametrize("mating", ["random", "mc1"])
+def test_plan_season_valid(season, control, mating):
+    from breeding_smarter.coordination.config import load_coordination
+    from breeding_smarter.coordination.planner import pair_inputs, plan_season
+    from breeding_smarter.rules import day_number
+
+    ctx, obs, year, dams, sires = season
+    day = day_number(f"{year}-07-01")
+    cfg = load_coordination()
+    plan = plan_season(ctx, obs.breed_id, day, dams, sires, cfg, control, mating)
+    a = plan.assignment
+    assert a.size == dams.size and (a >= 0).all()
+    assert set(a.tolist()) <= set(sires.tolist())
+    forb, _ = pair_inputs(ctx, sires, dams, day, "exp_pairing")
+    pos = {int(s): k for k, s in enumerate(sires)}
+    assert not any(forb[k, pos[int(s)]] for k, s in enumerate(a))
+    if plan.quotas is not None:
+        counts = np.array([np.sum(a == s) for s in sires])
+        assert np.maximum(counts - plan.quotas, 0).sum() <= plan.diagnostics.get("overflow", 0)
+    again = plan_season(ctx, obs.breed_id, day, dams, sires, cfg, control, mating)
+    np.testing.assert_array_equal(plan.assignment, again.assignment)
+
+
+def test_none_mc1_is_per_dam_least_cost(season):
+    from breeding_smarter.coordination.config import load_coordination
+    from breeding_smarter.coordination.planner import pair_inputs, plan_season
+    from breeding_smarter.pedigree.kinship import kinship_matrix
+    from breeding_smarter.rules import day_number
+
+    ctx, obs, year, dams, sires = season
+    day = day_number(f"{year}-07-01")
+    cfg = load_coordination()
+    plan = plan_season(ctx, obs.breed_id, day, dams, sires, cfg, "none", "mc1")
+    K = kinship_matrix(ctx.ped, ctx.D, np.r_[sires, dams])[sires.size :, : sires.size]
+    forb, p_any = pair_inputs(ctx, sires, dams, day, "exp_pairing")
+    cost = np.where(forb, np.inf, K + cfg.health_weight_in_allocation.value * p_any)
+    np.testing.assert_array_equal(plan.assignment, sires[np.argmin(cost, axis=1)])

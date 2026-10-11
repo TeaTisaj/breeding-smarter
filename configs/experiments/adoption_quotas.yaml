@@ -1,0 +1,18 @@
+id: E7_adoption_quotas
+description: "P12 adoption sweep: S3q (recommender inside OCS quotas) with 0 to 100% of breeders adopting (others follow S2 and enter OCS as fixed contributions)."
+seed: 20261024
+dataset: v1
+generations: 10
+breeds:
+  SYN_S: {replicates: 10}
+  SYN_M: {replicates: 10}
+strategies: [S3q]
+adoption: [0.0, 0.25, 0.5, 0.75, 1.0]
+profile: exp_pairing
+scoring: default
+coordination: default
+coi_cap: {value: 0.065, source: eu-platform-guide}
+s3_top_probs: {value: [0.5, 0.3, 0.2], assumption: true, note: "breeders keep some freedom"}
+s4_lambda: {value: 1.0, assumption: true}
+ebv_every_years: {value: 5, assumption: true}
+registration_rate: {value: 1.0, assumption: true, note: "simplification: every live-born puppy is registered during experiments"}

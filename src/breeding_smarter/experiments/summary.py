@@ -71,6 +71,35 @@ def ne_table(df: pd.DataFrame, upto: float = 10.0) -> pd.DataFrame:
     return pd.DataFrame(out)
 
 
+WINDOWS = {"early": (0.0, 5.0), "late": (5.0, 10.0)}
+RATE_SOURCES = {"M2_realised_ibd": "f", "M12_realised_coancestry": "c"}
+
+
+def rate_table(df: pd.DataFrame, windows: dict[str, tuple[float, float]] = WINDOWS) -> pd.DataFrame:
+    """Per replicate: rate per generation of realised IBD (dF) and realised coancestry (dC) in
+    each window `(lo, hi]` of generations, by regression of -log(1 - x) on generation, and the
+    implied Ne = 1 / (2 rate) (P12 task 12.9). Long format with metric names
+    `R_delta_<f|c>_<window>` and `R_ne_<f|c>_<window>` (infinite Ne for non-positive rates is
+    stored as nan and counted by `n`)."""
+    keys = ["breed", "strategy", "adoption", "replicate"]
+    rows = []
+    for metric, tag in RATE_SOURCES.items():
+        sub = df[df["metric"] == metric]
+        for name, (lo, hi) in windows.items():
+            w = sub[(sub["generation"] > lo) & (sub["generation"] <= hi)]
+            for k, g in w.groupby(keys):
+                rate, ne = ne_from_series(g["generation"].to_numpy(), g["value"].to_numpy())
+                base = dict(zip(keys, k, strict=True))
+                rows.append(base | {"metric": f"R_delta_{tag}_{name}", "value": rate})
+                rows.append(
+                    base
+                    | {"metric": f"R_ne_{tag}_{name}", "value": ne if np.isfinite(ne) else np.nan}
+                )
+    out = pd.DataFrame(rows)
+    out["generation"] = 10
+    return out
+
+
 def summarise(per_gen: pd.DataFrame) -> pd.DataFrame:
     rows = []
     for k, g in per_gen.groupby(["breed", "strategy", "adoption", "generation", "metric"]):
@@ -124,12 +153,20 @@ def write_summary(exp_id: str) -> list[Path]:
     )
     ne_rows["metric"] = ne_rows["metric"].map({"delta_f": "M3_delta_f", "ne": "M3_ne"})
     ne_rows["generation"] = 10
-    per_gen = pd.concat([per_gen, ne_rows], ignore_index=True)
+    parts = [per_gen, ne_rows]
+    if "M12_realised_coancestry" in set(df["metric"]):
+        parts.append(rate_table(df))
+    per_gen = pd.concat(parts, ignore_index=True)
     summ = summarise(per_gen)
-    ref = "S1" if (per_gen["strategy"] == "S1").any() else "S3"
+    refs = [r for r in ("S1", "S3") if (per_gen["strategy"] == r).any()]
+    ref = refs[0] if refs else "S3"
     paired = paired_vs(per_gen, ref=ref)
     summ.to_csv(out / "summary.csv", index=False)
-    paired.to_csv(out / f"paired_vs_{ref}.csv", index=False)
+    paired_files = []
+    for r in refs or [ref]:
+        pr = paired if r == ref else paired_vs(per_gen, ref=r)
+        pr.to_csv(out / f"paired_vs_{r}.csv", index=False)
+        paired_files.append(out / f"paired_vs_{r}.csv")
     per_gen.to_csv(out / "per_generation_replicates.csv.gz", index=False)
     lines = [
         f"# Experiment {exp_id}",
@@ -140,6 +177,30 @@ def write_summary(exp_id: str) -> list[Path]:
         "",
     ]
     at10 = summ[summ["generation"] == 10]
+    rates = at10[at10["metric"].str.startswith("R_")]
+    if len(rates):
+        cols = [f"R_delta_f_{w}" for w in WINDOWS] + [f"R_ne_f_{w}" for w in WINDOWS]
+        cols += [f"R_delta_c_{w}" for w in WINDOWS]
+        lines += [
+            "## Rates per generation by window (early: generations 0 to 5, late: 5 to 10)",
+            "",
+            "dF from realised IBD of birth cohorts, dC from realised coancestry of living "
+            "animals (neutral loci); Ne = 1/(2 rate); nan Ne = non-positive rate.",
+            "",
+            "| breed | strategy | adoption | " + " | ".join(cols) + " |",
+            "|---|---|---|" + "---|" * len(cols),
+        ]
+        for (b, sid, ad), g in rates.groupby(["breed", "strategy", "adoption"]):
+            cells = []
+            for col in cols:
+                sel = g[g["metric"] == col]
+                if len(sel):
+                    mean, lo, hi = (float(v) for v in sel[["mean", "lo", "hi"]].iloc[0])
+                    cells.append(_fmt(mean, lo, hi, pct="delta" in col))
+                else:
+                    cells.append("n/a")
+            lines.append(f"| {b} | {sid} | {ad:g} | " + " | ".join(cells) + " |")
+        lines += ["", "Rates are in % per generation.", ""]
     for breed in sorted(at10["breed"].unique()):
         lines += [
             f"## {breed}: generation 10",
@@ -174,4 +235,4 @@ def write_summary(exp_id: str) -> list[Path]:
             lines.append("")
     (out / "summary.md").write_text("\n".join(lines) + "\n")
     figs = make_figures(exp_id, df, per_gen, summ, out)
-    return [out / "summary.csv", out / "paired_vs_S1.csv", out / "summary.md", *figs]
+    return [out / "summary.csv", *paired_files, out / "summary.md", *figs]

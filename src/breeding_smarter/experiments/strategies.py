@@ -10,6 +10,12 @@
        probabilities 0.5/0.3/0.2; non-adopters follow S2 |
 | S4 | coordinated planner: all dams of the year assigned jointly, cost F_off + lambda MK_off,
        sire capacity from the FCI 5% rule, HARD-rule pairs cost 1e6 |
+| CC-<control>-<mating>[-oracle] | P12 coordinated sire use: contribution control none, mkx,
+       cap, ocs or gainNNN (OCS under dF = NNN / 10^4 per generation) x mate allocation rand or
+       mc1; `-oracle` plans on true-pedigree kinship (`coordination.planner`) |
+| S3q | P12 product mode: OCS quotas for the season, shared booking ledger, each adopting dam
+       picks among the top 3 of `rank_fast` restricted to sires with quota left; non-adopters
+       follow S2 first and their sires enter OCS as fixed contributions |
 
 Candidate sires are the simulator's eligible domestic males plus eligible foreign males that
 already have a registry record (a breeder can only evaluate dogs with a record). The market
@@ -24,7 +30,11 @@ from typing import Any
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
+from breeding_smarter.coordination.config import CoordinationConfig, load_coordination
+from breeding_smarter.coordination.ledger import BookingLedger
+from breeding_smarter.coordination.planner import Kin, SeasonPlan, plan_season, recorded_kinship
 from breeding_smarter.experiments.observed import ObservedRegistry
+from breeding_smarter.experiments.truth_kinship import TrueKinship
 from breeding_smarter.matching.config import ScoringConfig
 from breeding_smarter.matching.context import DatasetContext
 from breeding_smarter.matching.recommend import rank_fast
@@ -33,6 +43,7 @@ from breeding_smarter.rules import day_number, evaluate_candidates, load_profile
 from breeding_smarter.rules.engine import HARD_FAIL
 from breeding_smarter.sim.interfaces import YearContext
 from breeding_smarter.sim.market import MarketStrategy, sample_rows
+from breeding_smarter.sim.state import DOMESTIC
 
 HARD_COST = 1e6
 
@@ -45,6 +56,7 @@ class StrategyParams:
     adoption: float = 1.0
     s4_lambda: float = 1.0
     fci_share: float = 0.05
+    coordination: str = "default"
 
 
 @dataclass
@@ -202,6 +214,195 @@ class CoordinatedPlanner(ObservedStrategy):
         return out
 
 
+class CoordinatedBase:
+    """Shared P12 plumbing: candidates, last year's matings, kinship source, diagnostics."""
+
+    oracle: bool = False
+    truth: TrueKinship | None = None
+    last_plan: SeasonPlan | None = None
+    obs: ObservedRegistry | None
+    ctx: DatasetContext | None
+
+    def coordination(self) -> CoordinationConfig:
+        cfg = self.__dict__.get("_coord")
+        if cfg is None:
+            cfg = load_coordination(self.params.coordination)  # type: ignore[attr-defined]
+            self.__dict__["_coord"] = cfg
+        return cfg
+
+    def kin(self, yc: YearContext) -> Kin:
+        assert self.obs is not None and self.ctx is not None
+        if not self.oracle:
+            return recorded_kinship(self.ctx)
+        if self.truth is None:
+            self.truth = TrueKinship(yc.state, yc.breed)
+        else:
+            self.truth.update(yc.state)
+        truth, obs = self.truth, self.obs
+
+        def kin(idx: IntArray) -> np.ndarray:
+            return truth.kinship(obs.gid[np.asarray(idx, np.int64)])
+
+        return kin
+
+    def prev_matings(self, yc: YearContext) -> tuple[IntArray, IntArray]:
+        """Registry idx of (sire, dam) of last year's recorded domestic matings."""
+        assert self.obs is not None
+        L = yc.state.litters
+        sel = np.flatnonzero(
+            (L.mating_year == yc.year - 1)
+            & (L.breed == yc.breed)
+            & (L.subpop == DOMESTIC)
+            & L.registered
+        )
+        return self.obs.idx(L.sire[sel]), self.obs.idx(L.dam[sel])
+
+
+class Coordinated(CoordinatedBase, ObservedStrategy):
+    """CC-* arms: `plan_season` once per year with the year's dams and candidate sires."""
+
+    def __init__(
+        self,
+        params: StrategyParams,
+        scoring: ScoringConfig,
+        control: str,
+        mating: str,
+        oracle: bool = False,
+        delta_f: float | None = None,
+        name: str = "CC",
+    ):
+        ObservedStrategy.__init__(self, params, scoring)
+        self.control, self.mating, self.oracle, self.delta_f = control, mating, oracle, delta_f
+        self.name = name
+        self.truth = None
+        self.last_plan = None
+
+    def plan_matings(self, dams, sires, ctx, rng):
+        assert self.obs is not None and self.ctx is not None
+        dams = np.asarray(dams, np.int64)
+        out = np.full(dams.size, -1, np.int64)
+        cand_gid, cand_idx = self.candidates(sires, ctx)
+        keep = cand_idx >= 0
+        cand_gid, cand_idx = cand_gid[keep], cand_idx[keep]
+        if cand_idx.size == 0 or dams.size == 0:
+            return out
+        plan = plan_season(
+            self.ctx,
+            self.obs.breed_id,
+            self.day(ctx.year),
+            self.obs.idx(dams),
+            cand_idx,
+            self.coordination(),
+            self.control,
+            self.mating,
+            profile=self.params.profile,
+            kin=self.kin(ctx),
+            delta_f=self.delta_f,
+            prev_matings=self.prev_matings(ctx) if self.control == "ocs_gain" else None,
+            rng=rng,
+        )
+        gid_of = dict(zip(cand_idx.tolist(), cand_gid.tolist(), strict=True))
+        out = np.array([gid_of[int(s)] if s >= 0 else -1 for s in plan.assignment], np.int64)
+        self.last_plan = plan
+        return out
+
+
+class RecommenderWithQuotas(CoordinatedBase, Recommender):
+    """S3q: the recommender inside OCS quotas (shared booking ledger)."""
+
+    name = "S3q"
+
+    def __init__(self, params: StrategyParams, scoring: ScoringConfig):
+        Recommender.__init__(self, params, scoring)
+        self.truth = None
+        self.last_plan = None
+
+    def plan_matings(self, dams, sires, ctx, rng):
+        assert self.obs is not None and self.ctx is not None
+        dams = np.asarray(dams, np.int64)
+        out = np.full(dams.size, -1, np.int64)
+        adopt = rng.random(dams.size) < self.params.adoption
+        if (~adopt).any():
+            out[~adopt] = CompliantMarket.plan_matings(self, dams[~adopt], sires, ctx, rng)
+        cand_gid, cand_idx = self.candidates(sires, ctx)
+        keep = cand_idx >= 0
+        cand_gid, cand_idx = cand_gid[keep], cand_idx[keep]
+        if cand_idx.size == 0 or not adopt.any():
+            return out
+        # OCS over adopters plus mated non-adopters (their sires are fixed contributions)
+        in_plan = adopt | (out >= 0)
+        pos = np.flatnonzero(in_plan)
+        d_idx = self.obs.idx(dams[pos])
+        fixed = {
+            k: int(self.obs.idx_of.get(int(out[p]), -1)) for k, p in enumerate(pos) if not adopt[p]
+        }
+        day = self.day(ctx.year)
+        plan = plan_season(
+            self.ctx,
+            self.obs.breed_id,
+            day,
+            d_idx,
+            cand_idx,
+            self.coordination(),
+            "ocs",
+            "none",
+            profile=self.params.profile,
+            kin=self.kin(ctx),
+            fixed=fixed,
+            rng=rng,
+        )
+        assert plan.quotas is not None
+        ledger = BookingLedger(cand_idx, plan.quotas)
+        gid_of = dict(zip(cand_idx.tolist(), cand_gid.tolist(), strict=True))
+        self.ctx.extra_offspring = np.zeros(self.obs.n)
+        exp_litter = float(self.ctx.rules.expected_litter_registered[0])
+        probs = np.array(self.params.top_probs)
+        overflow = 0
+        for k in rng.permutation(np.flatnonzero(adopt)):
+            di = int(self.obs.idx_of.get(int(dams[k]), -1))
+            if di < 0:
+                continue
+            avail = ledger.available()
+            ranked = np.zeros(0, np.int64)
+            if avail.size:
+                ranked, _ = rank_fast(
+                    self.ctx, di, day, self.params.profile, self.scoring, candidates=avail
+                )
+            booked = ranked.size > 0
+            if not booked:  # nothing allowed with quota left: best allowed sire (overflow)
+                ranked, _ = rank_fast(
+                    self.ctx, di, day, self.params.profile, self.scoring, candidates=cand_idx
+                )
+                if ranked.size == 0:
+                    continue
+                overflow += 1
+            top = ranked[: probs.size]
+            p = probs[: top.size] / probs[: top.size].sum()
+            choice = int(top[rng.choice(top.size, p=p)])
+            if booked:
+                ledger.book(choice)
+            out[k] = gid_of[choice]
+            self.ctx.extra_offspring[choice] += exp_litter
+        self.ctx.extra_offspring = None
+        plan.diagnostics["overflow"] = overflow
+        plan.diagnostics["adopters"] = int(adopt.sum())
+        self.last_plan = plan
+        return out
+
+
+def parse_cc(sid: str) -> tuple[str, str, bool, float | None]:
+    """`CC-<control>-<mating>[-oracle]` -> (control, mating, oracle, delta_f)."""
+    parts = sid.split("-")
+    if len(parts) not in (3, 4) or parts[0] != "CC" or (len(parts) == 4 and parts[3] != "oracle"):
+        raise ValueError(f"bad coordinated strategy id {sid!r}")
+    control, mating = parts[1], {"rand": "random", "mc1": "mc1"}[parts[2]]
+    delta_f = None
+    if control.startswith("gain"):
+        delta_f = int(control[4:]) / 1e4
+        control = "ocs_gain"
+    return control, mating, len(parts) == 4, delta_f
+
+
 def make_strategy(sid: str, params: StrategyParams, scoring: ScoringConfig) -> Any:
     if sid == "S0":
         return RandomStrategy()
@@ -217,4 +418,9 @@ def make_strategy(sid: str, params: StrategyParams, scoring: ScoringConfig) -> A
         return Recommender(params, scoring)
     if sid == "S4":
         return CoordinatedPlanner(params, scoring)
+    if sid == "S3q":
+        return RecommenderWithQuotas(params, scoring)
+    if sid.startswith("CC-"):
+        control, mating, oracle, delta_f = parse_cc(sid)
+        return Coordinated(params, scoring, control, mating, oracle, delta_f, name=sid)
     raise ValueError(f"unknown strategy {sid}")

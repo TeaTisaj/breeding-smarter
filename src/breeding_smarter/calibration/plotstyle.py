@@ -21,6 +21,21 @@ STRATEGY_COLOURS = {
     "S5": "#CC79A7",
     "S3hc": "#56B4E9",
     "S3xc": "#000000",
+    # P12: one hue per contribution-control family; mating method is the line style
+    "CC-none-rand": "#666666",
+    "CC-none-mc1": "#666666",
+    "CC-mkx-rand": "#8C6D00",
+    "CC-mkx-mc1": "#8C6D00",
+    "CC-cap-rand": "#E69F00",
+    "CC-cap-mc1": "#E69F00",
+    "CC-ocs-rand": "#009E73",
+    "CC-ocs-mc1": "#009E73",
+    "CC-ocs-mc1-oracle": "#000000",
+    "CC-gain100-mc1": "#E8A5CF",
+    "CC-gain050-mc1": "#CC79A7",
+    "CC-gain025-mc1": "#9C3F7A",
+    "CC-gain010-mc1": "#5E1A48",
+    "S3q": "#56B4E9",
 }
 SYNTHETIC_NOTE = "Synthetic data (no real dogs)."
 
