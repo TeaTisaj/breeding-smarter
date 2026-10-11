@@ -86,8 +86,12 @@ def _evaluate(
     scoring: ScoringConfig,
     max_distance_km: float | None,
     include_foreign: bool = True,
+    candidates: IntArray | None = None,
 ) -> tuple[IntArray, Components, CandidateEvaluation, BreedReference]:
-    sires = candidate_sires(ctx, dam, day, max_distance_km, include_foreign)
+    if candidates is None:
+        sires = candidate_sires(ctx, dam, day, max_distance_km, include_foreign)
+    else:
+        sires = np.asarray(candidates, dtype=np.int64)
     ref = ctx.reference(ctx.breed_of(dam), day, scoring.allele_frequency_window_years.value)
     ev = evaluate_candidates(ctx.rules, profile, dam, sires, day)
     comp = compute_components(ctx, dam, sires, day, ref, scoring)
@@ -101,14 +105,19 @@ def rank_fast(
     profile: str | Profile = "hr_full",
     scoring: ScoringConfig | None = None,
     max_distance_km: float | None = None,
+    candidates: IntArray | None = None,
 ) -> tuple[IntArray, FloatArray]:
     """Same components and rules as `recommend_sires`, without cards or messages.
 
     Returns permitted sires sorted by score (descending, ties by index) and their scores.
+    `candidates` replaces the candidate filter (experiments pass the simulator's eligible
+    sires).
     """
     prof, sc = _resolve(profile, scoring)
     day = mating_date if isinstance(mating_date, int) else day_number(mating_date)
-    sires, comp, ev, _ = _evaluate(ctx, dam_idx, day, prof, sc, max_distance_km)
+    sires, comp, ev, _ = _evaluate(
+        ctx, dam_idx, day, prof, sc, max_distance_km, candidates=candidates
+    )
     total = comp.total(sc)
     ok = ev.status != HARD_FAIL
     s, t = sires[ok], total[ok]

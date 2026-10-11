@@ -1,0 +1,24 @@
+profile: exp_pairing
+title: "Experiments: pair-level rules only (EU close-relative ban, carrier pairing, COI cap)"
+note: "Dam-level rules (ages, litter limits) are left out so that every strategy mates the same dams (P8 section 1)."
+rules:
+  - id: exp_close_relatives
+    type: relationship_ban
+    params: {relationships: [PARENT_OFFSPRING, FULL_SIBLINGS, HALF_SIBLINGS, GRANDPARENT_GRANDCHILD]}
+    severity: HARD
+    source: eurlex-2026-1818
+    verified: false
+  - id: exp_carrier_pairing
+    type: carrier_pairing
+    params: {loci: all_tested}
+    severity: SOFT
+    source: fci-strategies
+    verified: false
+    note: "penalised (SOFT) by default; E3 policy (b) makes it HARD"
+  - id: exp_coi_cap
+    type: offspring_coi_threshold
+    params: {threshold: 0.065}
+    severity: SOFT
+    source: eu-platform-guide
+    verified: true
+    note: "S2 resamples pairs above this predicted COI"

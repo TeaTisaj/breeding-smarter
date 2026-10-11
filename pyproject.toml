@@ -64,6 +64,7 @@ ignore = [
     "N815",  # math-style field names (mean_F)
     "B008",  # typer.Option in defaults is the typer idiom
     "PD010", # unstack is clearer than pivot_table for groupby results
+    "PD101", # nunique is clear enough for small frames
     "RUF001",
     "RUF002",
     "RUF003",

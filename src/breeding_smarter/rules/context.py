@@ -163,25 +163,13 @@ class RuleContext:
         mating = _days(litters["mating_date"])
         dams = litters["dam_idx"].to_numpy(np.int64)
         sires = litters["sire_idx"].to_numpy(np.int64)
-        has_sire = ped.sire >= 0
         domestic = animals["studbook"].to_numpy() != "FOREIGN"
-        lit_breed = ped.breed[dams].astype(np.int64)
         # litter F: F of the pups = kinship of the parents; use the first registered pup's F
         first_pup = animals.dropna(subset=["litter_id"]).groupby("litter_id")["idx"].min()
         lf = litters["litter_id"].map(first_pup).to_numpy(dtype=float)
         has_pup = ~np.isnan(lf)
         lit_f = np.where(has_pup, F[np.where(has_pup, lf, 0).astype(np.int64)], np.nan)
-        nb = len(codes)
-        exp_size = np.array(
-            [
-                float(litters.loc[lit_breed == b, "n_registered"].mean())
-                if (lit_breed == b).any()
-                else 0.0
-                for b in range(nb)
-            ]
-        )
-        ok = has_pup
-        return cls(
+        return cls.from_arrays(
             ped=ped,
             F=F,
             D=D,
@@ -194,10 +182,68 @@ class RuleContext:
             hd_grade=hd_grade,
             loci=loci,
             dna=geno,
-            dam_litters=CSR.build(dams, whelp, n),
-            sire_litters=CSR.build(sires, mating, n),
-            sire_offspring=CSR.build(ped.sire[has_sire], birth[has_sire], n),
-            breed_births=CSR.build(ped.breed[domestic].astype(np.int64), birth[domestic], nb),
-            breed_litter_f=CSR.build(lit_breed[ok], whelp[ok], nb, lit_f[ok]),
+            lit_dam=dams,
+            lit_sire=sires,
+            lit_whelp=whelp,
+            lit_mating=mating,
+            lit_n_registered=litters["n_registered"].to_numpy(dtype=float),
+            lit_f=lit_f,
+            domestic=domestic,
+        )
+
+    @classmethod
+    def from_arrays(
+        cls,
+        ped: Pedigree,
+        F: FloatArray,
+        D: FloatArray,
+        reg_no: NDArray[np.object_],
+        name: NDArray[np.object_],
+        birth_day: IntArray,
+        death_day: IntArray,
+        limited: NDArray[np.bool_],
+        is_local_breed: NDArray[np.bool_],
+        hd_grade: NDArray[np.int8],
+        loci: tuple[str, ...],
+        dna: NDArray[np.int8],
+        lit_dam: IntArray,
+        lit_sire: IntArray,
+        lit_whelp: IntArray,
+        lit_mating: IntArray,
+        lit_n_registered: FloatArray,
+        lit_f: FloatArray,
+        domestic: NDArray[np.bool_],
+    ) -> RuleContext:
+        """Build from per-animal and per-litter arrays (registry idx order); `lit_f` is the
+        inbreeding of each litter's pups (nan if unknown)."""
+        n = ped.n
+        nb = len(ped.breed_codes)
+        lit_breed = ped.breed[lit_dam].astype(np.int64)
+        exp_size = np.array(
+            [
+                float(lit_n_registered[lit_breed == b].mean()) if (lit_breed == b).any() else 0.0
+                for b in range(nb)
+            ]
+        )
+        has_sire = ped.sire >= 0
+        ok = ~np.isnan(lit_f)
+        return cls(
+            ped=ped,
+            F=F,
+            D=D,
+            reg_no=reg_no,
+            name=name,
+            birth_day=birth_day,
+            death_day=death_day,
+            limited=limited,
+            is_local_breed=is_local_breed,
+            hd_grade=hd_grade,
+            loci=loci,
+            dna=dna,
+            dam_litters=CSR.build(lit_dam, lit_whelp, n),
+            sire_litters=CSR.build(lit_sire, lit_mating, n),
+            sire_offspring=CSR.build(ped.sire[has_sire], birth_day[has_sire], n),
+            breed_births=CSR.build(ped.breed[domestic].astype(np.int64), birth_day[domestic], nb),
+            breed_litter_f=CSR.build(lit_breed[ok], lit_whelp[ok], nb, lit_f[ok]),
             expected_litter_registered=exp_size,
         )

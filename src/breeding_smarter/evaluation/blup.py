@@ -115,6 +115,36 @@ def reliability(ped: Pedigree, has_record: np.ndarray, h2: float) -> FloatArray:
     return np.asarray(1.0 - (1.0 - own) * (1.0 - prog) * (1.0 - r_par))
 
 
+def evaluate_arrays(
+    ped: Pedigree,
+    D: FloatArray,
+    rec_idx: IntArray,
+    y: FloatArray,
+    h2: float,
+    group_years: int = 5,
+) -> BlupResult:
+    """BLUP from arrays: records `y` (grade scores) on animals `rec_idx` of `ped`; fixed
+    effects birth-year group and sex (as in `evaluate_breed`)."""
+    nr = rec_idx.size
+    if nr == 0:
+        z = np.zeros(ped.n)
+        return BlupResult(z, z, np.zeros(0), True, 0)
+    years = ped.birth_year[rec_idx].astype(np.int64)
+    levels, g = np.unique((years // group_years) * group_years, return_inverse=True)
+    male = (ped.sex[rec_idx] == 1).astype(float)
+    X = sp.hstack(
+        [
+            sp.csr_matrix((np.ones(nr), (np.arange(nr), g)), shape=(nr, levels.size)),
+            sp.csr_matrix(male[:, None]),
+        ],
+        format="csr",
+    )
+    b, u, ok = solve_mme(ped, D, rec_idx, y, X, (1.0 - h2) / h2)
+    has = np.zeros(ped.n, bool)
+    has[rec_idx] = True
+    return BlupResult(u, np.sqrt(reliability(ped, has, h2)), b, ok, nr)
+
+
 def evaluate_breed(
     animals: pd.DataFrame,
     health: pd.DataFrame,

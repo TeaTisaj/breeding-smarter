@@ -21,6 +21,11 @@ the parameters if needed, then set `verified: true` and regenerate the docs.
 - [ ] `eu_dam_litter_frequency` (max_litters_in_window: max=3, window_months=24, HARD). Current source: `euroweekly-2026` (Euro Weekly News, 2 May 2026 (secondary)). 
   - Press report only: find the article in the OJ text (eurlex-2026-1818) and replace the source key.
 
+## exp_pairing (Experiments: pair-level rules only (EU close-relative ban, carrier pairing, COI cap))
+
+- [ ] `exp_close_relatives` (relationship_ban: relationships=['PARENT_OFFSPRING', 'FULL_SIBLINGS', 'HALF_SIBLINGS', 'GRANDPARENT_GRANDCHILD'], HARD). Current source: `eurlex-2026-1818` (eur-lex.europa.eu/eli/reg/2026/1818). 
+- [ ] `exp_carrier_pairing` (carrier_pairing: loci=all_tested, SOFT). Current source: `fci-strategies` (FCI International Breeding Strategies). penalised (SOFT) by default; E3 policy (b) makes it HARD
+
 ## hks_hr (Hrvatski kinološki savez (Croatia), Pravilnik o uzgoju)
 
 - [ ] `hks_dam_min_age` (min_age: sex=F, months=15, HARD). Current source: `hks-pravilnik` (HKS Pravilnik o uzgoju i upisu pasa / Pravilnik o stručnom radu). source covers hunting breeds (non-small); unverified for other breeds

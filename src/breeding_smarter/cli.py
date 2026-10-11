@@ -368,10 +368,38 @@ def match(
     console.print(t)
 
 
-@app.command()
-def experiment() -> None:
-    """Run breeding-strategy experiments."""
-    _stub("experiment")
+experiment_app = typer.Typer(
+    help="Breeding-strategy experiments (in silico).", no_args_is_help=True
+)
+app.add_typer(experiment_app, name="experiment")
+
+
+@experiment_app.command("run")
+def experiment_run(
+    config: str = typer.Argument(
+        ..., help="Experiment YAML, e.g. configs/experiments/headline.yaml"
+    ),
+    workers: int = typer.Option(1, "--workers", help="Parallel processes."),
+    limit: int | None = typer.Option(None, "--limit", help="Run at most this many parts."),
+) -> None:
+    """Run all unfinished parts of an experiment (checkpointed per part)."""
+    from pathlib import Path
+
+    from breeding_smarter.experiments.runner import run_experiment
+
+    out = run_experiment(Path(config), workers=workers, limit=limit)
+    console.print(f"parts in {out}")
+
+
+@experiment_app.command("report")
+def experiment_report(
+    exp_id: str = typer.Argument(..., help="Experiment id, e.g. E1_headline"),
+) -> None:
+    """Summary tables (mean, 95% CI, paired differences vs S1) and figures."""
+    from breeding_smarter.experiments.summary import write_summary
+
+    for p in write_summary(exp_id):
+        console.print(f"wrote {p}")
 
 
 @app.command()

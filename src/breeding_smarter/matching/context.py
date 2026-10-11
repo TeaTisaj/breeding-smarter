@@ -71,6 +71,8 @@ class DatasetContext:
     lat: FloatArray
     lon: FloatArray
     breed_sub: dict[str, tuple[Pedigree, IntArray]]  # sub-pedigree and old-to-new map
+    foreign: NDArray[np.bool_] | None = None  # foreign pedigree records (else from animals)
+    extra_offspring: FloatArray | None = None  # planned offspring this year (experiments)
     _refs: dict[tuple[str, int], BreedReference] = field(default_factory=dict, repr=False)
 
     @property
@@ -93,6 +95,8 @@ class DatasetContext:
     @property
     def is_foreign(self) -> NDArray[np.bool_]:
         """Foreign pedigree records (studbook FOREIGN, e.g. foreign AI sires); cached."""
+        if self.foreign is not None:
+            return self.foreign
         v = self.__dict__.get("_is_foreign")
         if v is None:
             v = np.asarray(self.animals["studbook"].to_numpy() == "FOREIGN")

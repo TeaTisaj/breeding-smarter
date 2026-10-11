@@ -85,6 +85,8 @@ def compute_components(
     su = scoring.sire_use
     since = day - int(365.25 * su.window_years.value)
     off = ctx.rules.sire_offspring.count_before(sires, day, since).astype(float)
+    if ctx.extra_offspring is not None:
+        off += ctx.extra_offspring[sires]
     bcode = int(ctx.ped.breed[dam])
     regs = float(ctx.rules.breed_births.count_before(np.array([bcode]), day, since)[0])
     ratio = off / max(su.fci_share.value * regs, 1e-9)

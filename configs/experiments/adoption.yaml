@@ -1,0 +1,16 @@
+id: E2_adoption
+description: "Adoption sweep: S3 with 0 to 100% of breeders using the tool (others follow S2), SYN_S."
+seed: 20261025
+dataset: v1
+generations: 10
+breeds:
+  SYN_S: {replicates: 10}
+strategies: [S3]
+adoption: [0.0, 0.25, 0.5, 0.75, 1.0]
+profile: exp_pairing
+scoring: default
+coi_cap: {value: 0.065, source: eu-platform-guide}
+s3_top_probs: {value: [0.5, 0.3, 0.2], assumption: true}
+s4_lambda: {value: 1.0, assumption: true}
+ebv_every_years: {value: 5, assumption: true}
+registration_rate: {value: 1.0, assumption: true, note: "every live-born puppy is registered"}
