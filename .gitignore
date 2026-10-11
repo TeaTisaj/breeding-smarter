@@ -27,3 +27,4 @@ release/**
 .idea/
 .vscode/
 bundle.tar.gz
+!release/RELEASE_NOTES_v0.1.0.md

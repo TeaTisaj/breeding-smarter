@@ -419,3 +419,38 @@ def export_demo_bundle(
 
     path = export_bundle(dataset, experiment, Path(out) if out else None)
     console.print(f"wrote {path} and {path.with_suffix('.tar.gz')}")
+
+
+@export_app.command("release")
+def export_release_cmd(dataset: str = typer.Option("v1", "--dataset")) -> None:
+    """Write release/breeding-smarter-synthetic-<tag>/ (+ zip, SHA256SUMS, Zenodo metadata)."""
+    from breeding_smarter.release import export_release
+
+    out = export_release(dataset)
+    z = out.parent / f"{out.name}.zip"
+    console.print(f"wrote {out} and {z} ({z.stat().st_size / 1e6:.1f} MB)")
+
+
+links_app = typer.Typer(help="Public links and DOIs (conference/links.yaml).", no_args_is_help=True)
+app.add_typer(links_app, name="links")
+
+
+@links_app.command("check")
+def links_check() -> None:
+    """List remaining TODO link placeholders; exit 1 if any remain."""
+    from breeding_smarter.release import find_placeholders
+
+    hits = find_placeholders()
+    for f, line, text in hits:
+        console.print(f"{f}:{line}: {text[:100]}")
+    console.print(f"{len(hits)} placeholder(s) remaining")
+    if hits:
+        raise typer.Exit(1)
+
+
+@links_app.command("fill")
+def links_fill() -> None:
+    """Replace placeholders with the values filled in conference/links.yaml."""
+    from breeding_smarter.release import fill_placeholders
+
+    console.print(f"updated {fill_placeholders()} file(s)")

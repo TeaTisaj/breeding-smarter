@@ -15,7 +15,7 @@ Standing instructions for the autonomous run: `plan/GOAL.md` (gates pre-approved
 | P7 Matching | done | [P7](gates/P7_report.md) | pre-approved (GOAL.md) |
 | P8 Experiments | done (E3 after P11) | [P8](gates/P8_report.md) | pre-approved (GOAL.md) |
 | P9 Demo app | done (deploy is HUMAN) | [P9](gates/P9_report.md) | pre-approved (GOAL.md) |
-| P10 Release | not started | | |
+| P10 Release | done (publishing is HUMAN) | [P10](gates/P10_report.md) | pre-approved (GOAL.md) |
 | P11 Conference | not started | | |
 
 Status values: not started, in progress, at gate (waiting for review), done.
@@ -52,6 +52,9 @@ Status values: not started, in progress, at gate (waiting for review), done.
 ### P9
 - [x] 9.1 Demo bundle  - [x] 9.2 App skeleton  - [x] 9.3 Caching  - [x] 9.4 Pages  - [ ] 9.5 Deployment (HUMAN, steps in docs/deploy.md)  - [x] 9.6 Local fallback  - [ ] 9.7 Screen video (HUMAN)
 
+### P10
+- [x] 10.1 Release package  - [x] 10.2 Datasheet  - [x] 10.3 README  - [x] 10.4 Reproducibility  - [ ] 10.5 GitHub (HUMAN, prepared)  - [ ] 10.6 Zenodo (HUMAN, prepared)  - [ ] 10.7 Hugging Face push (HUMAN token; script ready)  - [x] 10.8 Link placeholders tooling (`bsm links check/fill`)
+
 ## HUMAN tasks (Tea or colleague)
 - [ ] Email info@orthoing.com: confirm a slot (talk, poster or demo) and whether a late full paper by 15 Oct is possible.
 - [ ] Verify EU Regulation 2026/1818 breeding provisions against the EUR-Lex text: work through `docs/rules_verification.md`, fill `article`/`in_application_from` in `configs/rules/eu_2026_1818.yaml`, set `verified: true`, run `uv run bsm rules docs`.
@@ -63,3 +66,30 @@ Status values: not started, in progress, at gate (waiting for review), done.
 - [ ] Deploy the demo app: follow `docs/deploy.md` (Streamlit Community Cloud or Hugging Face Spaces); put the URL in `conference/links.yaml`.
 - [ ] Click through the demo once (`uv run streamlit run app/Home.py`) and approve wording; record a 3-minute screen video of `conference/demo_script.md` (P9 task 9.7).
 - [ ] Fill colleague's name (search the repo for `TODO colleague`).
+
+## Release steps (HUMAN, click by click)
+Prepared by Claude Code; nothing has been published.
+
+**A. GitHub (code)**
+1. https://github.com/new: name `breeding-smarter`, Public, no README/licence (the repo has them). Create.
+2. In the project folder: `git remote add origin git@github.com:<you>/breeding-smarter.git` then `git push -u origin main`.
+3. Repo > Actions: enable workflows if asked; the CI run should be green.
+4. Before step 6, do B1 (Zenodo integration) so the release gets a DOI.
+5. Edit `CITATION.cff`: colleague's name (and ORCIDs).
+6. Repo > Releases > Draft a new release: tag `v0.1.0`, title "Breeding Smarter 0.1.0", paste `release/RELEASE_NOTES_v0.1.0.md`, attach `release/breeding-smarter-synthetic-v1.zip` and `bundle.tar.gz` (build them with `uv run bsm export release` and `uv run bsm export demo-bundle --experiment E1_headline --experiment E2_adoption`). Publish.
+
+**B. Zenodo**
+1. https://zenodo.org > log in with GitHub > account menu > GitHub > flip the switch for `breeding-smarter` (code DOI is minted when the release in A6 is published).
+2. Dataset record: Zenodo > New upload > upload `release/breeding-smarter-synthetic-v1.zip`; Resource type "Dataset"; copy title, creators, description, keywords, licence (CC BY 4.0) from `release/zenodo_metadata.json`; add related identifiers (GitHub URL, code DOI).
+3. Click **Reserve DOI** first, copy it into `conference/links.yaml` (`dataset_doi`) so it can go on the poster; publish when ready.
+4. Put the code DOI from B1 into `conference/links.yaml` (`code_doi`).
+
+**C. Hugging Face (optional, first to cut)**
+1. https://huggingface.co/settings/tokens > New token (write).
+2. `export HF_TOKEN=...` then `uv run python scripts/push_hf.py --repo <you>/breeding-smarter-synthetic`.
+3. Put the dataset URL into `conference/links.yaml` (`huggingface`).
+
+**D. Fill the links everywhere**
+1. Edit `conference/links.yaml` (demo_url from P9 deploy, github, dataset_doi, code_doi, huggingface, contact).
+2. `uv run bsm links fill` then `uv run bsm links check` (must print 0 placeholders); rebuild the bundle and the release, commit, push.
+
