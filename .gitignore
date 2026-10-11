@@ -26,3 +26,4 @@ release/**
 .DS_Store
 .idea/
 .vscode/
+bundle.tar.gz

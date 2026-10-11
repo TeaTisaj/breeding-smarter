@@ -402,7 +402,20 @@ def experiment_report(
         console.print(f"wrote {p}")
 
 
-@app.command()
-def export() -> None:
-    """Export bundles and releases."""
-    _stub("export")
+export_app = typer.Typer(help="Export the demo bundle and the release.", no_args_is_help=True)
+app.add_typer(export_app, name="export")
+
+
+@export_app.command("demo-bundle")
+def export_demo_bundle(
+    dataset: str = typer.Option("v1", "--dataset"),
+    experiment: list[str] = typer.Option([], "--experiment", help="Experiment id (repeatable)."),
+    out: str | None = typer.Option(None, "--out", help="Bundle folder (default ./bundle)."),
+) -> None:
+    """Write the demo bundle (registry tables, engine cache, summaries) for the app."""
+    from pathlib import Path
+
+    from breeding_smarter.bundle import export_bundle
+
+    path = export_bundle(dataset, experiment, Path(out) if out else None)
+    console.print(f"wrote {path} and {path.with_suffix('.tar.gz')}")

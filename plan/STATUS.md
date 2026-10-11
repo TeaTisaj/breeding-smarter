@@ -14,7 +14,7 @@ Standing instructions for the autonomous run: `plan/GOAL.md` (gates pre-approved
 | P6 Rules | done | [P6](gates/P6_report.md) | pre-approved (GOAL.md) |
 | P7 Matching | done | [P7](gates/P7_report.md) | pre-approved (GOAL.md) |
 | P8 Experiments | done (E3 after P11) | [P8](gates/P8_report.md) | pre-approved (GOAL.md) |
-| P9 Demo app | not started | | |
+| P9 Demo app | done (deploy is HUMAN) | [P9](gates/P9_report.md) | pre-approved (GOAL.md) |
 | P10 Release | not started | | |
 | P11 Conference | not started | | |
 
@@ -49,6 +49,9 @@ Status values: not started, in progress, at gate (waiting for review), done.
 ### P8
 - [x] 8.0 exp_pairing  - [x] 8.1 Strategies S0-S4 + IncrementalContext  - [x] 8.2 Runner  - [x] 8.3 Checkpointing  - [x] 8.4 Summary  - [x] 8.5 Figures A-F  - [x] 8.6 CLI  - [x] 8.7 Runtime planning (no reduction)  - [ ] E3 ablation (scheduled after P11 per GOAL.md)
 
+### P9
+- [x] 9.1 Demo bundle  - [x] 9.2 App skeleton  - [x] 9.3 Caching  - [x] 9.4 Pages  - [ ] 9.5 Deployment (HUMAN, steps in docs/deploy.md)  - [x] 9.6 Local fallback  - [ ] 9.7 Screen video (HUMAN)
+
 ## HUMAN tasks (Tea or colleague)
 - [ ] Email info@orthoing.com: confirm a slot (talk, poster or demo) and whether a late full paper by 15 Oct is possible.
 - [ ] Verify EU Regulation 2026/1818 breeding provisions against the EUR-Lex text: work through `docs/rules_verification.md`, fill `article`/`in_application_from` in `configs/rules/eu_2026_1818.yaml`, set `verified: true`, run `uv run bsm rules docs`.
@@ -57,4 +60,6 @@ Status values: not started, in progress, at gate (waiting for review), done.
 - [ ] Print poster by 21 Oct (see P11).
 - [ ] Look at the key poster figure: `reports/validation/20261011-default-s42/figures/fig4_recorded_vs_true_f.png` (P5).
 - [ ] Review score card wording: `reports/matching/demo_dams.md` (P7).
+- [ ] Deploy the demo app: follow `docs/deploy.md` (Streamlit Community Cloud or Hugging Face Spaces); put the URL in `conference/links.yaml`.
+- [ ] Click through the demo once (`uv run streamlit run app/Home.py`) and approve wording; record a 3-minute screen video of `conference/demo_script.md` (P9 task 9.7).
 - [ ] Fill colleague's name (search the repo for `TODO colleague`).
