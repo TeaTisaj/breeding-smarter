@@ -1,0 +1,131 @@
+SYN_M on 2027-03-01, mode ocs: 107 dams, 675 candidate sires, 91 with a quota. Synthetic data.
+Expected coancestry of the planned matings 0.0338.
+                                         Sire quotas (synthetic data)                                         
+┏━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━━━━┳━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━━━━┓
+┃ sire                  ┃ name            ┃ age  ┃ MK     ┃ EqG   ┃ foreign ┃ cap ┃ quota ┃ litters_last_12m ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━╇━━━━━━━━╇━━━━━━━╇━━━━━━━━━╇━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━━━━━┩
+│ SYN-FOREIGN-IT-000932 │ Duma del Karo   │ 6.4  │ 0.0241 │ 8.86  │ True    │ 5   │ 3     │ 0                │
+│ SYN-FOREIGN-FI-001952 │ Rive of Nonosa  │ 3.0  │ 0.0252 │ 11.13 │ True    │ 5   │ 3     │ 0                │
+│ SYN-FOREIGN-PL-000581 │ Tave of Sora    │ 6.3  │ 0.0256 │ 10.52 │ True    │ 5   │ 2     │ 0                │
+│ SYN-HR-2016-000262    │ Laba od Kalua   │ 11.0 │ 0.0268 │ 8.7   │ False   │ 5   │ 2     │ 0                │
+│ SYN-HR-2021-003689    │ Taka of Zolata  │ 5.2  │ 0.0269 │ 11.11 │ False   │ 5   │ 2     │ 0                │
+│ SYN-HR-2016-000250    │ Vedi od Kokano  │ 11.0 │ 0.0273 │ 8.72  │ False   │ 5   │ 2     │ 0                │
+│ SYN-HR-2022-001717    │ Mube van Benoda │ 4.5  │ 0.0274 │ 11.28 │ False   │ 5   │ 2     │ 0                │
+│ SYN-FOREIGN-SE-000981 │ Zema of Zolata  │ 11.3 │ 0.0282 │ 9.99  │ True    │ 5   │ 2     │ 0                │
+│ SYN-HR-2015-001915    │ Tari od Nono    │ 11.4 │ 0.0285 │ 8.79  │ False   │ 5   │ 2     │ 0                │
+│ SYN-HR-2023-000780    │ Tami of Zolata  │ 3.9  │ 0.0285 │ 12.17 │ False   │ 5   │ 2     │ 2                │
+│ SYN-HR-2016-002902    │ Duzo od Tovi    │ 10.2 │ 0.0288 │ 8.93  │ False   │ 5   │ 2     │ 0                │
+│ SYN-HR-2025-002802    │ Muze od Verito  │ 1.3  │ 0.0299 │ 10.33 │ False   │ 5   │ 2     │ 0                │
+└───────────────────────┴─────────────────┴──────┴────────┴───────┴─────────┴─────┴───────┴──────────────────┘
+                      Suggested matings (minimum coancestry within quotas)                       
+┏━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ dam                ┃ dam_name       ┃ sire                  ┃ sire_name       ┃ predicted_COI ┃
+┡━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ SYN-HR-2021-000553 │ Koko od Kokano │ SYN-HR-2021-003204    │ Bema vom Nosada │ 0.0197        │
+│ SYN-HR-2021-000632 │ Live od Siraso │ SYN-FOREIGN-SE-000999 │ Mope of Zolata  │ 0.021         │
+│ SYN-HR-2021-000684 │ Rasa od Verito │ SYN-HR-2020-000087    │ Zolo od Tovi    │ 0.0239        │
+│ SYN-HR-2021-000857 │ Duto od Siraso │ SYN-HR-2023-000780    │ Tami of Zolata  │ 0.0088        │
+│ SYN-HR-2021-001009 │ Rive od Kokano │ SYN-HR-2016-000250    │ Vedi od Kokano  │ 0.0219        │
+│ SYN-HR-2021-001288 │ Kato od Verito │ SYN-HR-2018-003675    │ Vize od Verito  │ 0.026         │
+│ SYN-HR-2021-001411 │ Nano od Nono   │ SYN-FOREIGN-PL-000581 │ Tave of Sora    │ 0.015         │
+│ SYN-HR-2021-001429 │ Kalu od Kabe   │ SYN-HR-2024-000144    │ Lano od Solika  │ 0.0208        │
+│ SYN-HR-2021-001577 │ Noni od Siraso │ SYN-HR-2023-000722    │ Tali od Kokano  │ 0.0257        │
+│ SYN-HR-2021-001781 │ Zeno od Kokano │ SYN-HR-2020-002537    │ Nomo od Kokano  │ 0.0219        │
+│ SYN-HR-2021-001863 │ Kozo od Verito │ SYN-HR-2024-004140    │ Lani od Samape  │ 0.0255        │
+│ SYN-HR-2021-001958 │ Veve od Kokano │ SYN-HR-2015-002324    │ Roze od Kokano  │ 0.0206        │
+│ SYN-HR-2021-002015 │ Roma od Kokano │ SYN-HR-2019-000326    │ Kabe od Kokano  │ 0.0252        │
+│ SYN-HR-2021-002017 │ Nove od Kokano │ SYN-FOREIGN-IT-000932 │ Duma del Karo   │ 0.0228        │
+│ SYN-HR-2021-002019 │ Nimi od Kokano │ SYN-HR-2023-000701    │ Nona od Kokano  │ 0.0295        │
+│ SYN-HR-2021-002555 │ Nolu od Kokano │ SYN-HR-2025-002802    │ Muze od Verito  │ 0.0264        │
+│ SYN-HR-2021-002635 │ Rizo od Kokano │ SYN-HR-2016-000262    │ Laba od Kalua   │ 0.0249        │
+│ SYN-HR-2021-002998 │ Rodi od Kokano │ SYN-HR-2022-000099    │ Zoli od Kokano  │ 0.027         │
+│ SYN-HR-2021-003028 │ Relo od Kokano │ SYN-HR-2025-002802    │ Muze od Verito  │ 0.0271        │
+│ SYN-HR-2022-000545 │ Rere od Noralu │ SYN-FOREIGN-IT-000932 │ Duma del Karo   │ 0.0214        │
+│ SYN-HR-2022-000708 │ Besa od Siraso │ SYN-HR-2016-000250    │ Vedi od Kokano  │ 0.023         │
+│ SYN-HR-2022-000773 │ Bevi od Kokano │ SYN-FOREIGN-FI-001952 │ Rive of Nonosa  │ 0.0085        │
+│ SYN-HR-2022-000774 │ Gili od Kokano │ SYN-FOREIGN-FI-001952 │ Rive of Nonosa  │ 0.0085        │
+│ SYN-HR-2022-000813 │ Luli od Vesiko │ SYN-HR-2016-002204    │ Muna od Kokano  │ 0.0219        │
+│ SYN-HR-2022-000815 │ Soma od Vesiko │ SYN-HR-2016-002199    │ Tari od Kokano  │ 0.0219        │
+│ SYN-HR-2022-001006 │ Duba od Kokano │                       │                 │ nan           │
+│ SYN-HR-2022-001111 │ Diso od Kokano │ SYN-FOREIGN-SE-000981 │ Zema of Zolata  │ 0.0219        │
+│ SYN-HR-2022-001135 │ Zeze od Kokano │ SYN-HR-2019-000328    │ Tave od Kokano  │ 0.0229        │
+│ SYN-HR-2022-001409 │ Kasi od Siraso │ SYN-HR-2020-000142    │ Maze od Momare  │ 0.0248        │
+│ SYN-HR-2022-001906 │ Mimo od Kokano │ SYN-FOREIGN-SE-001074 │ Kaze of Zolata  │ 0.0158        │
+│ SYN-HR-2022-001926 │ Muma od Siraso │ SYN-FOREIGN-SE-001021 │ Remu of Zolata  │ 0.0186        │
+│ SYN-HR-2022-001934 │ Nelu od Siraso │ SYN-FOREIGN-SE-001033 │ Rika of Zolata  │ 0.0164        │
+│ SYN-HR-2022-002261 │ Kave od Siraso │ SYN-HR-2016-000262    │ Laba od Kalua   │ 0.016         │
+│ SYN-HR-2022-002434 │ Mono od Solika │ SYN-HR-2021-000350    │ Nivi od Kokano  │ 0.0206        │
+│ SYN-HR-2022-002605 │ Nomo od Verito │ SYN-HR-2018-002271    │ Neno of Zolata  │ 0.0194        │
+│ SYN-HR-2022-002608 │ Nigi od Verito │ SYN-HR-2022-001183    │ Risa of Zolata  │ 0.0183        │
+│ SYN-HR-2022-002609 │ Rari od Verito │ SYN-HR-2022-001182    │ Rato of Zolata  │ 0.0183        │
+│ SYN-HR-2022-002610 │ Kara od Verito │ SYN-FOREIGN-SE-001070 │ Neka of Zolata  │ 0.0186        │
+│ SYN-HR-2022-002986 │ Zeno od Kokano │                       │                 │ nan           │
+│ SYN-HR-2022-003014 │ Pevi od Kokano │ SYN-HR-2022-001717    │ Mube van Benoda │ 0.0119        │
+│ SYN-HR-2022-003053 │ Zeba od Kokano │ SYN-FOREIGN-SE-001031 │ Nivi of Zolata  │ 0.0126        │
+│ SYN-HR-2022-003167 │ Bana od Kokano │ SYN-HR-2015-003540    │ Veve od Kokano  │ 0.0229        │
+│ SYN-HR-2022-003174 │ Nebe od Kokano │ SYN-HR-2018-000110    │ Vine od Kabe    │ 0.0215        │
+│ SYN-HR-2022-003369 │ Nemi od Verito │ SYN-HR-2022-003048    │ Zomu od Siraso  │ 0.0275        │
+│ SYN-HR-2022-003378 │ Peve od Siraso │ SYN-FOREIGN-FI-001952 │ Rive of Nonosa  │ 0.0099        │
+│ SYN-HR-2022-003878 │ Gibe od Siraso │ SYN-HR-2025-001892    │ Nomo od Kokano  │ 0.0223        │
+│ SYN-HR-2023-000028 │ Vima od Kokano │ SYN-HR-2023-002355    │ Niso od Nono    │ 0.0197        │
+│ SYN-HR-2023-000135 │ Zebe od Kokano │ SYN-HR-2021-000554    │ Veli od Kokano  │ 0.0279        │
+│ SYN-HR-2023-000510 │ Nagi od Verito │ SYN-HR-2020-000688    │ Zene od Verito  │ 0.0264        │
+│ SYN-HR-2023-000758 │ Naba od Vesiko │ SYN-HR-2025-002222    │ Nono od Siraso  │ 0.0264        │
+│ SYN-HR-2023-000777 │ Mize od Kokano │ SYN-HR-2020-000229    │ Vera od Verito  │ 0.022         │
+│ SYN-HR-2023-000914 │ Rasi od Verito │ SYN-HR-2017-002788    │ Lisi od Kalua   │ 0.0182        │
+│ SYN-HR-2023-000916 │ Vidu od Verito │ SYN-HR-2017-002787    │ Maro od Kalua   │ 0.0182        │
+│ SYN-HR-2023-000970 │ Vebe od Kokano │ SYN-HR-2021-000350    │ Nivi od Kokano  │ 0.0266        │
+│ SYN-HR-2023-000989 │ Robe od Kokano │ SYN-HR-2025-002379    │ Vili od Kokano  │ 0.0266        │
+│ SYN-HR-2023-001080 │ Nora od Nami   │ SYN-HR-2015-001447    │ Ragi od Kokano  │ 0.0234        │
+│ SYN-HR-2023-001599 │ Rasi od Kokano │ SYN-HR-2023-001115    │ Sano od Kokano  │ 0.0254        │
+│ SYN-HR-2023-001710 │ Tore od Siraso │ SYN-FOREIGN-IT-000932 │ Duma del Karo   │ 0.0114        │
+│ SYN-HR-2023-001722 │ Veka od Verito │ SYN-HR-2019-002329    │ Mosi od Kokano  │ 0.0238        │
+│ SYN-HR-2023-001813 │ Muda od Kokano │ SYN-HR-2016-002902    │ Duzo od Tovi    │ 0.014         │
+│ SYN-HR-2023-002018 │ Gidi od Noralu │ SYN-HR-2024-004138    │ Reno od Samape  │ 0.0284        │
+│ SYN-HR-2023-002093 │ Bemi od Noralu │ SYN-HR-2016-000643    │ Koka od Verito  │ 0.0259        │
+│ SYN-HR-2023-002095 │ Nini od Noralu │ SYN-HR-2018-003670    │ Nino od Verito  │ 0.0228        │
+│ SYN-HR-2023-002286 │ Gibe od Kokano │ SYN-HR-2020-000768    │ Mita od Siraso  │ 0.0277        │
+│ SYN-HR-2023-002542 │ Dupe od Kalua  │ SYN-HR-2015-001767    │ Vire od Kokano  │ 0.0184        │
+│ SYN-HR-2023-002658 │ Kani od Kokano │ SYN-HR-2023-001119    │ Beda od Kokano  │ 0.0261        │
+│ SYN-HR-2023-002855 │ Veve od Kokano │ SYN-HR-2024-002359    │ Muro od Kokano  │ 0.0268        │
+│ SYN-HR-2023-002858 │ Gira od Kokano │ SYN-HR-2022-002060    │ Bela od Kokano  │ 0.0254        │
+│ SYN-HR-2023-002886 │ Tara od Siraso │ SYN-FOREIGN-PL-000581 │ Tave of Sora    │ 0.0158        │
+│ SYN-HR-2023-003191 │ Saka od Siraso │ SYN-HR-2025-002020    │ Mimu od Siraso  │ 0.0273        │
+│ SYN-HR-2023-003245 │ Kalo od Zepeno │ SYN-HR-2017-002803    │ Bagi od Verito  │ 0.0241        │
+│ SYN-HR-2023-003281 │ Nemo od Kokano │ SYN-HR-2017-001046    │ Kaze od Kalua   │ 0.0246        │
+│ SYN-HR-2023-003301 │ Dalu od Vesiko │ SYN-HR-2025-002021    │ Silu od Siraso  │ 0.0252        │
+│ SYN-HR-2023-003566 │ Duno od Siraso │ SYN-HR-2022-000884    │ Rari od Siraso  │ 0.0211        │
+│ SYN-HR-2023-003678 │ Nine od Siraso │                       │                 │ nan           │
+│ SYN-HR-2023-003989 │ Rami od Kokano │ SYN-HR-2022-003159    │ Beve od Siraso  │ 0.021         │
+│ SYN-HR-2023-004145 │ Kara od Siraso │ SYN-HR-2022-001717    │ Mube van Benoda │ 0.0153        │
+│ SYN-HR-2023-004147 │ Nomi od Siraso │ SYN-HR-2025-003923    │ Nosa od Kokano  │ 0.0188        │
+│ SYN-HR-2023-004212 │ Tadi od Kokano │ SYN-FOREIGN-IT-000932 │ Duma del Karo   │ 0.0155        │
+│ SYN-HR-2023-004254 │ Baro od Siraso │ SYN-HR-2021-000043    │ Dita od Kokano  │ 0.0248        │
+│ SYN-HR-2024-000116 │ Dave od Kabe   │ SYN-HR-2025-003922    │ Dadu od Kokano  │ 0.0223        │
+│ SYN-HR-2024-000162 │ Reze od Siraso │ SYN-HR-2018-002956    │ Luda od Siraso  │ 0.0223        │
+│ SYN-HR-2024-000335 │ Zera od Verito │ SYN-HR-2019-000085    │ Dili od Kokano  │ 0.0259        │
+│ SYN-HR-2024-000364 │ Tata od Kokano │ SYN-FOREIGN-SE-001030 │ Koro of Zolata  │ 0.0146        │
+│ SYN-HR-2024-000474 │ Rasi od Peka   │ SYN-HR-2017-002359    │ Midu od Kokano  │ 0.0225        │
+│ SYN-HR-2024-000550 │ Neni od Kokano │ SYN-HR-2019-000325    │ Kama od Kokano  │ 0.0251        │
+│ SYN-HR-2024-000799 │ Nave od Kokano │ SYN-HR-2023-000780    │ Tami of Zolata  │ 0.0137        │
+│ SYN-HR-2024-000830 │ Peve od Kalua  │ SYN-HR-2021-003689    │ Taka of Zolata  │ 0.0196        │
+│ SYN-HR-2024-001089 │ Lura od Nono   │ SYN-HR-2021-003689    │ Taka of Zolata  │ 0.0161        │
+│ SYN-HR-2024-001122 │ Koso od Tovi   │ SYN-HR-2022-000884    │ Rari od Siraso  │ 0.019         │
+│ SYN-HR-2024-001148 │ Sora od Siraso │ SYN-HR-2024-000716    │ Damu od Kokano  │ 0.0262        │
+│ SYN-HR-2024-001151 │ Neno od Siraso │ SYN-HR-2024-000709    │ Soba od Kokano  │ 0.0262        │
+│ SYN-HR-2024-001300 │ Kana od Vesiko │ SYN-HR-2021-000962    │ Duto od Siraso  │ 0.0173        │
+│ SYN-HR-2024-001381 │ Taba od Verito │ SYN-HR-2017-002464    │ Kane od Kokano  │ 0.0219        │
+│ SYN-HR-2024-001836 │ Neko od Kokano │ SYN-HR-2019-001171    │ Zero od Momare  │ 0.0278        │
+│ SYN-HR-2024-001951 │ Lasi od Samape │ SYN-HR-2015-001430    │ Todi od Kokano  │ 0.0242        │
+│ SYN-HR-2024-001959 │ Moso od Vesiko │ SYN-HR-2016-002725    │ Vera of Zolata  │ 0.0202        │
+│ SYN-HR-2024-002270 │ Tako od Vesiko │ SYN-HR-2025-001698    │ Zemu od Nono    │ 0.0219        │
+│ SYN-HR-2024-002331 │ Nolo od Siraso │ SYN-HR-2022-002294    │ Dimi od Vesiko  │ 0.0269        │
+│ SYN-HR-2024-002524 │ Nasa od Siraso │ SYN-HR-2021-002135    │ Sipe van Benoda │ 0.0143        │
+│ SYN-HR-2024-002525 │ Nomu od Siraso │ SYN-FOREIGN-IT-000932 │ Duma del Karo   │ 0.0116        │
+│ SYN-HR-2024-002968 │ Kave od Kokano │ SYN-FOREIGN-SE-000981 │ Zema of Zolata  │ 0.0143        │
+│ SYN-HR-2024-003023 │ Rize od Siraso │ SYN-HR-2016-002902    │ Duzo od Tovi    │ 0.0186        │
+│ SYN-HR-2024-003058 │ Kano od Kokano │ SYN-HR-2019-000090    │ Zono od Kokano  │ 0.0258        │
+│ SYN-HR-2024-003059 │ Mipe od Verito │ SYN-HR-2025-001071    │ Misi od Nono    │ 0.0202        │
+│ SYN-HR-2024-003231 │ Pela od Kokano │ SYN-HR-2018-001429    │ Roli od Kokano  │ 0.0168        │
+│ SYN-HR-2024-003303 │ Zolu od Kokano │ SYN-HR-2017-001668    │ Beda od Kokano  │ 0.0162        │
+└────────────────────┴────────────────┴───────────────────────┴─────────────────┴───────────────┘
