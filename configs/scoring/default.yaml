@@ -1,0 +1,25 @@
+# Mate scoring policy (P7). All values are policy choices, not biology:
+# "Weights express breeding priorities and should be set by the breed club."
+weights:
+  value: {inbreeding: 0.30, diversity: 0.25, health: 0.20, ebv: 0.10, sire_use: 0.10, depth: 0.05}
+  assumption: true
+  note: "Weights express breeding priorities and should be set by the breed club."
+inbreeding:
+  f_low: {value: 0.03, assumption: true, note: "sub-score 1 at or below this predicted COI"}
+  f_high: {value: 0.125, assumption: true, note: "sub-score 0 at or above (half-sibling level)"}
+health:
+  p_any_zero_score: {value: 0.25, assumption: true, note: "P(affected puppy) giving sub-score 0"}
+ebv:
+  index_mean: {value: 100, assumption: true, note: "SKK-style index scale"}
+  index_sd: {value: 10, assumption: true}
+sire_use:
+  fci_share: {value: 0.05, source: fci-strategies, note: "5% of breed registrations in 5 years"}
+  window_years: {value: 5, source: fci-strategies}
+depth:
+  eqg_target: {value: 6, assumption: true, note: "equivalent generations giving sub-score 1"}
+tiers:
+  value: [[80, Excellent], [65, Good], [50, Acceptable], [35, Caution], [0, Not recommended]]
+  assumption: true
+soft_warning_caps_tier_at: {value: Acceptable, assumption: true}
+low_depth_warning_eqg: {value: 3, assumption: true, note: "warn when either parent's EqG is below"}
+allele_frequency_window_years: {value: 10, assumption: true}

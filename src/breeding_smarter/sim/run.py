@@ -30,15 +30,26 @@ log = logging.getLogger(__name__)
 FOUNDER_AGE_YEARS = (1, 6)  # base founders are born 1 to 6 years before the start (assumption)
 
 
-def load_setup(config_path: Path, scale: float | None = None) -> SimSetup:
+def load_setup(config_path: Path, scale: float | None = None, base: Path | None = None) -> SimSetup:
+    """Sim, species and breed configs (`base`: configs folder, e.g. a run's config snapshot)."""
     sim = load_sim(config_path)
     if scale is not None:
         sim = sim.model_copy(update={"scale": scale})
     return SimSetup(
         sim=sim,
-        species=load_species(sim.species),
-        breeds=tuple(load_breed(b) for b in sim.breeds),
+        species=load_species(sim.species, base=base),
+        breeds=tuple(load_breed(b, base=base) for b in sim.breeds),
     )
+
+
+def load_run_setup(run_root: Path) -> SimSetup:
+    """The exact setup used by a run, from its `config_snapshot/` folder."""
+    snap = Path(run_root) / "config_snapshot"
+    sim_files = sorted((snap / "sim").glob("*.yaml"))
+    import json
+
+    scale = json.loads((Path(run_root) / "manifest.json").read_text()).get("scale")
+    return load_setup(sim_files[0], scale, base=snap)
 
 
 def seeds(seed: int) -> dict[str, np.random.Generator]:
@@ -132,14 +143,31 @@ def save_state(path: Path, state: SimState, rng: np.random.Generator, genetics: 
     return state.save(path, rng)
 
 
-def snapshot_configs(setup: SimSetup, config_path: Path, dest: Path) -> None:
+def snapshot_configs(
+    setup: SimSetup, config_path: Path, dest: Path, from_models: bool = False
+) -> None:
+    """Copy the YAML configs used by a run (or dump the in-memory models if overridden)."""
+    import yaml
+
     dest.mkdir(parents=True, exist_ok=True)
     (dest / "sim").mkdir(exist_ok=True)
-    (dest / "sim" / config_path.name).write_text(Path(config_path).read_text())
-    for sub, names in (("species", [setup.sim.species]), ("breeds", setup.sim.breeds)):
-        (dest / sub).mkdir(exist_ok=True)
-        for nm in names:
-            shutil.copy(configs_dir() / sub / f"{nm}.yaml", dest / sub / f"{nm}.yaml")
+    if from_models:
+        sim_doc = setup.sim.model_dump(mode="json", exclude_defaults=False)
+        (dest / "sim" / config_path.name).write_text(yaml.safe_dump(sim_doc, sort_keys=False))
+    else:
+        (dest / "sim" / config_path.name).write_text(Path(config_path).read_text())
+    (dest / "species").mkdir(exist_ok=True)
+    shutil.copy(
+        configs_dir() / "species" / f"{setup.sim.species}.yaml",
+        dest / "species" / f"{setup.sim.species}.yaml",
+    )
+    (dest / "breeds").mkdir(exist_ok=True)
+    for nm, model in zip(setup.sim.breeds, setup.breeds, strict=True):
+        if from_models:
+            doc = model.model_dump(mode="json")
+            (dest / "breeds" / f"{nm}.yaml").write_text(yaml.safe_dump(doc, sort_keys=False))
+        else:
+            shutil.copy(configs_dir() / "breeds" / f"{nm}.yaml", dest / "breeds" / f"{nm}.yaml")
     shutil.copy(configs_dir() / "sources.yaml", dest / "sources.yaml")
     for sub, name in (("loci", setup.sim.loci), ("genetics", setup.sim.genetics)):
         src = configs_dir() / sub / f"{name}.yaml"
@@ -161,11 +189,17 @@ def generate(
     run_id: str | None = None,
     progress: Callable[[int], None] | None = None,
     validate: bool = True,
+    setup: SimSetup | None = None,
 ) -> Path:
-    """Simulate, write tables, manifest, config snapshot and end state; validate the run."""
+    """Simulate, write tables, manifest, config snapshot and end state; validate the run.
+
+    `setup` overrides the configs loaded from `config_path` (used by the calibration grid);
+    the snapshot then stores the overridden breed configs.
+    """
     from breeding_smarter.schema.validate import validate_run
 
-    setup = load_setup(config_path, scale)
+    override = setup is not None
+    setup = setup or load_setup(config_path, scale)
     sim: SimConfig = setup.sim
     seed = sim.seed if seed is None else seed
     genetics = genetics or NullGenetics()
@@ -183,7 +217,7 @@ def generate(
     )
     for tname, df in tables.items():
         write_table(df, TABLES[tname], paths.root / TABLES[tname].filename)
-    snapshot_configs(setup, config_path, paths.config_snapshot)
+    snapshot_configs(setup, config_path, paths.config_snapshot, override)
     if hasattr(genetics, "post_write"):
         genetics.post_write(paths.root)
     save_state(paths.state, state, rng, genetics)

@@ -63,6 +63,7 @@ ignore = [
     "N812",  # `_kernels as K`
     "N815",  # math-style field names (mean_F)
     "B008",  # typer.Option in defaults is the typer idiom
+    "PD010", # unstack is clearer than pivot_table for groupby results
     "RUF001",
     "RUF002",
     "RUF003",
@@ -83,6 +84,11 @@ module = [
     "breeding_smarter.matching.*",
 ]
 disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+# pandas-stubs types .loc/.get scalars as wide unions; analysis code relaxes these codes only
+module = ["breeding_smarter.calibration.*", "breeding_smarter.experiments.*"]
+disable_error_code = ["union-attr", "index", "call-overload", "arg-type"]
 
 [[tool.mypy.overrides]]
 module = ["numba", "numba.*", "duckdb", "streamlit", "streamlit.*", "plotly.*", "graphviz", "scipy", "scipy.*", "pyarrow", "pyarrow.*", "qrcode", "pptx", "pptx.*", "huggingface_hub"]

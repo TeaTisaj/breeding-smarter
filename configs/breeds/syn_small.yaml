@@ -24,10 +24,10 @@ market:
   female_candidate_share: {value: 0.35, assumption: true, note: "about 20% of dogs bred (calboli-2008, secondary)"}
   male_candidate_share: {value: 0.35, assumption: true}
   popular_sire_alpha:
-    points: [[1980, 0.8], [2026, 0.8]]
+    points: [[1935, 0.6], [1999, 1.2], [2000, 0.6], [2026, 0.6]]
     assumption: true
-    note: "rich-get-richer exponent; tuned in P5 against sire concentration targets"
-  attractiveness_beta: {value: 1.0, assumption: true, note: "tuned in P5"}
+    note: "tuned in P5, see reports/validation/calibration_grid_small_round2.csv; higher before 2000 (T10)"
+  attractiveness_beta: {value: 0.8, assumption: true, note: "tuned in P5, see reports/validation/calibration_grid_small_round2.csv"}
   import_rate: {value: 0.1, assumption: true, note: "share of new breeding animals imported"}
   foreign_ai_sire_share: {value: 0.15, assumption: true}
   ai_frozen_share: {value: 0.6, assumption: true, note: "share of foreign AI matings with frozen (vs chilled) semen"}

@@ -1,0 +1,123 @@
+# Calibration targets (P5 task 5.1). kind: hard (must pass), soft (warn), report (context only).
+# Each target has checks on named components of its metric's per-breed values.
+targets:
+  - id: T01
+    description: "Mean litter size per breed (registry era): configured mean +/- 0.3 and inside 3.5 to 7.1"
+    metric: litter_size
+    kind: hard
+    source: borge-2011
+    checks:
+      - {component: deviation_from_config, range: [-0.3, 0.3]}
+      - {component: mean, range: [3.5, 7.1]}
+  - id: T02
+    description: "Share of litters with at least one perinatal loss: 24.6% +/- 5 percentage points"
+    metric: perinatal_loss_share
+    kind: soft
+    source: tonnessen-2012
+    checks: [{component: share, range: [0.196, 0.296]}]
+  - id: T03
+    description: "Share of registered dogs born 2005 to 2015 with recorded offspring: 10% to 30%"
+    metric: share_with_offspring
+    kind: soft
+    source: calboli-2008
+    note: "secondary summary of calboli-2008"
+    checks: [{component: share, range: [0.10, 0.30]}]
+  - id: T04
+    description: "Share of registered males born 2005 to 2015 that sired a litter: 2% to 20%"
+    metric: share_males_sired
+    kind: soft
+    source: kc-demography-2025
+    note: "one breed (Samoyed 1.7%), weak target"
+    checks: [{component: share, range: [0.02, 0.20]}]
+  - id: T05
+    description: "Share of puppies (2016 to 2025) sired by the top 20% of active sires: at least 40%"
+    metric: top20_sire_share
+    kind: soft
+    source: haynes-1915
+    note: "historical source (terriers, 1915)"
+    checks: [{component: share, range: [0.40, 1.0]}]
+  - id: T06
+    description: "At least one sire above the FCI 5%-in-5-years threshold (windows ending 2020 and 2025): true for SYN_M and SYN_S, reported for SYN_L"
+    metric: fci_threshold_exceeded
+    kind: soft
+    source: leroy-rognon-2012
+    checks: [{component: any_above, equals: true, breeds: [SYN_M, SYN_S]}]
+  - id: T07
+    description: "Ne by individual increase in inbreeding (recorded pedigree), 2016 to 2025 cohort"
+    metric: ne_delta_f
+    kind: hard
+    source: lewis-2015
+    checks:
+      - {component: ne, range: {SYN_L: [200, 900], SYN_M: [80, 150], SYN_S: [25, 50]}}
+  - id: T08
+    description: "Ne census (breeding animals), 2016 to 2025 cohort; FKC flag if at most 200"
+    metric: ne_census
+    kind: report
+    source: fkc-strategy
+    checks: []
+  - id: T09
+    description: "Generation interval (2016 to 2025 cohort): 4 to 5 years"
+    metric: generation_interval
+    kind: soft
+    assumption: true
+    checks: [{component: overall, range: [4.0, 5.0]}]
+  - id: T10
+    description: "Rate of inbreeding per generation (true pedigree F) higher in 1985 to 1995 than in 2010 to 2020"
+    metric: delta_f_periods
+    kind: soft
+    source: lewis-2015
+    checks: [{component: early_higher, equals: true}]
+  - id: T11
+    description: "Recorded pedigree F < true pedigree F for the 2025 cohort"
+    metric: recorded_vs_true_f
+    kind: hard
+    source: pde-2011
+    checks: [{component: recorded_lower, equals: true}]
+  - id: T12
+    description: "Engine vs gene drop: |mean f_true_ibd - mean true pedigree F| per birth decade under 0.01"
+    metric: engine_vs_gene_drop
+    kind: hard
+    assumption: true
+    note: "internal validation"
+    checks: [{component: max_abs_diff, range: [0.0, 0.01]}]
+  - id: T13
+    description: "Regression of f_true_ibd on true pedigree F (born after 1980): slope 0.9 to 1.1, intercept within +/- 0.01"
+    metric: ibd_regression
+    kind: hard
+    assumption: true
+    note: "internal validation"
+    checks:
+      - {component: slope, range: [0.9, 1.1]}
+      - {component: intercept, range: [-0.01, 0.01]}
+  - id: T14
+    description: "HD: share of D and E grades decreases from the first 5 screening years to 2021 to 2025"
+    metric: hd_de_trend
+    kind: soft
+    source: skk-hd-2020
+    checks: [{component: decreased, equals: true}]
+  - id: T15
+    description: "EBV quality: corr(EBV, TBV) within 0.1 of mean reported accuracy (screened candidates)"
+    metric: ebv_quality
+    kind: soft
+    assumption: true
+    note: "internal validation"
+    checks: [{component: abs_gap, range: [0.0, 0.1]}]
+  - id: T16
+    description: "Imports and missingness: share HUR, share imports, share unknown parents per decade"
+    metric: missingness
+    kind: report
+    assumption: true
+    checks: []
+  - id: T17
+    description: "Mean realised IBD of the 2025 cohort, next to the published genomic median of about 0.25 (bases differ)"
+    metric: mean_ibd_2025
+    kind: report
+    source: bannasch-2021
+    checks: []
+  - id: T18
+    description: "Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)"
+    metric: allele_frequencies
+    kind: report
+    assumption: true
+    note: "added in P5: base frequencies are illustrative assumptions"
+    checks: []

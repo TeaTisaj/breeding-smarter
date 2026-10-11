@@ -1,8 +1,8 @@
-# Tiny config for tests (P3 task 3.10): one breed, scale 0.02, 3 burn-in generations, ends 1995.
+# Tiny config for tests (P3 task 3.10): one breed, scale 0.02, 3 burn-in generations, ends 2026 (P5: targets need the 2016 to 2025 cohorts).
 name: tiny
 seed: 42
 registry_start_year: 1980
-end_year: 1995
+end_year: 2026
 generation_interval_years: {value: 4.5, assumption: true, note: "research says 4 to 5 years; confirm in P5"}
 burn_in_generations: 3
 species: dog

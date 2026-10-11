@@ -1,5 +1,5 @@
 # Genetics model and observation processes (P4).
-n_neutral_loci: {value: 200, assumption: true, note: "SE of individual realised IBD about sqrt(F(1-F)/200)"}
+n_neutral_loci: {value: 2000, assumption: true, note: "plan suggested 200; raised in P5 (200 -> 1000 -> 2000) so that realised IBD of the small, highly inbred breed is precise enough for T12/T13 (noise scales with 1/sqrt(loci))"}
 hd_heritability: {value: 0.35, source: skk-hd-2020, assumption: true, note: "chosen inside the reported 0.25 to 0.7"}
 hd_screening_age_months: {value: [12, 24], assumption: true}
 dna_test_min_age_months: {value: 12, assumption: true}

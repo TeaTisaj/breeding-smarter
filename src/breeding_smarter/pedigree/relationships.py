@@ -62,7 +62,7 @@ def relationship(ped: Pedigree, a: int, b: int) -> set[Relationship]:
     return out or {Relationship.NONE_DETECTED}
 
 
-def _ancestor_depths(ped: Pedigree, x: int, max_depth: int) -> dict[int, int]:
+def ancestor_depths(ped: Pedigree, x: int, max_depth: int) -> dict[int, int]:
     depth = {x: 0}
     q = deque([x])
     while q:
@@ -85,8 +85,8 @@ def nearest_common_ancestor(
     Nearest = smallest sum of generations, ties broken by the smaller maximum, then by index.
     None if no common ancestor within `max_depth` generations.
     """
-    da = _ancestor_depths(ped, a, max_depth)
-    db = _ancestor_depths(ped, b, max_depth)
+    da = ancestor_depths(ped, a, max_depth)
+    db = ancestor_depths(ped, b, max_depth)
     common = set(da) & set(db)
     if not common:
         return None

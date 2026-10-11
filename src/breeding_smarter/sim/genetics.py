@@ -79,7 +79,7 @@ class DogGenetics:
         self.tested = np.zeros((0, self.K), bool)
         self.test_t = np.zeros((0, self.K))
         self.test_lab = np.zeros((0, self.K), np.int8)
-        self.neutral = np.zeros((0, self.L, 2), np.int32)
+        self.neutral = np.zeros((0, self.L, 2), np.uint16)
         self.row_of = np.zeros(0, np.int64)
         self.n_rows = 0
 
@@ -117,6 +117,8 @@ class DogGenetics:
         self.row_of[holders] = -1
         self.row_of[alive] = np.arange(alive.size)
         self.n_rows = alive.size
+        if self.neutral.shape[0] > 2 * max(self.n_rows, 1024):
+            self.neutral = self.neutral[: max(int(1.25 * self.n_rows), 1024)].copy()
 
     @property
     def n_holders(self) -> int:
@@ -126,7 +128,9 @@ class DogGenetics:
     def init_founders(self, state: SimState, gids: np.ndarray, rng: np.random.Generator) -> None:
         self._ensure(state.n)
         n = gids.size
-        base = (2 * gids).astype(np.int32)
+        if (2 * gids + 1).max(initial=0) > np.iinfo(np.uint16).max:
+            raise ValueError("founder allele ids exceed uint16; founders must have small gids")
+        base = (2 * gids).astype(np.uint16)
         alleles = np.stack(
             [np.repeat(base[:, None], self.L, 1), np.repeat(base[:, None] + 1, self.L, 1)], axis=2
         )
@@ -154,8 +158,8 @@ class DogGenetics:
         if (rs < 0).any() or (rd < 0).any():
             raise RuntimeError("a parent has no neutral alleles (dead or never initialised)")
         loci = np.arange(self.L)
-        ps = rng.integers(0, 2, (n, self.L))
-        pd_ = rng.integers(0, 2, (n, self.L))
+        ps = rng.integers(0, 2, (n, self.L), dtype=np.uint8)
+        pd_ = rng.integers(0, 2, (n, self.L), dtype=np.uint8)
         a_s = self.neutral[rs[:, None], loci[None, :], ps]
         a_d = self.neutral[rd[:, None], loci[None, :], pd_]
         state.animals.data["f_true"][child_gids] = (a_s == a_d).mean(axis=1)

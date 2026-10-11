@@ -50,7 +50,12 @@ def split_done(setup: SimSetup, breed: int, year: int) -> bool:
 
 
 def target_litters(
-    setup: SimSetup, breed: int, subpop: int, year: int, mean_dam_f: float = 0.0
+    setup: SimSetup,
+    breed: int,
+    subpop: int,
+    year: int,
+    mean_dam_f: float = 0.0,
+    f_ref: float = 0.0,
 ) -> float:
     """Expected litters so that registrations (registry era) or live births (hidden) hit target.
 
@@ -66,7 +71,7 @@ def target_litters(
     rep = cfg.reproduction
     regs = cfg.population.registrations_per_year
     # expected puppies per litter including inbreeding depression of the available dams
-    mean = max(MIN_LITTER_MEAN, rep.litter_size_mean.value - slope_of(setup) * mean_dam_f)
+    mean = max(MIN_LITTER_MEAN, rep.litter_size_mean.value - slope_of(setup) * (mean_dam_f - f_ref))
     per_litter = mean * (1 - rep.perinatal_loss_rate.value)
     base = regs.at(sim.registry_start_year) * sim.scale
     if subpop == FOREIGN:
@@ -126,6 +131,22 @@ def rescue_imports(
     return np.intersect1d(gids, ok)
 
 
+def litter_reference_f(state: SimState, breed: int, subpop: int, current_mean_f: float) -> float:
+    """Dam F at which the configured (published, observed) litter mean applies.
+
+    Published litter sizes are observed means that include the breed's typical inbreeding, so
+    the configured mean applies at the registry-era mean dam F (running mean over domestic
+    litters since registry founding; frozen at the end of history so that experiments see
+    inbreeding depression when F rises). Before the registry and for the foreign population the
+    current mean F of the mated dams is used. Dams more inbred than the reference have smaller
+    litters (`inbreeding_litter_slope`).
+    """
+    acc = state.meta.get("litter_reference", {}).get(str(breed))
+    if subpop == DOMESTIC and acc and acc[1] > 0:
+        return float(acc[0] / acc[1])
+    return current_mean_f
+
+
 def slope_of(setup: SimSetup) -> float:
     return setup.species.inbreeding_litter_slope.value
 
@@ -164,7 +185,8 @@ def plan_year(
         for sp in subpops:
             dams_el = eligible(state, setup, b, sp, year, 0, genetics)
             mean_f = float(state.animals.f_true[dams_el].mean()) if dams_el.size else 0.0
-            n_target = stochastic_round(target_litters(setup, b, sp, year, mean_f), rng)
+            ref = litter_reference_f(state, b, sp, mean_f)
+            n_target = stochastic_round(target_litters(setup, b, sp, year, mean_f, ref), rng)
             sires_el = eligible(state, setup, b, sp, year, 1, genetics)
             if dams_el.size < n_target:
                 dams_el = np.union1d(
@@ -264,8 +286,25 @@ def make_litters(
     grp_mean = np.bincount(grp, weights=fert) / np.maximum(np.bincount(grp), 1)
     rel_fert = fert / grp_mean[grp]
     # Inbreeding depression: about one puppy fewer per 10% dam F (chu-2019), an absolute effect
-    # of `slope * F` puppies (the plan's multiplicative form would remove all puppies at F=0.1).
-    mu = np.maximum(MIN_LITTER_MEAN, mean * rel_fert - slope * a.f_true[dams])
+    # of `slope * (F - F_ref)` puppies relative to the breed's reference F at which the
+    # configured (published) mean litter size applies.
+    f_dam = a.f_true[dams]
+    grp_f = np.bincount(grp, weights=f_dam) / np.maximum(np.bincount(grp), 1)
+    f_ref = np.array(
+        [
+            litter_reference_f(state, int(b), int(s), float(grp_f[g]))
+            for b, s, g in zip(breed, subpop, grp, strict=True)
+        ]
+    )
+    mu = np.maximum(MIN_LITTER_MEAN, mean * rel_fert - slope * (f_dam - f_ref))
+    if year >= setup.sim.registry_start_year and not state.meta.get("litter_reference_frozen"):
+        acc = state.meta.setdefault("litter_reference", {})
+        dom = subpop == DOMESTIC
+        for b in np.unique(breed[dom]):
+            m = dom & (breed == b)
+            s = acc.setdefault(str(int(b)), [0.0, 0])
+            s[0] += float(f_dam[m].sum())
+            s[1] += int(m.sum())
     n_born = np.maximum(1, rng.negative_binomial(disp, disp / (disp + mu)))
     n_alive = rng.binomial(n_born, 1.0 - loss)
     registry_dom = (year >= setup.sim.registry_start_year) & (subpop == DOMESTIC)

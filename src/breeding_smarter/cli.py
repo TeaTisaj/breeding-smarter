@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 import typer
 from rich.console import Console
@@ -55,6 +56,68 @@ def schema_dictionary() -> None:
 
     path = write_dictionary()
     console.print(f"wrote {path}")
+
+
+rules_app = typer.Typer(help="Rule profiles.", no_args_is_help=True)
+app.add_typer(rules_app, name="rules")
+
+
+@rules_app.command("docs")
+def rules_docs() -> None:
+    """Regenerate docs/rules_catalogue.md and docs/rules_verification.md."""
+    from breeding_smarter.rules.docs import write_docs
+
+    for p in write_docs():
+        console.print(f"wrote {p}")
+
+
+def load_rule_context(dataset: str) -> Any:
+    """RuleContext for a dataset tag, run id or folder (registry tables plus cached F, D)."""
+    from breeding_smarter.io.cache import load_registry_animals, pedigree_cache
+    from breeding_smarter.io.datasets import resolve_dataset
+    from breeding_smarter.io.parquet import read_table
+    from breeding_smarter.rules import RuleContext
+    from breeding_smarter.schema.tables import BREEDS, DNA_TESTS, HEALTH_TESTS, LITTERS
+
+    rp = resolve_dataset(dataset)
+    F, D, _ = pedigree_cache(rp)
+    return rp, RuleContext.from_tables(
+        load_registry_animals(rp),
+        read_table(rp.table(LITTERS), LITTERS),
+        read_table(rp.table(HEALTH_TESTS), HEALTH_TESTS),
+        read_table(rp.table(DNA_TESTS), DNA_TESTS),
+        read_table(rp.table(BREEDS), BREEDS),
+        F=F,
+        D=D,
+    )
+
+
+@app.command()
+def check(
+    sire: str = typer.Option(..., "--sire", help="Sire reg_no."),
+    dam: str = typer.Option(..., "--dam", help="Dam reg_no."),
+    dataset: str = typer.Option("v1", "--dataset", help="Dataset tag, run id or folder."),
+    date: str = typer.Option("2026-11-01", "--date", help="Mating date YYYY-MM-DD."),
+    profile: str = typer.Option("hr_full", "--profile", help="Rule profile."),
+    method: str | None = typer.Option(None, "--method", help="Mating method (ai_frozen...)."),
+) -> None:
+    """Is this mating permitted under a rule profile? (synthetic data)"""
+    from rich.table import Table
+
+    from breeding_smarter.rules import evaluate_pair, load_profile
+
+    _, ctx = load_rule_context(dataset)
+    idx = {r: i for i, r in enumerate(ctx.reg_no)}
+    res = evaluate_pair(ctx, load_profile(profile), idx[sire], idx[dam], date, method)
+    t = Table(title=f"{ctx.label(idx[sire])} x {ctx.label(idx[dam])} on {date}: {res.status}")
+    for col in ("rule", "severity", "result", "message", "source", "verified"):
+        t.add_column(col)
+    for r in res.results:
+        ok = "pass" if r.passed and not r.warning else ("warn" if r.passed else "FAIL")
+        t.add_row(
+            r.rule_id, r.severity, ok, r.message, r.source, "yes" if r.verified else "unverified"
+        )
+    console.print(t)
 
 
 def _stub(name: str) -> None:
@@ -116,9 +179,59 @@ def ebv(run: str = typer.Option(..., "--run", help="Run id or folder.")) -> None
 
 
 @app.command()
-def validate() -> None:
-    """Validate a generated run."""
-    _stub("validate")
+def validate(
+    run: str = typer.Option(..., "--run", help="Run id or folder."),
+    targets: str = typer.Option(
+        "configs/calibration/targets.yaml", "--targets", help="Calibration targets YAML."
+    ),
+    out: str | None = typer.Option(None, "--out", help="Report folder (default reports/...)."),
+) -> None:
+    """Schema validation, true-pedigree F, calibration targets and the validation report.
+
+    Exits with code 1 if the schema check or any hard target fails.
+    """
+    from pathlib import Path
+
+    from breeding_smarter.calibration.report import validate_and_report
+    from breeding_smarter.calibration.targets import load_targets
+    from breeding_smarter.config.loader import load_loci
+    from breeding_smarter.io.cache import resolve_run
+    from breeding_smarter.io.paths import repo_root
+    from breeding_smarter.schema.validate import validate_run
+
+    rp = resolve_run(run)
+    schema = validate_run(rp.root, allowed_loci=set(load_loci().ids))
+    console.print(f"schema: {schema.summary()}")
+    dest = Path(out) if out else repo_root() / "reports" / "validation" / rp.run_id
+    rows, ok = validate_and_report(rp.root, load_targets(Path(targets)), dest)
+    counts = {s: sum(r.status == s for r in rows) for s in ("PASS", "WARN", "FAIL")}
+    console.print(f"targets: {counts}; report: {dest / 'validation_report.md'}")
+    for r in rows:
+        if r.status == "FAIL":
+            console.print(f"[red]FAIL[/red] {r.id} {r.breed} {r.component} = {r.value} {r.target}")
+    if not (schema.ok and ok):
+        raise typer.Exit(1)
+
+
+@app.command()
+def calibrate(
+    config: str = typer.Option("configs/sim/default.yaml", "--config"),
+    grid: str = typer.Option("configs/calibration/grid.yaml", "--grid"),
+    breeds: list[str] | None = typer.Option(None, "--breeds"),
+    seeds: list[int] = typer.Option([1, 2], "--seed"),
+) -> None:
+    """Run the calibration grid and print the best combination per breed (never edits configs)."""
+    from pathlib import Path
+
+    from breeding_smarter.calibration.grid import best, run_grid
+    from breeding_smarter.calibration.targets import load_targets
+    from breeding_smarter.io.paths import repo_root
+
+    out = repo_root() / "reports" / "validation" / "calibration_grid.csv"
+    agg = run_grid(Path(config), Path(grid), load_targets(), breeds, tuple(seeds), out)
+    console.print(f"wrote {out}")
+    for b, row in best(agg).items():
+        console.print(f"{b}: {row}")
 
 
 @app.command()
@@ -171,9 +284,62 @@ def metrics(
 
 
 @app.command()
-def match() -> None:
-    """Rank candidate sires for a dam."""
-    _stub("match")
+def match(
+    dam: str = typer.Option(..., "--dam", help="Dam reg_no."),
+    dataset: str = typer.Option("v1", "--dataset", help="Dataset tag, run id or folder."),
+    date: str = typer.Option("2026-11-01", "--date", help="Mating date YYYY-MM-DD."),
+    profile: str = typer.Option("hr_full", "--profile", help="Rule profile."),
+    top: int = typer.Option(10, "--top", help="Number of ranked sires to show."),
+    explain: str | None = typer.Option(None, "--explain", help="Sire reg_no: print score card."),
+    max_distance_km: float | None = typer.Option(None, "--max-distance-km"),
+) -> None:
+    """Rank candidate sires for a dam with an explainable score (synthetic data)."""
+    from rich.markdown import Markdown
+    from rich.table import Table
+
+    from breeding_smarter.matching import load_context, recommend_sires, score_pair
+
+    ctx = load_context(dataset)
+    d = ctx.idx_of(dam)
+    if explain:
+        card = score_pair(ctx, ctx.idx_of(explain), d, date, profile)
+        console.print(Markdown(card.to_markdown()))
+        return
+    rec = recommend_sires(ctx, d, date, profile, top_k=top, max_distance_km=max_distance_km)
+    console.print(
+        f"{ctx.rules.label(d)} on {date} ({profile}): {rec.n_candidates} candidate sires, "
+        f"{rec.n_excluded} excluded by rules, {rec.n_with_warnings} with warnings."
+    )
+    t = Table(title="Ranked sires (synthetic data)")
+    for col in (
+        "rank",
+        "sire",
+        "tier",
+        "score",
+        "COI",
+        "MK litter",
+        "P(affected)",
+        "HD idx",
+        "sire use",
+        "warnings",
+    ):
+        t.add_column(col)
+    for i, r in enumerate(rec.ranked[:top], 1):
+        c = rec.card(r.sire)
+        comp = {x.component: x for x in c.components}
+        t.add_row(
+            str(i),
+            c.sire_label,
+            c.tier,
+            f"{c.score:.1f}",
+            f"{100 * c.predicted_coi:.1f}%",
+            comp["diversity"].raw,
+            comp["health"].raw,
+            comp["ebv"].raw,
+            comp["sire_use"].raw,
+            str(len(r.warnings)),
+        )
+    console.print(t)
 
 
 @app.command()
