@@ -5,6 +5,8 @@ Standing instructions for the autonomous run: `plan/GOAL.md` (gates pre-approved
 
 **Autonomous run finished 2026-10-11:** all MVP tasks P0 to P11 implemented with gate reports in `plan/gates/`; E3 done. What remains are the HUMAN tasks below (accounts, verification of legal texts, deployment, publishing, printing) and STRETCH items (not started).
 
+**P12 (coordinated sire use) finished 2026-10-11:** all MVP tasks 12.0 to 12.14 done; E5 to E7 run with planned replicates; gate report `plan/gates/P12_report.md` (H1, H2, H4b pass; H3, H4a and SYN_M H5 fail, reported). STRETCH 12.15 not started.
+
 | Phase | Status | Gate report | Approved by Tea |
 |---|---|---|---|
 | P0 Setup | done | [P0](gates/P0_report.md) | pre-approved (GOAL.md) |
@@ -19,7 +21,7 @@ Standing instructions for the autonomous run: `plan/GOAL.md` (gates pre-approved
 | P9 Demo app | done (deploy is HUMAN) | [P9](gates/P9_report.md) | pre-approved (GOAL.md) |
 | P10 Release | done (publishing is HUMAN) | [P10](gates/P10_report.md) | pre-approved (GOAL.md) |
 | P11 Conference | done (printing, links, submission are HUMAN) | [P11](gates/P11_report.md) | pre-approved (GOAL.md) |
-| P12 Coordination | in progress | - | - |
+| P12 Coordination | done | [P12](gates/P12_report.md) | pre-approved (GOAL.md) |
 
 Status values: not started, in progress, at gate (waiting for review), done.
 
@@ -62,7 +64,7 @@ Status values: not started, in progress, at gate (waiting for review), done.
 - [x] numbers.json + rendered texts  - [ ] Paper (draft ready; submission HUMAN)  - [x] Poster content pack (QR codes wait for links)  - [x] Slides outline  - [x] Demo script  - [x] Partner one-pager  - [x] Q&A
 
 ### P12
-- [x] 12.0 Solver spike + ADR-007  - [x] 12.1 Sources + config  - [x] 12.2 Targets  - [x] 12.3 OCS  - [x] 12.4 OCS tests  - [x] 12.5 Caps, quotas, allocation, ledger  - [x] 12.6 Planner  - [x] 12.7 Truth kinship  - [x] 12.8 Strategies + runner  - [x] 12.9 Metrics  - [ ] 12.10 Experiments E5-E7  - [ ] 12.11 Figures G-L  - [ ] 12.12 CLI + app  - [ ] 12.13 Docs  - [ ] 12.14 Conference (conditional)
+- [x] 12.0 Solver spike + ADR-007  - [x] 12.1 Sources + config  - [x] 12.2 Targets  - [x] 12.3 OCS  - [x] 12.4 OCS tests  - [x] 12.5 Caps, quotas, allocation, ledger  - [x] 12.6 Planner  - [x] 12.7 Truth kinship  - [x] 12.8 Strategies + runner  - [x] 12.9 Metrics  - [x] 12.10 Experiments E5-E7  - [x] 12.11 Figures G-L  - [x] 12.12 CLI + app  - [x] 12.13 Docs  - [x] 12.14 Conference (conditional)
 
 ## HUMAN tasks (Tea or colleague)
 - [ ] Email info@orthoing.com: confirm a slot (talk, poster or demo) and whether a late full paper by 15 Oct is possible.
@@ -87,7 +89,7 @@ Prepared by Claude Code; nothing has been published.
 3. Repo > Actions: enable workflows if asked; the CI run should be green.
 4. Before step 6, do B1 (Zenodo integration) so the release gets a DOI.
 5. Edit `CITATION.cff`: colleague's name (and ORCIDs).
-6. Repo > Releases > Draft a new release: tag `v0.1.0`, title "Breeding Smarter 0.1.0", paste `release/RELEASE_NOTES_v0.1.0.md`, attach `release/breeding-smarter-synthetic-v1.zip` and `bundle.tar.gz` (build them with `uv run bsm export release` and `uv run bsm export demo-bundle --experiment E1_headline --experiment E2_adoption`). Publish.
+6. Repo > Releases > Draft a new release: tag `v0.1.0`, title "Breeding Smarter 0.1.0", paste `release/RELEASE_NOTES_v0.1.0.md`, attach `release/breeding-smarter-synthetic-v1.zip` and `bundle.tar.gz` (build them with `uv run bsm export release` and `uv run bsm export demo-bundle --experiment E1_headline --experiment E2_adoption --experiment E5_coordination --experiment E6_budget_and_kinship --experiment E7_adoption_quotas`). Publish.
 
 **B. Zenodo**
 1. https://zenodo.org > log in with GitHub > account menu > GitHub > flip the switch for `breeding-smarter` (code DOI is minted when the release in A6 is published).
