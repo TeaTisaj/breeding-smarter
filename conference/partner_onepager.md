@@ -21,6 +21,8 @@ close-relative matings across the EU. Clubs have lookup tools, not decision tool
 - A diversity report for one breed (inbreeding trends, Ne, founders, sire concentration).
 - A compliance check of planned matings against EU 2026/1818 and your own rules.
 - Mate recommendations with score cards for your breeders.
+- A club season plan: litter quotas per sire that keep long-term diversity, with breeders free
+  to choose within them.
 
 ## What we need
 Pedigree, health and DNA data under a data-sharing agreement, or an **on-premises run**: the
@@ -28,8 +30,9 @@ code goes to the data and nothing leaves the club.
 
 ## Honest about limits
 Results so far are on synthetic data. Our simulations show that rankings help with disease and
-short-term inbreeding, and that long-term diversity needs coordinated sire use: we want to
-test this with you on real breeds.
+short-term inbreeding, and that club quotas on sire use raise long-term diversity (Ne
+33 to 54 in a small breed): we want to test this with you on
+real breeds.
 
 **Contact:** TODO-CONTACT · Demo: TODO-DEMO-URL · Dataset: TODO-DOI ·
 Code: https://github.com/TODO/breeding-smarter

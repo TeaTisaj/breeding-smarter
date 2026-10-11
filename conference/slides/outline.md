@@ -43,20 +43,20 @@ Numbers come from `conference/numbers.json` (rebuild with `conference/build_numb
 **Figure:** live app or recording.
 **Notes:** Follow `conference/demo_script.md`: breed overview with the ground-truth toggle, the mate finder for demo dam 2 where the most popular sire ends up near the bottom, the excluded half-brother, and the score card of the top match. If the network fails, switch to the local app, then to the video.
 
-## 9. Results: realised inbreeding
-**On slide:** Ten generations: recommender -1.5 points vs market in the small breed; random mating best for Ne.
-**Figure:** Fig A (`reports/experiments/E1_headline/figures/figA_realised_inbreeding_poster.png`).
-**Notes:** We simulated ten generations, 20 replicates for the small breed, under five strategies. The recommender lowered realised inbreeding by 1.5 points (95 percent interval -2.3 to -0.6) and nearly removed affected puppies at tested loci. But honestly: random mating kept Ne at 87, against 32 with the recommender, because breeders who follow a ranking all choose the same few sires.
+## 9. Results: realised inbreeding, and the fix
+**On slide:** Recommender alone: less disease, short-term COI down, Ne not up. With club quotas: Ne 33 to 54 (small breed), 188 to 283 (medium).
+**Figure:** Fig G (`reports/experiments/E5_coordination/figures/figG_coordination_poster.png`).
+**Notes:** We simulated ten generations, 20 replicates for the small breed. The recommender lowered realised inbreeding by 1.5 points (95 percent interval -2.3 to -0.6) and nearly removed affected puppies at tested loci, but breeders who follow a ranking all choose the same few sires, so Ne did not improve. We then added a club planner: once a season it decides how many litters each sire may have (optimum contribution selection), and breeders choose within those quotas. With criteria fixed before running, coordinated planning raised Ne over today's market in both breeds (small breed by 21, interval +13 to +28; medium breed by 83, interval +16 to +151) and beat the recommender alone on the long-term rate of inbreeding. Honest caveat: random mating still kept more diversity in the medium breed.
 
 ## 10. Adoption and trade-offs
-**On slide:** More adopters, less inbreeding, but the gain is small; HD improves strongly.
-**Figure:** Fig E (adoption) and Fig D (trade-off).
-**Notes:** If no breeder uses the tool, realised inbreeding after ten generations is 50.8%; with everybody using it, 49.5%. In the medium breed the recommender improved the true hip-dysplasia breeding value from 0.39 to 0.06 and cut affected puppies at the MDR1 locus from 0.32% to 0.01%. Recorded COI looks far better than the truth: optimising the records is not the same as optimising the dogs.
+**On slide:** With quotas, half of the breeders is enough for most of the gain; HD improves strongly.
+**Figure:** Fig K (adoption with quotas) and Fig H (which factor matters).
+**Notes:** Without quotas, the adoption sweep barely moved true inbreeding: 50.8% without the tool, 49.5% with everybody using it. With quotas, the rate of inbreeding in the small breed fell from 1.59% per generation with no adopters to 0.95% with half of the breeders adopting. A surprise: minimum-kinship mating without quotas is the worst option of all (2.29% per generation in the small breed), because every dam goes to the same few least-related sires. In the medium breed the recommender improved the true hip-dysplasia breeding value from 0.39 to 0.06 and cut affected puppies at the MDR1 locus from 0.32% to 0.01%. Recorded COI looks far better than the truth: optimising the records is not the same as optimising the dogs.
 
 ## 11. Limitations, said plainly
-**On slide:** Synthetic data. Pedigree, not genomic, kinship. Policy weights. Some rules unverified. Diversity needs coordination.
+**On slide:** Synthetic data. Pedigree, not genomic, kinship. Policy weights. Some rules unverified. Quotas only tested in silico.
 **Figure:** none.
-**Notes:** Everything is synthetic and in silico. Kinship comes from pedigrees, which underestimate inbreeding when pedigrees are short; genomic data would help. The weights are policy and belong to breed clubs. Several EU details come from press reports. And our main lesson: a per-dam ranking alone does not protect long-term diversity; clubs need to coordinate how often each sire is used.
+**Notes:** Everything is synthetic and in silico. Kinship comes from pedigrees, which underestimate inbreeding when pedigrees are short; genomic data would help. The weights are policy and belong to breed clubs. Several EU details come from press reports. And our main lesson: a per-dam ranking alone does not protect long-term diversity; coordinating how often each sire is used does, in our model. Planning on true kinship would do even better (Ne higher by 178 in the small breed), which is why genomic data matters. Whether clubs and breeders accept quotas is untested.
 
 ## 12. Call for partners
 **On slide:** Free pilot: diversity report, EU 2026/1818 check, mate recommendations. Code runs on your premises.

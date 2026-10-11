@@ -138,6 +138,48 @@ def experiments() -> dict[str, str]:
     return out
 
 
+def p12() -> dict[str, str]:
+    """P12 coordination numbers (E5 to E7 and the pre-registered criteria); empty if not run."""
+    base = ROOT / "reports" / "experiments"
+    if not (base / "P12_hypotheses" / "hypotheses.csv").exists():
+        return {}
+    out: dict[str, str] = {}
+    h = pd.read_csv(base / "P12_hypotheses" / "hypotheses.csv")
+    for _, r in h.iterrows():
+        k = f"p12_{r['id'].lower().replace('-', '_')}_{r['breed'][-1]}"
+        pct_like = str(r["quantity"]).startswith(("dF", "range", "affected"))
+        scale = 100 if pct_like else 1
+        if r["id"] == "H5":
+            out[f"{k}_est"] = f"{r['estimate']:.2f}"
+        else:
+            out[f"{k}_est"] = f"{scale * r['estimate']:.2f}" if pct_like else f"{r['estimate']:.0f}"
+        if pd.notna(r["lo"]) and pd.notna(r["hi"]) and r["n"] > 0:
+            if pct_like:
+                out[f"{k}_ci"] = f"{scale * r['lo']:+.2f} to {scale * r['hi']:+.2f}"
+            else:
+                out[f"{k}_ci"] = f"{r['lo']:+.0f} to {r['hi']:+.0f}"
+        if pd.notna(r["pass"]) and r["pass"] != "":
+            out[f"{k}_pass"] = "yes" if str(r["pass"]) in ("True", "true", "1") else "no"
+    s = pd.read_csv(base / "E5_coordination" / "summary.csv")
+    g10 = s[(s["generation"] == 10) & (s["adoption"] == 1.0)]
+    for b in ("SYN_S", "SYN_M"):
+        k = b[-1]
+        for sid in ("S0", "S1", "S3", "CC-ocs-mc1", "S3q", "CC-ocs-rand", "CC-none-mc1"):
+            tag = sid.replace("-", "_").lower()
+            sel = g10[(g10["breed"] == b) & (g10["strategy"] == sid)].set_index("metric")["mean"]
+            if sel.empty:
+                continue
+            out[f"p12_ibd_{k}_{tag}"] = pct(sel["M2_realised_ibd"])
+            out[f"p12_dflate_{k}_{tag}"] = f"{100 * sel['R_delta_f_late']:.2f}"
+            out[f"p12_ne_{k}_{tag}"] = f"{1 / (2 * sel['R_delta_f_late']):.0f}"
+            out[f"p12_males_{k}_{tag}"] = pct(sel["M10_share_sires_used"])
+    a = pd.read_csv(base / "E7_adoption_quotas" / "summary.csv")
+    a10 = a[(a["generation"] == 10) & (a["metric"] == "R_delta_f_late")]
+    for _, r in a10.iterrows():
+        out[f"p12_e7_df_{r['breed'][-1]}_a{round(100 * r['adoption'])}"] = f"{100 * r['mean']:.2f}"
+    return out
+
+
 def benchmark() -> dict[str, str]:
     text = (ROOT / "reports" / "benchmarks" / "engine.md").read_text()
     row = re.search(r"\| 250,000 \| ([\d.]+) \| ([\d.]+) \| ([\d.]+) \| ([\d.]+) \|", text)
@@ -166,6 +208,7 @@ def main() -> None:
         experiments(),
         benchmark(),
         demo(),
+        p12(),
     ):
         numbers.update(part)
     links = yaml.safe_load((ROOT / "conference" / "links.yaml").read_text())

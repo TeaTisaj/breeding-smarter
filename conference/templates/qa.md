@@ -45,10 +45,16 @@ It is the common practical approach (the score A=1 to E=5); threshold models are
 Inbreeding for 250,000 dogs in {bench_inbreeding_250k_s} s; one pair's predicted COI in {bench_pair_ms} ms; a full ranking with explanations in well under a second.
 
 **15. What is next (thesis, startup, partners)?**
-Real-data pilots with breed clubs, genomic kinship import, a club planning view with optimum contribution selection (our results show coordinated planning is what long-term diversity needs), and a production backend.
+Real-data pilots with breed clubs, genomic kinship import, genomic kinship for the club planner (planning on true kinship raised Ne further in our model), and a production backend.
 
 **16. Your own results say random mating keeps more diversity. Why use the tool?**
-Random mating spreads use over many sires, which is exactly what protects Ne ({e1_ne_S_S0} vs {e1_ne_S_S1} under today's market in the small breed). Breeders will not mate randomly; the tool gives them rule compliance, disease and hip improvement and lower short-term COI, and our next step is to add explicit sire-use coordination so it also keeps Ne high.
+Random mating spreads use over many sires, which is exactly what protects Ne ({e1_ne_S_S0} vs {e1_ne_S_S1} under today's market in the small breed). Breeders will not mate randomly. With club quotas the tool comes close in the small breed (Ne {p12_ne_S_cc_ocs_mc1} vs {p12_ne_S_s0} random) while keeping rule compliance, disease and hip improvement; in the medium breed random mating is still clearly ahead ({p12_ne_M_s0} vs {p12_ne_M_cc_ocs_mc1}).
+
+**17. So does coordination fix it?**
+In our model, yes against today's market and against the recommender alone. We fixed the success criteria before running: coordinated planning raised Ne over the market in both breeds (small {p12_h1_S_est}, 95% interval {p12_h1_S_ci}; medium {p12_h1_M_est}, {p12_h1_M_ci}) and lowered the long-term rate of inbreeding compared with the recommender alone. Two pre-registered expectations failed: mating method mattered as much as contribution control (minimum-kinship mating without quotas was the worst strategy), and in the medium breed planning on true kinship did not reach random mating. All in silico.
+
+**18. Would clubs accept quotas?**
+Untested, and we say so. Clubs already cap sires (Finland: 15 to 120 offspring per male; the Dutch Golden Retriever club: 12 matings a year), and the FCI recommends 5% of five-year registrations. Our quotas are softer than a fixed cap: breeders still choose among sires with quota left, and with half of the breeders taking part most of the gain remained in our simulation.
 
 **17. Is the simulator's breeding market realistic?**
 It reproduces popular-sire concentration (top 20% of sires produce {top20_S} of puppies in the small breed) and the Ne bands of published breeds; behaviour parameters were tuned and are listed as assumptions.

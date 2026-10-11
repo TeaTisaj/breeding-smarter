@@ -17,7 +17,7 @@ An open engine: exact inbreeding and kinship, EU, FCI and kennel-club rules, and
 2025 puppies of the small breed: recorded COI 10.9%, true inbreeding 43.7%.
 
 ## Does it work?
-Ten simulated generations: the recommender cut realised inbreeding by 1.5 points in the small breed and nearly removed affected puppies at tested loci. Long-term diversity needs coordinated sire use: random mating kept Ne at 87 versus 32.
+Ten simulated generations: the recommender cut realised inbreeding by 1.5 points in the small breed and nearly removed affected puppies at tested loci, but breeders all chose the same sires. Club quotas fix this: coordinated sire planning raised Ne from 33 (today's market) to 54 in the small breed and from 188 to 283 in the medium breed; the recommender within quotas did as well. Random mating still kept the most diversity in the medium breed.
 
 ## Honesty box
 All dogs are synthetic. Results are in silico. Some EU rules are not yet verified.

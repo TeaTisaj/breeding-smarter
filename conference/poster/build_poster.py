@@ -76,9 +76,10 @@ def main() -> Path:
     y += 5 + pic.height.cm + 1
     textbox(s, 3, y, 41, 2, "Does it work?", 44, True, BLUE)
     textbox(s, 3, y + 2.3, 41, 9, sec.get("Does it work?", ""), 28)
-    a = s.shapes.add_picture(
-        str(HERE / "figA_realised_inbreeding_poster.png"), Cm(3), Cm(y + 11.5), width=Cm(41)
-    )
+    headline = HERE / "figG_coordination_poster.png"  # P12; falls back to the P8 figure
+    if not headline.exists():
+        headline = HERE / "figA_realised_inbreeding_poster.png"
+    a = s.shapes.add_picture(str(headline), Cm(3), Cm(y + 11.5), width=Cm(41))
     textbox(s, 46, y, 41, 2, "Explainable matches", 44, True, BLUE)
     b = s.shapes.add_picture(str(HERE / "scorecard.png"), Cm(46), Cm(y + 2.5), width=Cm(41))
     y += max(11.5 + a.height.cm, 2.5 + b.height.cm) + 1

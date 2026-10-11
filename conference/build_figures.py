@@ -50,6 +50,18 @@ def fig_a_poster() -> Path:
     return OUT / "figA_realised_inbreeding_poster.png"
 
 
+def fig_g_poster() -> Path | None:
+    """P12 headline (coordination) figure; replaces Fig A on the poster when it exists."""
+    src = ROOT / "reports" / "experiments" / "E5_coordination" / "figures"
+    if not (src / "figG_coordination_poster.png").exists():
+        return None
+    for ext in ("png", "svg"):
+        shutil.copy(
+            src / f"figG_coordination_poster.{ext}", OUT / f"figG_coordination_poster.{ext}"
+        )
+    return OUT / "figG_coordination_poster.png"
+
+
 def scorecard_image() -> Path:
     """Score card of demo dam 2's top match rendered with matplotlib (poster size)."""
     from breeding_smarter.matching import load_context, recommend_sires
@@ -121,6 +133,7 @@ def main() -> None:
     shutil.copy(ROOT / "conference" / "templates" / "pipeline.svg", OUT / "pipeline.svg")
     print("wrote", OUT / "pipeline.svg")
     print("wrote", fig_a_poster())
+    print("wrote", fig_g_poster())
     print("wrote", fig4_poster())
     print("wrote", scorecard_image())
     made, missing = qr_codes()
