@@ -2,7 +2,7 @@
 
 All animals in this dataset are synthetic.
 
-Run `20261011-default-s42`: seed 42, config hash `68d359489162`, git `6c2d30af31fb`, scale 1.0.
+Run `20261011-default-s42`: seed 42, config hash `68d359489162`, git `d3fddf8f31fb`, scale 1.0.
 
 Checks: **39 PASS, 8 WARN, 0 FAIL** (58 report-only values). Hard targets must pass; soft targets warn only.
 

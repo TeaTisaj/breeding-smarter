@@ -2,7 +2,7 @@
 Date: 2026-10-11
 
 ## Acceptance checklist
-- [x] Dataset v1 frozen and tagged: `configs/datasets.yaml` -> `v1` = run `20261011-default-s42` (seed 42, config hash `68d35948...`, git `6c2d30af`). Regenerating at the tagged commit reproduced `registry/animals.parquet` byte for byte. **All hard targets pass** (`bsm validate --run 20261011-default-s42`: 39 PASS, 8 WARN, 0 FAIL). Soft warnings explained below.
+- [x] Dataset v1 frozen and tagged: `configs/datasets.yaml` -> `v1` = run `20261011-default-s42` (seed 42, config hash `68d35948...`, git `d3fddf8f`). Regenerating at the tagged commit reproduced `registry/animals.parquet` byte for byte. **All hard targets pass** (`bsm validate --run 20261011-default-s42`: 39 PASS, 8 WARN, 0 FAIL). Soft warnings explained below.
 - [x] T12 and T13 pass (main correctness evidence): engine vs gene drop max |difference| per birth decade L 0.0001, M 0.0011, S 0.0075 (limit 0.01); regression slope L 0.994, M 1.008, S 0.959 (0.9 to 1.1), intercepts all within +/- 0.01. Pass on all four seeds (table below).
 - [x] Validation report and figures generated: `reports/validation/20261011-default-s42/validation_report.md`, `targets_vs_simulated.csv`, `figures/fig1..fig8` (PNG 300 dpi + SVG). **[HUMAN] Tea has not yet looked at figure 4** (`fig4_recorded_vs_true_f.png`); I checked it: recorded COI is far below true F in all breeds, and true pedigree F and realised IBD lie on top of each other.
 - [x] Seed sensitivity table (below).

@@ -2,7 +2,7 @@
 
 All animals in this dataset are synthetic.
 
-Run `sens-default-s1`: seed 1, config hash `68d359489162`, git `6c2d30af31fb`, scale 1.0.
+Run `sens-default-s1`: seed 1, config hash `68d359489162`, git `d3fddf8f31fb`, scale 1.0.
 
 Checks: **39 PASS, 7 WARN, 1 FAIL** (58 report-only values). Hard targets must pass; soft targets warn only.
 

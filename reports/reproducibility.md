@@ -2,7 +2,7 @@
 
 Date: 2026-10-11. Machine: macOS (arm64), Python 3.12.3, uv 0.11.13.
 
-1. `git clone` of the repository into a fresh folder, `git checkout 6c2d30af31fb3c1078e0a4932f8fb60aa3d23903`
+1. `git clone` of the repository into a fresh folder, `git checkout d3fddf8fa7251a2b7d47befabb57ec21cb1e8ae2`
    (the commit recorded for dataset v1 in `configs/datasets.yaml`).
 2. Fresh environment: `uv sync --all-groups` (new `.venv`).
 3. `uv run bsm generate --run-id 20261011-default-s42` (default config, seed 42), then

@@ -3,7 +3,7 @@ datasets:
   v1:
     run_id: 20261011-default-s42
     config_hash: 68d35948916204bde48c1c50ab64ca7cef465c01961821f0dd3aac318cd0a72a
-    git_commit: 6c2d30af31fb3c1078e0a4932f8fb60aa3d23903
+    git_commit: d3fddf8fa7251a2b7d47befabb57ec21cb1e8ae2
     seed: 42
     frozen_on: '2026-10-11'
     note: P5 frozen dataset; all hard calibration targets pass
