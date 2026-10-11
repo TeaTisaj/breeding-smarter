@@ -11,7 +11,7 @@ Standing instructions for the autonomous run: `plan/GOAL.md` (gates pre-approved
 | P3 Population simulator | done | [P3](gates/P3_report.md) | pre-approved (GOAL.md) |
 | P4 Genetics | done | [P4](gates/P4_report.md) | pre-approved (GOAL.md) |
 | P5 Calibration | done | [P5](gates/P5_report.md) | pre-approved (GOAL.md) |
-| P6 Rules | not started | | |
+| P6 Rules | done | [P6](gates/P6_report.md) | pre-approved (GOAL.md) |
 | P7 Matching | not started | | |
 | P8 Experiments | not started | | |
 | P9 Demo app | not started | | |
@@ -40,10 +40,13 @@ Status values: not started, in progress, at gate (waiting for review), done.
 ### P5
 - [x] 5.1 Targets  - [x] 5.2 Metrics  - [x] 5.3 True-pedigree F  - [x] 5.4 Report and `bsm validate`  - [x] 5.5 Calibration grid (applied)  - [x] 5.6 Dataset v1 frozen (`20261011-default-s42`) + sensitivity
 
+### P6
+- [x] 6.1 Models and loader  - [x] 6.2 RuleContext  - [x] 6.3 Rule types  - [x] 6.4 Engine  - [x] 6.5 `bsm check`  - [ ] 6.6 HUMAN verification (checklist generated: docs/rules_verification.md)  - [x] 6.7 Rules catalogue
+
 ## HUMAN tasks (Tea or colleague)
 - [ ] Email info@orthoing.com: confirm a slot (talk, poster or demo) and whether a late full paper by 15 Oct is possible.
-- [ ] Verify EU Regulation 2026/1818 breeding provisions against the EUR-Lex text (see P6).
-- [ ] Verify HKS rules against the current Pravilnik (see P6).
+- [ ] Verify EU Regulation 2026/1818 breeding provisions against the EUR-Lex text: work through `docs/rules_verification.md`, fill `article`/`in_application_from` in `configs/rules/eu_2026_1818.yaml`, set `verified: true`, run `uv run bsm rules docs`.
+- [ ] Verify HKS rules (`configs/rules/hks_hr.yaml`) against the current Pravilnik o uzgoju (age windows for non-hunting breeds, litter interval).
 - [ ] Create GitHub repo and Zenodo account link (see P10).
 - [ ] Print poster by 21 Oct (see P11).
 - [ ] Look at the key poster figure: `reports/validation/20261011-default-s42/figures/fig4_recorded_vs_true_f.png` (P5).

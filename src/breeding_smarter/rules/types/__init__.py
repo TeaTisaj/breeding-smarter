@@ -301,7 +301,7 @@ class MaxLittersInWindow(RuleType):
     ) -> str:
         w = rule.params["window_months"]
         op = "<=" if b.passed[k] else ">"
-        return f"{b.value[k]:.0f} litters in {w} months including this one {op} {b.threshold:g}."
+        return f"{b.value[k]:.0f} litter(s) in {w} months including this one {op} {b.threshold:g}."
 
 
 class MaxLifetimeLitters(RuleType):
