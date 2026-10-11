@@ -24,7 +24,7 @@ SYNTHETIC_NOTE = "Synthetic data (no real dogs)."
 
 
 def apply(poster: bool = False) -> None:
-    base = 20 if poster else 10
+    base = 28 if poster else 10  # poster: at least 28 pt at 100% print scale (P11)
     plt.rcParams.update(
         {
             "font.size": base,

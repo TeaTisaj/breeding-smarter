@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 360" font-family="Helvetica, Arial, sans-serif">
+  <rect width="1600" height="360" fill="#ffffff"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1F2933"/></marker></defs>
+  <g font-size="30" text-anchor="middle">
+    <rect x="20" y="90" width="270" height="180" rx="18" fill="#E8F1F8" stroke="#0072B2" stroke-width="4"/>
+    <text x="155" y="160" font-weight="bold">Synthetic</text><text x="155" y="200" font-weight="bold">registry</text><text x="155" y="240" font-size="22">calibrated, with truth</text>
+    <rect x="335" y="90" width="270" height="180" rx="18" fill="#E8F1F8" stroke="#0072B2" stroke-width="4"/>
+    <text x="470" y="160" font-weight="bold">Pedigree</text><text x="470" y="200" font-weight="bold">engine</text><text x="470" y="240" font-size="22">COI, kinship, Ne</text>
+    <rect x="650" y="90" width="270" height="180" rx="18" fill="#FDF3E1" stroke="#E69F00" stroke-width="4"/>
+    <text x="785" y="160" font-weight="bold">Rules</text><text x="785" y="200" font-size="22">EU 2026/1818, FCI,</text><text x="785" y="230" font-size="22">KC, RvB, HKS</text>
+    <rect x="965" y="90" width="270" height="180" rx="18" fill="#E6F4EF" stroke="#009E73" stroke-width="4"/>
+    <text x="1100" y="160" font-weight="bold">Explained</text><text x="1100" y="200" font-weight="bold">score</text><text x="1100" y="240" font-size="22">ranked sires</text>
+    <rect x="1280" y="90" width="300" height="180" rx="18" fill="#F3E8F0" stroke="#CC79A7" stroke-width="4"/>
+    <text x="1430" y="160" font-weight="bold">10 simulated</text><text x="1430" y="200" font-weight="bold">generations</text><text x="1430" y="240" font-size="22">does it work?</text>
+  </g>
+  <g stroke="#1F2933" stroke-width="4" marker-end="url(#a)">
+    <line x1="290" y1="180" x2="330" y2="180"/><line x1="605" y1="180" x2="645" y2="180"/>
+    <line x1="920" y1="180" x2="960" y2="180"/><line x1="1235" y1="180" x2="1275" y2="180"/>
+  </g>
+  <text x="800" y="330" font-size="22" text-anchor="middle" fill="#555555">All data synthetic. Open code and dataset.</text>
+</svg>

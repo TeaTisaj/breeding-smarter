@@ -16,7 +16,7 @@ Standing instructions for the autonomous run: `plan/GOAL.md` (gates pre-approved
 | P8 Experiments | done (E3 after P11) | [P8](gates/P8_report.md) | pre-approved (GOAL.md) |
 | P9 Demo app | done (deploy is HUMAN) | [P9](gates/P9_report.md) | pre-approved (GOAL.md) |
 | P10 Release | done (publishing is HUMAN) | [P10](gates/P10_report.md) | pre-approved (GOAL.md) |
-| P11 Conference | not started | | |
+| P11 Conference | done (printing, links, submission are HUMAN) | [P11](gates/P11_report.md) | pre-approved (GOAL.md) |
 
 Status values: not started, in progress, at gate (waiting for review), done.
 
@@ -55,12 +55,17 @@ Status values: not started, in progress, at gate (waiting for review), done.
 ### P10
 - [x] 10.1 Release package  - [x] 10.2 Datasheet  - [x] 10.3 README  - [x] 10.4 Reproducibility  - [ ] 10.5 GitHub (HUMAN, prepared)  - [ ] 10.6 Zenodo (HUMAN, prepared)  - [ ] 10.7 Hugging Face push (HUMAN token; script ready)  - [x] 10.8 Link placeholders tooling (`bsm links check/fill`)
 
+### P11
+- [x] numbers.json + rendered texts  - [ ] Paper (draft ready; submission HUMAN)  - [x] Poster content pack (QR codes wait for links)  - [x] Slides outline  - [x] Demo script  - [x] Partner one-pager  - [x] Q&A
+
 ## HUMAN tasks (Tea or colleague)
 - [ ] Email info@orthoing.com: confirm a slot (talk, poster or demo) and whether a late full paper by 15 Oct is possible.
 - [ ] Verify EU Regulation 2026/1818 breeding provisions against the EUR-Lex text: work through `docs/rules_verification.md`, fill `article`/`in_application_from` in `configs/rules/eu_2026_1818.yaml`, set `verified: true`, run `uv run bsm rules docs`.
 - [ ] Verify HKS rules (`configs/rules/hks_hr.yaml`) against the current Pravilnik o uzgoju (age windows for non-hunting breeds, litter interval).
 - [ ] Create GitHub repo and Zenodo account link (see P10).
-- [ ] Print poster by 21 Oct (see P11).
+- [ ] Poster: get the official template, paste the blocks from `conference/poster/` (draft layout `poster_draft.pptx`), regenerate QR codes after filling links (`uv run python conference/build_figures.py`), test-print and print by 21 Oct.
+- [ ] Decide on the paper: if a late submission is accepted, adapt `conference/paper/draft.md` to the IFMBE template and submit by 15 Oct.
+- [ ] Build the slides from `conference/slides/outline.md`; print ~50 copies of `conference/partner_onepager.md`; final checklist in `plan/12_P11_conference.md` section 8.
 - [ ] Look at the key poster figure: `reports/validation/20261011-default-s42/figures/fig4_recorded_vs_true_f.png` (P5).
 - [ ] Review score card wording: `reports/matching/demo_dams.md` (P7).
 - [ ] Deploy the demo app: follow `docs/deploy.md` (Streamlit Community Cloud or Hugging Face Spaces); put the URL in `conference/links.yaml`.

@@ -1,0 +1,21 @@
+# Demo script (about 3 minutes)
+
+Synthetic data only. Start the app before the talk: public URL `{link_demo_url}`, or locally
+`BSM_BUNDLE_PATH=bundle uv run streamlit run app/Home.py`.
+
+1. **Breed overview, SYN_S (20 s).** Select SYN_S. Point at the KPI tiles (Ne {ne_S}). Switch on
+   **"Show ground truth"**: recorded COI of recent litters is about {recorded_f_2025_S} while true
+   inbreeding is about {true_f_2025_S}. "A real registry cannot see this gap; our synthetic data can."
+2. **Mate finder, demo dam 2 (60 s).** Open Mate finder, click **Demo dam 2: {demo2_name}
+   ({demo2_breed})**. Read the summary line (candidates, excluded, warnings). Scroll the ranked
+   table: the breed's most used sire is not on top. Search it in Pair check if asked: its card
+   shows high predicted COI and heavy sire use.
+3. **Excluded list (20 s).** Open **Excluded sires**: a half-brother is blocked by the EU
+   close-relative ban (marked unverified until we check the article).
+4. **Score card of the top match (40 s).** Click the first row: tier and score, the component
+   bars, **Why this COI?** (ancestor shares adding to 100%), the health matrix, rule badges.
+5. **Simulation results (20 s).** Fig A: realised inbreeding under five strategies; say the
+   honest result in one sentence.
+
+Fallbacks in order: public URL; local app with the network off (`docs/deploy.md`); the
+recorded video on the desktop ([HUMAN]).
