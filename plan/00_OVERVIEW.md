@@ -238,6 +238,7 @@ Each phase ends with a **gate**: run the acceptance checklist, write the gate re
 | P9 | Demo app | `10_P9_demo_app.md` | P7 (P8 for results page) | 2 days |
 | P10 | Release and documentation | `11_P10_release.md` | P5, P8 | 1 day |
 | P11 | Conference materials | `12_P11_conference.md` | P8, P9, P10 | 1.5 days |
+| P12 | Coordinated sire use (contribution control) | `13_P12_coordination.md` | P2, P6, P7, P8 | 3 days |
 
 ---
 

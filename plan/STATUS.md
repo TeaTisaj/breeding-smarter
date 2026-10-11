@@ -19,6 +19,7 @@ Standing instructions for the autonomous run: `plan/GOAL.md` (gates pre-approved
 | P9 Demo app | done (deploy is HUMAN) | [P9](gates/P9_report.md) | pre-approved (GOAL.md) |
 | P10 Release | done (publishing is HUMAN) | [P10](gates/P10_report.md) | pre-approved (GOAL.md) |
 | P11 Conference | done (printing, links, submission are HUMAN) | [P11](gates/P11_report.md) | pre-approved (GOAL.md) |
+| P12 Coordination | not started (plan written) | - | - |
 
 Status values: not started, in progress, at gate (waiting for review), done.
 
@@ -59,6 +60,9 @@ Status values: not started, in progress, at gate (waiting for review), done.
 
 ### P11
 - [x] numbers.json + rendered texts  - [ ] Paper (draft ready; submission HUMAN)  - [x] Poster content pack (QR codes wait for links)  - [x] Slides outline  - [x] Demo script  - [x] Partner one-pager  - [x] Q&A
+
+### P12
+- [ ] 12.0 Solver spike + ADR-007  - [ ] 12.1 Sources + config  - [ ] 12.2 Targets  - [ ] 12.3 OCS  - [ ] 12.4 OCS tests  - [ ] 12.5 Caps, quotas, allocation, ledger  - [ ] 12.6 Planner  - [ ] 12.7 Truth kinship  - [ ] 12.8 Strategies + runner  - [ ] 12.9 Metrics  - [ ] 12.10 Experiments E5-E7  - [ ] 12.11 Figures G-L  - [ ] 12.12 CLI + app  - [ ] 12.13 Docs  - [ ] 12.14 Conference (conditional)
 
 ## HUMAN tasks (Tea or colleague)
 - [ ] Email info@orthoing.com: confirm a slot (talk, poster or demo) and whether a late full paper by 15 Oct is possible.
