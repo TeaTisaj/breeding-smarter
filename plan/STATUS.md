@@ -3,6 +3,8 @@
 Update this file at the end of every task. Tea reads it to see progress.
 Standing instructions for the autonomous run: `plan/GOAL.md` (gates pre-approved by Tea).
 
+**Autonomous run finished 2026-10-11:** all MVP tasks P0 to P11 implemented with gate reports in `plan/gates/`; E3 done. What remains are the HUMAN tasks below (accounts, verification of legal texts, deployment, publishing, printing) and STRETCH items (not started).
+
 | Phase | Status | Gate report | Approved by Tea |
 |---|---|---|---|
 | P0 Setup | done | [P0](gates/P0_report.md) | pre-approved (GOAL.md) |
@@ -13,7 +15,7 @@ Standing instructions for the autonomous run: `plan/GOAL.md` (gates pre-approved
 | P5 Calibration | done | [P5](gates/P5_report.md) | pre-approved (GOAL.md) |
 | P6 Rules | done | [P6](gates/P6_report.md) | pre-approved (GOAL.md) |
 | P7 Matching | done | [P7](gates/P7_report.md) | pre-approved (GOAL.md) |
-| P8 Experiments | done (E3 after P11) | [P8](gates/P8_report.md) | pre-approved (GOAL.md) |
+| P8 Experiments | done (incl. E3) | [P8](gates/P8_report.md) | pre-approved (GOAL.md) |
 | P9 Demo app | done (deploy is HUMAN) | [P9](gates/P9_report.md) | pre-approved (GOAL.md) |
 | P10 Release | done (publishing is HUMAN) | [P10](gates/P10_report.md) | pre-approved (GOAL.md) |
 | P11 Conference | done (printing, links, submission are HUMAN) | [P11](gates/P11_report.md) | pre-approved (GOAL.md) |
@@ -47,7 +49,7 @@ Status values: not started, in progress, at gate (waiting for review), done.
 - [x] 7.1 DatasetContext  - [x] 7.2 Candidates  - [x] 7.3 Components  - [x] 7.4 Score  - [x] 7.5 Score card  - [x] 7.6 recommend_sires/score_pair  - [x] 7.6b rank_fast  - [x] 7.7 `bsm match`  - [x] 7.8 Demo dams (`configs/demo.yaml`)
 
 ### P8
-- [x] 8.0 exp_pairing  - [x] 8.1 Strategies S0-S4 + IncrementalContext  - [x] 8.2 Runner  - [x] 8.3 Checkpointing  - [x] 8.4 Summary  - [x] 8.5 Figures A-F  - [x] 8.6 CLI  - [x] 8.7 Runtime planning (no reduction)  - [ ] E3 ablation (scheduled after P11 per GOAL.md)
+- [x] 8.0 exp_pairing  - [x] 8.1 Strategies S0-S4 + IncrementalContext  - [x] 8.2 Runner  - [x] 8.3 Checkpointing  - [x] 8.4 Summary  - [x] 8.5 Figures A-F  - [x] 8.6 CLI  - [x] 8.7 Runtime planning (no reduction)  - [x] E3 ablation (run after P11; results appended to the P8 gate report)
 
 ### P9
 - [x] 9.1 Demo bundle  - [x] 9.2 App skeleton  - [x] 9.3 Caching  - [x] 9.4 Pages  - [ ] 9.5 Deployment (HUMAN, steps in docs/deploy.md)  - [x] 9.6 Local fallback  - [ ] 9.7 Screen video (HUMAN)

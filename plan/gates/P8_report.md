@@ -46,3 +46,22 @@ Tests (`tests/integration/test_experiments.py`, tiny run): every strategy return
 
 ## HUMAN tasks waiting
 - None new.
+
+## E3 carrier-policy ablation (run after P9 to P11, as GOAL.md requires)
+`configs/experiments/ablation.yaml`, report `reports/experiments/E3_carrier_policy/`
+(summary.md, summary.csv, `paired_vs_S3.csv`, figures). S3 with (a) carrier x carrier
+penalised (default), (b) carrier x carrier HARD-blocked (`configs/rules/exp_pairing_hard_carrier.yaml`,
+strategy `S3hc`), (c) all known carriers excluded from breeding (strategy `S3xc`), 10
+replicates each, generation 10:
+- **Deviation:** run on SYN_S as planned **and on SYN_M**, because SYN_S has no segregating
+  tested locus in v1 (all lost by drift), which makes the three policies identical there
+  (confirmed: identical results).
+- **(b) = (a) exactly in both breeds:** the recommender's health component already keeps
+  carrier x carrier pairs out of every top-3 choice, so the HARD block never binds.
+- **(c) in SYN_M:** tested risk alleles fall far faster (SOD1_DM frequency 0.087 -> 0.007,
+  paired -0.081, CI -0.110 to -0.051; ABCB1_MDR1 0.069 -> 0.009), at a diversity cost that is
+  small in this breed: Ne 190 -> 163, realised IBD +0.3 points (CI -0.35 to +0.97, not
+  significant), neutral heterozygosity -0.3 points (CI -0.7 to +0.1). Direction as expected,
+  effect small.
+- The expected NOVEL_X effect cannot be tested here: NOVEL_X is absent in SYN_M, and in SYN_S
+  the policies do not differ. Reported, not tuned.
