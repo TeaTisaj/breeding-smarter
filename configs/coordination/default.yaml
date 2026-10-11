@@ -1,0 +1,14 @@
+# Coordinated sire use (P12). Numbers: docs/research.md section 10 and docs/research_coordination.md.
+delta_f_ladder: {value: [0.01, 0.005, 0.0025], source: fao-2013, note: "1% floor (Ne 50), 0.5% default (Ne 100), 0.25% Dutch 'small risk' (windig-2013)"}
+delta_f_extra_medium: {value: [0.001], source: windig-2013, note: "SYN_M status quo is already about 0.17% per generation"}
+delta_f_default: {value: 0.005, source: frankham-2014, note: "Ne 100"}
+generation_interval_window_years: {value: 5, assumption: true, note: "L = mean parent age of animals born in the last 5 years"}
+small_cohort_term: {value: true, source: du-2025}
+cap_base_litters_per_year: {value: 5, source: windig-2013, note: "per-year caps of 5 to 10 litters gave dF 0.18 to 0.27%"}
+cap_mk_scaling: {value: true, assumption: true, note: "flat caps can backfire (leroy-rognon-2012); cap = clip(round(base x MK_ref / MK), 1, base)"}
+min_expected_litters: {value: 0.25, source: du-2025, note: "threshold value is a project choice"}
+youngest_age_classes_required: {value: 2, source: sonesson-meuwissen-2001}
+depth_constraint: {value: true, source: wellmann-2019, note: "optiSel lb.equiGen idea: weighted mean EqG of chosen sires >= mean EqG of candidates"}
+health_weight_in_allocation: {value: 1.0, assumption: true, note: "mate allocation cost = pair kinship + w x P(affected puppy)"}
+lifetime_cap_offspring: {value: null, source: kennelliitto-pevisa-2026, note: "off by default; PEVISA range 15 to 120, most breeds 20 to 60 (STRETCH sensitivity only)"}
+solver: {value: CLARABEL, assumption: true, note: "cvxpy solver name; ADR-007"}

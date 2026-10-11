@@ -5,5 +5,6 @@ unset VIRTUAL_ENV
 uv run ruff check .
 uv run ruff format --check .
 uv run mypy src
-uv run mypy --strict src/breeding_smarter/pedigree src/breeding_smarter/rules src/breeding_smarter/matching
+uv run mypy --strict src/breeding_smarter/pedigree src/breeding_smarter/rules src/breeding_smarter/matching \
+  src/breeding_smarter/coordination
 uv run pytest -m "not slow" -q "$@"

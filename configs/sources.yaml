@@ -85,3 +85,91 @@ sources:
     ref: "ICAR, Misuse of the 999 code (ISO 11784 test transponder code); ICAR Code of Conduct 2025, Appendix A3"
     url: "https://www.icar.org/wp-content/uploads/documents/ICAR-Misuse-999-code.pdf"
     added_in: P1 task 1.6
+  fao-2013:
+    ref: "FAO 2013, In vivo conservation of animal genetic resources"
+    url: "https://www.fao.org/4/i3327e/i3327e.pdf"
+    added_in: P12 task 12.1
+  frankham-2014:
+    ref: "Frankham, Bradshaw and Brook 2014, Biol Conserv (50/500 rule should be 100/1000)"
+    url: "https://doi.org/10.1016/j.biocon.2014.05.006"
+    added_in: P12 task 12.1
+  windig-2013:
+    ref: "Windig, van der Kraats and Oldenbroek 2013, EAAP slides (Golden Retriever mating strategies)"
+    url: "https://docs.eaap.org/2013/S51b_04.pdf"
+    added_in: P12 task 12.1
+  windig-oldenbroek-2015:
+    ref: "Windig and Oldenbroek 2015, J Anim Breed Genet 132:428-440"
+    url: "https://doi.org/10.1111/jbg.12149"
+    added_in: P12 task 12.1
+  windig-hulsegge-2021:
+    ref: "Windig and Hulsegge 2021, Animals 11:1332 (Pointer breeding circles)"
+    url: "https://doi.org/10.3390/ani11051332"
+    added_in: P12 task 12.1
+  kennelliitto-pevisa-2026:
+    ref: "Kennelliitto PEVISA programmes 2026 (offspring caps per male)"
+    url: "https://kennelliitto.fi/pevisa-ja-rotukohtaiset-erityisehdot"
+    added_in: P12 task 12.1
+  nkk-ras-2025:
+    ref: "NEKF RAS guide 2025 (NKK 5% / 2% recommendation, secondary)"
+    url: "https://elghundforbundet.no/wp-content/uploads/2025/09/NEKFs-RAS-veileder.pdf"
+    added_in: P12 task 12.1
+  rvb-vfr-2025:
+    ref: "Raad van Beheer VFR guide, March 2025"
+    url: "https://www.houdenvanhonden.nl/globalassets/regelgeving/format-vfr/leeswijzer-vfr-maart-2025.pdf"
+    added_in: P12 task 12.1
+  grcn-vfr-2026:
+    ref: "Golden Retriever Club Nederland VFR 2026 (12 matings per year, lifetime 40)"
+    url: "https://www.goldenretrieverclub.nl/"
+    added_in: P12 task 12.1
+  du-2025:
+    ref: "Du, Bernstein and Hoppe 2025, arXiv:2504.12895 (dynamic OCS, small-cohort term)"
+    url: "https://arxiv.org/abs/2504.12895"
+    added_in: P12 task 12.1
+  wellmann-2019:
+    ref: "Wellmann 2019, optiSel, BMC Bioinformatics 20:25"
+    url: "https://doi.org/10.1186/s12859-018-2450-5"
+    added_in: P12 task 12.1
+  wellmann-bennewitz-2019:
+    ref: "Wellmann and Bennewitz 2019, Front Genet 10:667"
+    url: "https://doi.org/10.3389/fgene.2019.00667"
+    added_in: P12 task 12.1
+  pong-wong-woolliams-2007:
+    ref: "Pong-Wong and Woolliams 2007, Genet Sel Evol 39:3-25 (OCS by semidefinite programming)"
+    url: "https://doi.org/10.1186/1297-9686-39-1-3"
+    added_in: P12 task 12.1
+  sonesson-meuwissen-2000:
+    ref: "Sonesson and Meuwissen 2000, Genet Sel Evol 32:231-248 (mate selection, MC1)"
+    url: "https://doi.org/10.1186/1297-9686-32-3-231"
+    added_in: P12 task 12.1
+  sonesson-meuwissen-2001:
+    ref: "Sonesson and Meuwissen 2001, Genet Res 77:285-292 (minimisation of rate of inbreeding)"
+    url: "https://doi.org/10.1017/S0016672301005079"
+    added_in: P12 task 12.1
+  sonesson-2012:
+    ref: "Sonesson, Woolliams and Meuwissen 2012, Genet Sel Evol 44:27 (pedigree vs genomic constraint)"
+    url: "https://doi.org/10.1186/1297-9686-44-27"
+    added_in: P12 task 12.1
+  grundy-1998:
+    ref: "Grundy, Villanueva and Woolliams 1998, Genet Res (dynamic selection)"
+    url: "https://doi.org/10.1017/s0016672398003474"
+    added_in: P12 task 12.1
+  gorjanc-hickey-2018:
+    ref: "Gorjanc and Hickey 2018, AlphaMate, Bioinformatics 34:3408-3411"
+    url: "https://doi.org/10.1093/bioinformatics/bty375"
+    added_in: P12 task 12.1
+  fogg-2024:
+    ref: "Fogg et al. 2024, robust OCS, arXiv:2412.02888 (robustocs)"
+    url: "https://arxiv.org/abs/2412.02888"
+    added_in: P12 task 12.1
+  de-cara-2013:
+    ref: "de Cara et al. 2013, Heredity (purging and OC)"
+    url: "https://doi.org/10.1038/hdy.2012.119"
+    added_in: P12 task 12.1
+  legarra-2015:
+    ref: "Legarra et al. 2015, metafounders"
+    url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC4492372"
+    added_in: P12 task 12.1
+  leroy-baumung-2011:
+    ref: "Leroy and Baumung 2011, Anim Genet 42:66-74 (popular sires, French breeds)"
+    url: "https://agris.fao.org/search/fr/records/652f9eecd5e38ff7731f7902"
+    added_in: P12 task 12.1

@@ -161,5 +161,49 @@ University of Zagreb Faculty of Veterinary Medicine and Faculty of Agriculture (
 | optisel | optiSel on CRAN, v2.1.0 |
 | alphasimr | AlphaSimR on CRAN, v2.1.0 |
 | icar-999 | ICAR, misuse of the 999 code: ISO 11784 code 999 is reserved for test transponders (added in P1 task 1.6, icar.org) |
+| fao-2013 | FAO 2013, In vivo conservation of animal genetic resources (added in P12) |
+| frankham-2014 | Frankham, Bradshaw and Brook 2014, Biol Conserv (50/500 rule should be 100/1000) (added in P12) |
+| windig-2013 | Windig, van der Kraats and Oldenbroek 2013, EAAP slides (Golden Retriever mating strategies) (added in P12) |
+| windig-oldenbroek-2015 | Windig and Oldenbroek 2015, J Anim Breed Genet 132:428-440 (added in P12) |
+| windig-hulsegge-2021 | Windig and Hulsegge 2021, Animals 11:1332 (Pointer breeding circles) (added in P12) |
+| kennelliitto-pevisa-2026 | Kennelliitto PEVISA programmes 2026 (offspring caps per male) (added in P12) |
+| nkk-ras-2025 | NEKF RAS guide 2025 (NKK 5% / 2% recommendation, secondary) (added in P12) |
+| rvb-vfr-2025 | Raad van Beheer VFR guide, March 2025 (added in P12) |
+| grcn-vfr-2026 | Golden Retriever Club Nederland VFR 2026 (12 matings per year, lifetime 40) (added in P12) |
+| du-2025 | Du, Bernstein and Hoppe 2025, arXiv:2504.12895 (dynamic OCS, small-cohort term) (added in P12) |
+| wellmann-2019 | Wellmann 2019, optiSel, BMC Bioinformatics 20:25 (added in P12) |
+| wellmann-bennewitz-2019 | Wellmann and Bennewitz 2019, Front Genet 10:667 (added in P12) |
+| pong-wong-woolliams-2007 | Pong-Wong and Woolliams 2007, Genet Sel Evol 39:3-25 (OCS by semidefinite programming) (added in P12) |
+| sonesson-meuwissen-2000 | Sonesson and Meuwissen 2000, Genet Sel Evol 32:231-248 (mate selection, MC1) (added in P12) |
+| sonesson-meuwissen-2001 | Sonesson and Meuwissen 2001, Genet Res 77:285-292 (minimisation of rate of inbreeding) (added in P12) |
+| sonesson-2012 | Sonesson, Woolliams and Meuwissen 2012, Genet Sel Evol 44:27 (pedigree vs genomic constraint) (added in P12) |
+| grundy-1998 | Grundy, Villanueva and Woolliams 1998, Genet Res (dynamic selection) (added in P12) |
+| gorjanc-hickey-2018 | Gorjanc and Hickey 2018, AlphaMate, Bioinformatics 34:3408-3411 (added in P12) |
+| fogg-2024 | Fogg et al. 2024, robust OCS, arXiv:2412.02888 (robustocs) (added in P12) |
+| de-cara-2013 | de Cara et al. 2013, Heredity (purging and OC) (added in P12) |
+| legarra-2015 | Legarra et al. 2015, metafounders (added in P12) |
+| leroy-baumung-2011 | Leroy and Baumung 2011, Anim Genet 42:66-74 (popular sires, French breeds) (added in P12) |
 
 Full URLs are in the original research report (`docs/research_report_full.md` if Tea adds it).
+
+## 10. Coordination (P12)
+
+Numbers used by the coordination layer (`configs/coordination/default.yaml`). Full notes, quotes and labels are in `docs/research_coordination.md`; labels below are copied from there.
+
+| Item | Value | Key | Label |
+|---|---|---|---|
+| ΔF floor (Ne 50) | 1% per generation | fao-2013 | verified |
+| ΔF recommended default (Ne 100) | 0.5% per generation | frankham-2014, lewis-2015, windig-2013 | verified |
+| Dutch "small risk" band | below 0.25% per generation | windig-2013 | verified |
+| Ne = 1/(2ΔF); per-year rate about ΔF/L | formula | fao-2013, lewis-2015 | verified |
+| Yearly kinship bound C_next = 1 − (1 − C_now)(1 − ΔF)^(1/L) | formula | du-2025 | **unverified** (exact yearly form not found in a primary text) |
+| Small-cohort term (1/(2N)) Σ c_i (1 − k_ii) | formula | du-2025 | verified; disputed by wellmann-bennewitz-2019 |
+| Drop contributions below 0.25 expected litters | 0.25 | du-2025 | verified threshold idea, value a project choice |
+| Per-year sire caps 5 and 10 litters gave ΔF 0.18% and 0.27% (Golden Retriever simulation); 20 per year gave 0.45% | 5 to 10 | windig-2013 | verified (slides) |
+| Per-dam least-related sire: ΔF 0.04% (years 0 to 20), 0.39% (years 50 to 70); MK exclusion 0.12% and 0.14% | rates | windig-2013 | verified (slides) |
+| Flat caps can raise kinship when they cap the least related sires | qualitative | leroy-rognon-2012 | verified |
+| Lifetime offspring caps in Finland | 15 to 120, most breeds 20 to 60 | kennelliitto-pevisa-2026 | verified |
+| FCI advisory cap | 5% of 5-year registrations per dog | fci-strategies | verified |
+| Optimiser picks only the oldest animals unless young age classes are forced to contribute | qualitative | sonesson-meuwissen-2001 | verified |
+| Pedigree-kinship constraint overshot genomic ΔF about 4-fold | 0.0211 vs 0.005 | sonesson-2012 | verified |
+| Minimum-coancestry mating lowers F but not asymptotic ΔF | qualitative | sonesson-meuwissen-2001 | verified |

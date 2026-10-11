@@ -18,6 +18,8 @@ dependencies = [
     "typer",
     "matplotlib",
     "rich",
+    "cvxpy>=1.9.3",
+    "clarabel>=0.11.1",
 ]
 
 [project.optional-dependencies]
@@ -83,6 +85,7 @@ module = [
     "breeding_smarter.pedigree.*",
     "breeding_smarter.rules.*",
     "breeding_smarter.matching.*",
+    "breeding_smarter.coordination.*",
 ]
 disallow_untyped_defs = true
 
@@ -93,6 +96,13 @@ disable_error_code = ["union-attr", "index", "call-overload", "arg-type"]
 
 [[tool.mypy.overrides]]
 module = ["numba", "numba.*", "duckdb", "streamlit", "streamlit.*", "plotly.*", "graphviz", "scipy", "scipy.*", "pyarrow", "pyarrow.*", "qrcode", "pptx", "pptx.*", "huggingface_hub"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# cvxpy ships partial stubs that miss its atoms (sum, quad_form, psd_wrap)
+module = ["cvxpy", "cvxpy.*"]
+follow_imports = "skip"
+follow_imports_for_stubs = true
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
