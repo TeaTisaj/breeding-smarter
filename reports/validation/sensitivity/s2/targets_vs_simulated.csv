@@ -1,0 +1,106 @@
+id,description,kind,breed,component,value,target,status,source
+T01,Mean litter size per breed (registry era): configured mean +/- 0.3 and inside 3.5 to 7.1,hard,SYN_L,deviation_from_config,0.02626,"[-0.3, 0.3]",PASS,borge-2011
+T01,Mean litter size per breed (registry era): configured mean +/- 0.3 and inside 3.5 to 7.1,hard,SYN_L,mean,6.426,"[3.5, 7.1]",PASS,borge-2011
+T01,Mean litter size per breed (registry era): configured mean +/- 0.3 and inside 3.5 to 7.1,hard,SYN_M,deviation_from_config,0.003644,"[-0.3, 0.3]",PASS,borge-2011
+T01,Mean litter size per breed (registry era): configured mean +/- 0.3 and inside 3.5 to 7.1,hard,SYN_M,mean,5.504,"[3.5, 7.1]",PASS,borge-2011
+T01,Mean litter size per breed (registry era): configured mean +/- 0.3 and inside 3.5 to 7.1,hard,SYN_S,deviation_from_config,-0.02973,"[-0.3, 0.3]",PASS,borge-2011
+T01,Mean litter size per breed (registry era): configured mean +/- 0.3 and inside 3.5 to 7.1,hard,SYN_S,mean,3.97,"[3.5, 7.1]",PASS,borge-2011
+T02,Share of litters with at least one perinatal loss: 24.6% +/- 5 percentage points,soft,SYN_L,share,0.2647,"[0.196, 0.296]",PASS,tonnessen-2012
+T02,Share of litters with at least one perinatal loss: 24.6% +/- 5 percentage points,soft,SYN_M,share,0.2358,"[0.196, 0.296]",PASS,tonnessen-2012
+T02,Share of litters with at least one perinatal loss: 24.6% +/- 5 percentage points,soft,SYN_S,share,0.1605,"[0.196, 0.296]",WARN,tonnessen-2012
+T03,Share of registered dogs born 2005 to 2015 with recorded offspring: 10% to 30%,soft,SYN_L,share,0.1521,"[0.1, 0.3]",PASS,calboli-2008
+T03,Share of registered dogs born 2005 to 2015 with recorded offspring: 10% to 30%,soft,SYN_M,share,0.1656,"[0.1, 0.3]",PASS,calboli-2008
+T03,Share of registered dogs born 2005 to 2015 with recorded offspring: 10% to 30%,soft,SYN_S,share,0.2169,"[0.1, 0.3]",PASS,calboli-2008
+T04,Share of registered males born 2005 to 2015 that sired a litter: 2% to 20%,soft,SYN_L,share,0.1486,"[0.02, 0.2]",PASS,kc-demography-2025
+T04,Share of registered males born 2005 to 2015 that sired a litter: 2% to 20%,soft,SYN_M,share,0.1409,"[0.02, 0.2]",PASS,kc-demography-2025
+T04,Share of registered males born 2005 to 2015 that sired a litter: 2% to 20%,soft,SYN_S,share,0.1727,"[0.02, 0.2]",PASS,kc-demography-2025
+T05,Share of puppies (2016 to 2025) sired by the top 20% of active sires: at least 40%,soft,SYN_L,share,0.5038,"[0.4, 1]",PASS,haynes-1915
+T05,Share of puppies (2016 to 2025) sired by the top 20% of active sires: at least 40%,soft,SYN_M,share,0.5398,"[0.4, 1]",PASS,haynes-1915
+T05,Share of puppies (2016 to 2025) sired by the top 20% of active sires: at least 40%,soft,SYN_S,share,0.5503,"[0.4, 1]",PASS,haynes-1915
+T06,"At least one sire above the FCI 5%-in-5-years threshold (windows ending 2020 and 2025): true for SYN_M and SYN_S, reported for SYN_L",soft,SYN_L,any_above,False,,REPORT,leroy-rognon-2012
+T06,"At least one sire above the FCI 5%-in-5-years threshold (windows ending 2020 and 2025): true for SYN_M and SYN_S, reported for SYN_L",soft,SYN_M,any_above,False,= True,WARN,leroy-rognon-2012
+T06,"At least one sire above the FCI 5%-in-5-years threshold (windows ending 2020 and 2025): true for SYN_M and SYN_S, reported for SYN_L",soft,SYN_S,any_above,True,= True,PASS,leroy-rognon-2012
+T07,"Ne by individual increase in inbreeding (recorded pedigree), 2016 to 2025 cohort",hard,SYN_L,ne,560.2,"[200, 900]",PASS,lewis-2015
+T07,"Ne by individual increase in inbreeding (recorded pedigree), 2016 to 2025 cohort",hard,SYN_M,ne,130.4,"[80, 150]",PASS,lewis-2015
+T07,"Ne by individual increase in inbreeding (recorded pedigree), 2016 to 2025 cohort",hard,SYN_S,ne,34,"[25, 50]",PASS,lewis-2015
+T08,"Ne census (breeding animals), 2016 to 2025 cohort; FKC flag if at most 200",report,SYN_L,ne,6173,,REPORT,fkc-strategy
+T08,"Ne census (breeding animals), 2016 to 2025 cohort; FKC flag if at most 200",report,SYN_L,n_sires,3036,,REPORT,fkc-strategy
+T08,"Ne census (breeding animals), 2016 to 2025 cohort; FKC flag if at most 200",report,SYN_L,n_dams,3139,,REPORT,fkc-strategy
+T08,"Ne census (breeding animals), 2016 to 2025 cohort; FKC flag if at most 200",report,SYN_L,fkc_flag_le_200,False,,REPORT,fkc-strategy
+T08,"Ne census (breeding animals), 2016 to 2025 cohort; FKC flag if at most 200",report,SYN_M,ne,1257,,REPORT,fkc-strategy
+T08,"Ne census (breeding animals), 2016 to 2025 cohort; FKC flag if at most 200",report,SYN_M,n_sires,568,,REPORT,fkc-strategy
+T08,"Ne census (breeding animals), 2016 to 2025 cohort; FKC flag if at most 200",report,SYN_M,n_dams,703,,REPORT,fkc-strategy
+T08,"Ne census (breeding animals), 2016 to 2025 cohort; FKC flag if at most 200",report,SYN_M,fkc_flag_le_200,False,,REPORT,fkc-strategy
+T08,"Ne census (breeding animals), 2016 to 2025 cohort; FKC flag if at most 200",report,SYN_S,ne,261.5,,REPORT,fkc-strategy
+T08,"Ne census (breeding animals), 2016 to 2025 cohort; FKC flag if at most 200",report,SYN_S,n_sires,111,,REPORT,fkc-strategy
+T08,"Ne census (breeding animals), 2016 to 2025 cohort; FKC flag if at most 200",report,SYN_S,n_dams,159,,REPORT,fkc-strategy
+T08,"Ne census (breeding animals), 2016 to 2025 cohort; FKC flag if at most 200",report,SYN_S,fkc_flag_le_200,False,,REPORT,fkc-strategy
+T09,Generation interval (2016 to 2025 cohort): 4 to 5 years,soft,SYN_L,overall,4.957,"[4, 5]",PASS,assumption
+T09,Generation interval (2016 to 2025 cohort): 4 to 5 years,soft,SYN_M,overall,5.185,"[4, 5]",WARN,assumption
+T09,Generation interval (2016 to 2025 cohort): 4 to 5 years,soft,SYN_S,overall,5.351,"[4, 5]",WARN,assumption
+T10,Rate of inbreeding per generation (true pedigree F) higher in 1985 to 1995 than in 2010 to 2020,soft,SYN_L,early_higher,True,= True,PASS,lewis-2015
+T10,Rate of inbreeding per generation (true pedigree F) higher in 1985 to 1995 than in 2010 to 2020,soft,SYN_M,early_higher,False,= True,WARN,lewis-2015
+T10,Rate of inbreeding per generation (true pedigree F) higher in 1985 to 1995 than in 2010 to 2020,soft,SYN_S,early_higher,False,= True,WARN,lewis-2015
+T11,Recorded pedigree F < true pedigree F for the 2025 cohort,hard,SYN_L,recorded_lower,True,= True,PASS,pde-2011
+T11,Recorded pedigree F < true pedigree F for the 2025 cohort,hard,SYN_M,recorded_lower,True,= True,PASS,pde-2011
+T11,Recorded pedigree F < true pedigree F for the 2025 cohort,hard,SYN_S,recorded_lower,True,= True,PASS,pde-2011
+T12,Engine vs gene drop: |mean f_true_ibd - mean true pedigree F| per birth decade under 0.01,hard,SYN_L,max_abs_diff,0.0002389,"[0, 0.01]",PASS,assumption
+T12,Engine vs gene drop: |mean f_true_ibd - mean true pedigree F| per birth decade under 0.01,hard,SYN_M,max_abs_diff,0.0005557,"[0, 0.01]",PASS,assumption
+T12,Engine vs gene drop: |mean f_true_ibd - mean true pedigree F| per birth decade under 0.01,hard,SYN_S,max_abs_diff,0.003266,"[0, 0.01]",PASS,assumption
+T13,"Regression of f_true_ibd on true pedigree F (born after 1980): slope 0.9 to 1.1, intercept within +/- 0.01",hard,SYN_L,slope,0.99,"[0.9, 1.1]",PASS,assumption
+T13,"Regression of f_true_ibd on true pedigree F (born after 1980): slope 0.9 to 1.1, intercept within +/- 0.01",hard,SYN_L,intercept,0.0002051,"[-0.01, 0.01]",PASS,assumption
+T13,"Regression of f_true_ibd on true pedigree F (born after 1980): slope 0.9 to 1.1, intercept within +/- 0.01",hard,SYN_M,slope,1.003,"[0.9, 1.1]",PASS,assumption
+T13,"Regression of f_true_ibd on true pedigree F (born after 1980): slope 0.9 to 1.1, intercept within +/- 0.01",hard,SYN_M,intercept,-0.000573,"[-0.01, 0.01]",PASS,assumption
+T13,"Regression of f_true_ibd on true pedigree F (born after 1980): slope 0.9 to 1.1, intercept within +/- 0.01",hard,SYN_S,slope,1.018,"[0.9, 1.1]",PASS,assumption
+T13,"Regression of f_true_ibd on true pedigree F (born after 1980): slope 0.9 to 1.1, intercept within +/- 0.01",hard,SYN_S,intercept,-0.008652,"[-0.01, 0.01]",PASS,assumption
+T14,HD: share of D and E grades decreases from the first 5 screening years to 2021 to 2025,soft,SYN_L,decreased,True,= True,PASS,skk-hd-2020
+T14,HD: share of D and E grades decreases from the first 5 screening years to 2021 to 2025,soft,SYN_M,decreased,False,= True,WARN,skk-hd-2020
+T14,HD: share of D and E grades decreases from the first 5 screening years to 2021 to 2025,soft,SYN_S,decreased,True,= True,PASS,skk-hd-2020
+T15,"EBV quality: corr(EBV, TBV) within 0.1 of mean reported accuracy (screened candidates)",soft,SYN_L,abs_gap,0.09983,"[0, 0.1]",PASS,assumption
+T15,"EBV quality: corr(EBV, TBV) within 0.1 of mean reported accuracy (screened candidates)",soft,SYN_M,abs_gap,0.1239,"[0, 0.1]",WARN,assumption
+T15,"EBV quality: corr(EBV, TBV) within 0.1 of mean reported accuracy (screened candidates)",soft,SYN_S,abs_gap,0.2118,"[0, 0.1]",WARN,assumption
+T16,"Imports and missingness: share HUR, share imports, share unknown parents per decade",report,SYN_L,share_hur_last_decade,4.25e-05,,REPORT,assumption
+T16,"Imports and missingness: share HUR, share imports, share unknown parents per decade",report,SYN_L,share_import_last_decade,0.00442,,REPORT,assumption
+T16,"Imports and missingness: share HUR, share imports, share unknown parents per decade",report,SYN_L,share_unknown_parent_last_decade,0,,REPORT,assumption
+T16,"Imports and missingness: share HUR, share imports, share unknown parents per decade",report,SYN_M,share_hur_last_decade,0,,REPORT,assumption
+T16,"Imports and missingness: share HUR, share imports, share unknown parents per decade",report,SYN_M,share_import_last_decade,0.007958,,REPORT,assumption
+T16,"Imports and missingness: share HUR, share imports, share unknown parents per decade",report,SYN_M,share_unknown_parent_last_decade,0,,REPORT,assumption
+T16,"Imports and missingness: share HUR, share imports, share unknown parents per decade",report,SYN_S,share_hur_last_decade,0,,REPORT,assumption
+T16,"Imports and missingness: share HUR, share imports, share unknown parents per decade",report,SYN_S,share_import_last_decade,0.02412,,REPORT,assumption
+T16,"Imports and missingness: share HUR, share imports, share unknown parents per decade",report,SYN_S,share_unknown_parent_last_decade,0,,REPORT,assumption
+T17,"Mean realised IBD of the 2025 cohort, next to the published genomic median of about 0.25 (bases differ)",report,SYN_L,mean_ibd,0.03321,,REPORT,bannasch-2021
+T17,"Mean realised IBD of the 2025 cohort, next to the published genomic median of about 0.25 (bases differ)",report,SYN_L,published_genomic_median,0.25,,REPORT,bannasch-2021
+T17,"Mean realised IBD of the 2025 cohort, next to the published genomic median of about 0.25 (bases differ)",report,SYN_M,mean_ibd,0.1176,,REPORT,bannasch-2021
+T17,"Mean realised IBD of the 2025 cohort, next to the published genomic median of about 0.25 (bases differ)",report,SYN_M,published_genomic_median,0.25,,REPORT,bannasch-2021
+T17,"Mean realised IBD of the 2025 cohort, next to the published genomic median of about 0.25 (bases differ)",report,SYN_S,mean_ibd,0.374,,REPORT,bannasch-2021
+T17,"Mean realised IBD of the 2025 cohort, next to the published genomic median of about 0.25 (bases differ)",report,SYN_S,published_genomic_median,0.25,,REPORT,bannasch-2021
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_L,ABCB1_MDR1_freq_1980,0,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_L,ABCB1_MDR1_freq_2026,0,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_L,DNM1_EIC_freq_1980,0.1021,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_L,DNM1_EIC_freq_2026,0.09899,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_L,NOVEL_X_freq_1980,0.1006,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_L,NOVEL_X_freq_2026,0.09143,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_L,PRCD_PRA_freq_1980,0.02347,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_L,PRCD_PRA_freq_2026,0.003112,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_L,SOD1_DM_freq_1980,0.3066,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_L,SOD1_DM_freq_2026,0.1371,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_M,ABCB1_MDR1_freq_1980,0.2822,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_M,ABCB1_MDR1_freq_2026,0.08696,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_M,DNM1_EIC_freq_1980,0,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_M,DNM1_EIC_freq_2026,0,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_M,NOVEL_X_freq_1980,0,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_M,NOVEL_X_freq_2026,0.005853,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_M,PRCD_PRA_freq_1980,0.007874,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_M,PRCD_PRA_freq_2026,0.008361,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_M,SOD1_DM_freq_1980,0.1142,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_M,SOD1_DM_freq_2026,0.0786,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_S,ABCB1_MDR1_freq_1980,0,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_S,ABCB1_MDR1_freq_2026,0,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_S,DNM1_EIC_freq_1980,0,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_S,DNM1_EIC_freq_2026,0,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_S,NOVEL_X_freq_1980,0,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_S,NOVEL_X_freq_2026,0,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_S,PRCD_PRA_freq_1980,0.3667,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_S,PRCD_PRA_freq_2026,0.1352,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_S,SOD1_DM_freq_1980,0,,REPORT,assumption
+T18,"Risk-allele frequencies of registered births, 1980 vs 2026 (context for disease experiments)",report,SYN_S,SOD1_DM_freq_2026,0,,REPORT,assumption

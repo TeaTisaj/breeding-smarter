@@ -10,7 +10,7 @@ Standing instructions for the autonomous run: `plan/GOAL.md` (gates pre-approved
 | P2 Pedigree engine | done | [P2](gates/P2_report.md) | pre-approved (GOAL.md) |
 | P3 Population simulator | done | [P3](gates/P3_report.md) | pre-approved (GOAL.md) |
 | P4 Genetics | done | [P4](gates/P4_report.md) | pre-approved (GOAL.md) |
-| P5 Calibration | not started | | |
+| P5 Calibration | done | [P5](gates/P5_report.md) | pre-approved (GOAL.md) |
 | P6 Rules | not started | | |
 | P7 Matching | not started | | |
 | P8 Experiments | not started | | |
@@ -37,10 +37,14 @@ Status values: not started, in progress, at gate (waiting for review), done.
 ### P4
 - [x] 4.1 DogGenetics  - [x] 4.2 Gene drop  - [x] 4.3 Mendelian loci  - [x] 4.4 DNA testing  - [x] 4.5 HD trait  - [x] 4.6 BLUP EBVs  - [x] 4.7 Dataset v0  - [ ] 4.8 STRETCH (skipped)
 
+### P5
+- [x] 5.1 Targets  - [x] 5.2 Metrics  - [x] 5.3 True-pedigree F  - [x] 5.4 Report and `bsm validate`  - [x] 5.5 Calibration grid (applied)  - [x] 5.6 Dataset v1 frozen (`20261011-default-s42`) + sensitivity
+
 ## HUMAN tasks (Tea or colleague)
 - [ ] Email info@orthoing.com: confirm a slot (talk, poster or demo) and whether a late full paper by 15 Oct is possible.
 - [ ] Verify EU Regulation 2026/1818 breeding provisions against the EUR-Lex text (see P6).
 - [ ] Verify HKS rules against the current Pravilnik (see P6).
 - [ ] Create GitHub repo and Zenodo account link (see P10).
 - [ ] Print poster by 21 Oct (see P11).
+- [ ] Look at the key poster figure: `reports/validation/20261011-default-s42/figures/fig4_recorded_vs_true_f.png` (P5).
 - [ ] Fill colleague's name (search the repo for `TODO colleague`).

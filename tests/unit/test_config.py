@@ -101,3 +101,10 @@ def test_collect_assumptions_lists_values():
 
 def test_microchip_source_registered():
     assert "icar-999" in yaml.safe_load(Path(configs_dir() / "sources.yaml").read_text())["sources"]
+
+
+def test_assumptions_doc_up_to_date():
+    from breeding_smarter.config.assumptions import render_assumptions
+
+    text = (repo_root() / "docs" / "assumptions.md").read_text()
+    assert text == render_assumptions(), "run `bsm docs assumptions`"

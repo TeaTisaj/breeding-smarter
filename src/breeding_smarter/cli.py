@@ -120,6 +120,18 @@ def check(
     console.print(t)
 
 
+docs_app = typer.Typer(help="Generated documentation.", no_args_is_help=True)
+app.add_typer(docs_app, name="docs")
+
+
+@docs_app.command("assumptions")
+def docs_assumptions() -> None:
+    """Regenerate docs/assumptions.md from the configs."""
+    from breeding_smarter.config.assumptions import write_assumptions
+
+    console.print(f"wrote {write_assumptions()}")
+
+
 def _stub(name: str) -> None:
     console.print(f"{name}: not implemented yet")
 
