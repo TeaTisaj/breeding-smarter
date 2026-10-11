@@ -5,7 +5,7 @@ cache, summaries) and contains no science of its own.
 
 ## 1. Build the bundle (Claude Code / any machine with the data)
 ```bash
-uv run bsm export demo-bundle --dataset v1 --experiment E1_headline --experiment E2_adoption
+uv run bsm export demo-bundle --dataset v1 --experiment E1_headline --experiment E2_adoption --experiment E5_coordination --experiment E6_budget_and_kinship --experiment E7_adoption_quotas
 # -> ./bundle/ (about 13 MB) and ./bundle.tar.gz (about 11 MB)
 ```
 

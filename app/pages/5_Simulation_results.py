@@ -101,6 +101,46 @@ for i, (name, title) in enumerate(
     p = bundle.figure(name)
     if p:
         cols[i % 2].image(str(p), caption=f"{title}. {CAPTION}")
+if "E5_coordination" in exps:
+    st.subheader("The fix: club quotas on sire use (coordinated planning)")
+    st.markdown(
+        "Once a season the club planner decides how many litters each sire may have "
+        "(optimum contribution selection: lowest expected kinship of the next generation, "
+        "at most 5 litters per sire and fewer for highly related sires). Matings are then "
+        "chosen within those quotas, either by the planner (least related pairs) or by "
+        "breeders from our ranked list (**S3q**). Success criteria were fixed before running."
+    )
+    e5 = bundle.experiment_table("E5_coordination")
+    late = e5[(e5["metric"] == "R_delta_f_late") & (e5["generation"] == 10)]
+    keep = ["S0", "S1", "S3", "CC-ocs-mc1", "S3q", "CC-none-mc1"]
+    late = late[late["strategy"].isin(keep)].assign(
+        rate=lambda d: d["mean"].map(lambda v: f"{100 * v:.2f}%"),
+        Ne=lambda d: d["mean"].map(lambda v: f"{1 / (2 * v):.0f}" if v > 0 else "very large"),
+    )
+    st.dataframe(
+        late.pivot_table(
+            index="strategy", columns="breed", values=["rate", "Ne"], aggfunc="first"
+        ).reindex(keep),
+        width="stretch",
+    )
+    st.caption(
+        "Rate of inbreeding per generation and Ne, generations 5 to 10. CC-ocs-mc1 = planner "
+        "quotas and least-related pairs; CC-none-mc1 = least-related sire per dam without "
+        "quotas. " + CAPTION
+    )
+    c1, c2 = st.columns(2)
+    for col, name, title in (
+        (c1, "figG_coordination", "Realised inbreeding with and without quotas"),
+        (c2, "figH_factorial", "Contribution control vs mating method"),
+    ):
+        p = bundle.figure(name)
+        if p:
+            col.image(str(p), caption=f"{title}. {CAPTION}")
+    st.markdown(
+        "**Honestly:** quotas beat today's market and the recommender alone in both breeds; "
+        "least-related mating without quotas was the worst option; random mating still kept "
+        "more diversity in the medium breed."
+    )
 t10 = summ[
     (summ["generation"] == 10)
     & (summ["adoption"] == 1.0)

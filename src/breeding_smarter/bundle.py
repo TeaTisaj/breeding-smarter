@@ -90,8 +90,8 @@ def export_bundle(
         figs = src / "figures"
         if figs.is_dir():
             (out / "figures").mkdir(exist_ok=True)
-            for f in figs.glob("*.png"):
-                if "_poster" not in f.name:
+            for f in figs.glob("*.png"):  # first experiment listed wins a shared figure name
+                if "_poster" not in f.name and not (out / "figures" / f.name).exists():
                     shutil.copy(f, out / "figures" / f.name)
     demo = configs_dir() / "demo.yaml"
     if demo.exists():

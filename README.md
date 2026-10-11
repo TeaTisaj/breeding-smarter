@@ -22,6 +22,9 @@ realistic synthetic benchmark to prove it, and we are looking for partners with 
   Raad van Beheer and HKS profiles in YAML, each rule with its source and verification status.
 - **Recommender** (`breeding_smarter.matching`): explainable multi-factor score cards for every
   candidate sire (inbreeding, diversity, Mendelian risk, HD breeding value, sire use, depth).
+- **Club planner** (`breeding_smarter.coordination`): yearly litter quotas per sire by optimum
+  contribution selection, mate allocation within quotas (`bsm coordinate`, app page "Club
+  planner"). Method and parameters: `docs/coordination.md`.
 - **Experiments** (`breeding_smarter.experiments`): 10-generation strategy comparisons.
 - **Demo app** (`app/`, Streamlit).
 
@@ -45,6 +48,17 @@ Checks: `scripts/check.sh` (ruff, mypy, pytest).
 interval over replicates). In-silico results on synthetic populations.* The recommender cuts
 disease risk and short-term COI and improves hips; long-term diversity needs coordinated use
 of sires. Details: `reports/experiments/E1_headline/summary.md`.
+
+### Coordination
+![Realised inbreeding with and without coordinated sire use](reports/experiments/E5_coordination/figures/figG_coordination.png)
+
+*In-silico results on synthetic populations.* A club planner that sets yearly litter quotas per
+sire (optimum contribution selection) and lets matings happen within them raised Ne over the
+status-quo market from 33 to 54 in the small breed and from 188 to
+283 in the medium breed (generations 5 to 10), and beat the recommender alone; criteria
+were fixed before running. Least-related mating without quotas was the worst strategy, and
+random mating still kept more diversity in the medium breed. Details:
+`reports/experiments/P12_hypotheses/hypotheses.md`, `plan/gates/P12_report.md`.
 
 ## Dataset
 - Zenodo: TODO-DOI (CC BY 4.0). Hugging Face mirror: TODO-HF.
