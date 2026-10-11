@@ -126,9 +126,10 @@ def write_summary(exp_id: str) -> list[Path]:
     ne_rows["generation"] = 10
     per_gen = pd.concat([per_gen, ne_rows], ignore_index=True)
     summ = summarise(per_gen)
-    paired = paired_vs(per_gen)
+    ref = "S1" if (per_gen["strategy"] == "S1").any() else "S3"
+    paired = paired_vs(per_gen, ref=ref)
     summ.to_csv(out / "summary.csv", index=False)
-    paired.to_csv(out / "paired_vs_S1.csv", index=False)
+    paired.to_csv(out / f"paired_vs_{ref}.csv", index=False)
     per_gen.to_csv(out / "per_generation_replicates.csv.gz", index=False)
     lines = [
         f"# Experiment {exp_id}",
@@ -160,7 +161,7 @@ def write_summary(exp_id: str) -> list[Path]:
         ]
         if len(p):
             lines += [
-                f"### {breed}: paired differences vs S1 (same replicate seeds)",
+                f"### {breed}: paired differences vs {ref} (same replicate seeds)",
                 "",
                 "| strategy | generation | metric | difference (95% CI) | n |",
                 "|---|---|---|---|---|",

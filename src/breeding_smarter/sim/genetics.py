@@ -68,6 +68,7 @@ class DogGenetics:
             np.array([GRADES.index(g) for g in b.health.hd_exclude_grades.value])
             for b in setup.breeds
         ]
+        self.exclude_known_carriers = False  # E3 policy (c); never used for the history
         self.n = 0
         self.tbv = np.zeros(0)
         self.u_excl = np.zeros(0)
@@ -189,6 +190,9 @@ class DogGenetics:
             bad[m] = np.isin(g[m], excl)
         p = self.cfg.affected_exclusion_prob.value
         bad |= self.known_affected(gids) & (self.u_excl[gids] < p)
+        if self.exclude_known_carriers:  # experiment E3 policy (c)
+            testable = np.array([lc.testable for lc in self.loci.loci])
+            bad |= (self.tested[gids][:, testable] & (self.geno[gids][:, testable] >= 1)).any(1)
         return ~bad
 
     def pair_avoid(

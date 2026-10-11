@@ -26,6 +26,11 @@ the parameters if needed, then set `verified: true` and regenerate the docs.
 - [ ] `exp_close_relatives` (relationship_ban: relationships=['PARENT_OFFSPRING', 'FULL_SIBLINGS', 'HALF_SIBLINGS', 'GRANDPARENT_GRANDCHILD'], HARD). Current source: `eurlex-2026-1818` (eur-lex.europa.eu/eli/reg/2026/1818). 
 - [ ] `exp_carrier_pairing` (carrier_pairing: loci=all_tested, SOFT). Current source: `fci-strategies` (FCI International Breeding Strategies). penalised (SOFT) by default; E3 policy (b) makes it HARD
 
+## exp_pairing_hard_carrier (Experiments E3 policy (b): exp_pairing with carrier x carrier pairs HARD-blocked)
+
+- [ ] `exp_close_relatives_e3b` (relationship_ban: relationships=['PARENT_OFFSPRING', 'FULL_SIBLINGS', 'HALF_SIBLINGS', 'GRANDPARENT_GRANDCHILD'], HARD). Current source: `eurlex-2026-1818` (eur-lex.europa.eu/eli/reg/2026/1818). 
+- [ ] `exp_carrier_pairing_hard` (carrier_pairing: loci=all_tested, HARD). Current source: `fci-strategies` (FCI International Breeding Strategies). E3 policy (b): carrier x carrier pairs blocked
+
 ## hks_hr (Hrvatski kinološki savez (Croatia), Pravilnik o uzgoju)
 
 - [ ] `hks_dam_min_age` (min_age: sex=F, months=15, HARD). Current source: `hks-pravilnik` (HKS Pravilnik o uzgoju i upisu pasa / Pravilnik o stručnom radu). source covers hunting breeds (non-small); unverified for other breeds

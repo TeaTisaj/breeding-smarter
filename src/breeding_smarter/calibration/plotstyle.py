@@ -19,6 +19,8 @@ STRATEGY_COLOURS = {
     "S3": "#0072B2",
     "S4": "#009E73",
     "S5": "#CC79A7",
+    "S3hc": "#56B4E9",
+    "S3xc": "#000000",
 }
 SYNTHETIC_NOTE = "Synthetic data (no real dogs)."
 

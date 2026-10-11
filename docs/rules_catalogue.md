@@ -18,6 +18,9 @@ demo app shows an 'unverified' badge next to them.
 | exp_pairing | exp_close_relatives | relationship_ban | relationships=['PARENT_OFFSPRING', 'FULL_SIBLINGS', 'HALF_SIBLINGS', 'GRANDPARENT_GRANDCHILD'] | HARD | eurlex-2026-1818 | **unverified** |  |
 | exp_pairing | exp_carrier_pairing | carrier_pairing | loci=all_tested | SOFT | fci-strategies | **unverified** | penalised (SOFT) by default; E3 policy (b) makes it HARD |
 | exp_pairing | exp_coi_cap | offspring_coi_threshold | threshold=0.065 | SOFT | eu-platform-guide | yes | S2 resamples pairs above this predicted COI |
+| exp_pairing_hard_carrier | exp_close_relatives_e3b | relationship_ban | relationships=['PARENT_OFFSPRING', 'FULL_SIBLINGS', 'HALF_SIBLINGS', 'GRANDPARENT_GRANDCHILD'] | HARD | eurlex-2026-1818 | **unverified** |  |
+| exp_pairing_hard_carrier | exp_carrier_pairing_hard | carrier_pairing | loci=all_tested | HARD | fci-strategies | **unverified** | E3 policy (b): carrier x carrier pairs blocked |
+| exp_pairing_hard_carrier | exp_coi_cap_e3b | offspring_coi_threshold | threshold=0.065 | SOFT | eu-platform-guide | yes | S2 resamples pairs above this predicted COI |
 | fci | fci_registration_type | registration_type | disallowed=['limited'] | HARD | fci-strategies | yes | limited registration is the FCI tool against matador breeding |
 | fci | fci_sire_quota | sire_quota | share=0.05, window_years=5 | SOFT | fci-strategies | yes | guideline: no dog more offspring than 5% of breed registrations in 5 years; non-binding in large breeds (leroy-rognon-2012) |
 | hks_hr | hks_hd_exclusion | health_grade_exclusion | test_type=HD, exclude=['E'], missing=allow | HARD | hks-pravilnik | yes | HD E/I and E/II exclude from a breeding licence |

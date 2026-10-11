@@ -18,7 +18,7 @@ part of S1/S2 also uses unregistered foreign AI sires, as in the history.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 import numpy as np
@@ -210,6 +210,10 @@ def make_strategy(sid: str, params: StrategyParams, scoring: ScoringConfig) -> A
     if sid == "S2":
         return CompliantMarket(params, scoring)
     if sid == "S3":
+        return Recommender(params, scoring)
+    if sid == "S3hc":  # E3 (b): carrier x carrier HARD-blocked
+        return Recommender(replace(params, profile="exp_pairing_hard_carrier"), scoring)
+    if sid == "S3xc":  # E3 (c): all known carriers excluded (genetics eligibility, runner)
         return Recommender(params, scoring)
     if sid == "S4":
         return CoordinatedPlanner(params, scoring)

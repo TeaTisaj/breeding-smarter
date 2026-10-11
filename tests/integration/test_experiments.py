@@ -40,7 +40,7 @@ def tiny(tmp_path_factory):
     return run, load_experiment(cfg_path)
 
 
-@pytest.mark.parametrize("sid", ["S0", "S1", "S2", "S3", "S4"])
+@pytest.mark.parametrize("sid", ["S0", "S1", "S2", "S3", "S4", "S3hc", "S3xc"])
 def test_strategy_contract(tiny, sid):
     _, cfg = tiny
     df = run_part(cfg, Part("SYN_L", sid, 1.0, 0), debug=True)

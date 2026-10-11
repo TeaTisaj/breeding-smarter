@@ -1,0 +1,17 @@
+id: E3_carrier_policy
+description: "Carrier policy ablation: S3 with (a) carrier x carrier penalised, (b) carrier x carrier HARD-blocked, (c) all known carriers excluded. SYN_S as planned, plus SYN_M (SYN_S has no segregating tested locus in v1)."
+seed: 20261026
+dataset: v1
+generations: 10
+breeds:
+  SYN_S: {replicates: 10}
+  SYN_M: {replicates: 10}
+strategies: [S3, S3hc, S3xc]
+adoption: [1.0]
+profile: exp_pairing
+scoring: default
+coi_cap: {value: 0.065, source: eu-platform-guide}
+s3_top_probs: {value: [0.5, 0.3, 0.2], assumption: true}
+s4_lambda: {value: 1.0, assumption: true}
+ebv_every_years: {value: 5, assumption: true}
+registration_rate: {value: 1.0, assumption: true, note: "every live-born puppy is registered"}

@@ -173,6 +173,7 @@ def run_part(
     setup = experiment_setup(rp.root, bidx, cfg.registration_rate.value)
     genetics = DogGenetics.from_setup(setup)
     genetics.load_arrays(state.extra)
+    genetics.exclude_known_carriers = part.strategy == "S3xc"
     state.meta["litter_reference_frozen"] = True
     rng = replicate_rng(cfg.seed, cfg.breeds[part.breed].replicates, part.replicate)
     params = StrategyParams(
@@ -184,7 +185,9 @@ def run_part(
     )
     strategy = make_strategy(part.strategy, params, load_scoring(cfg.scoring))
     if debug:
-        strategy = ContractChecker(strategy, part.strategy in ("S2", "S3", "S4"), cfg.profile)
+        hard = part.strategy in ("S2", "S3", "S4", "S3hc", "S3xc")
+        profile = "exp_pairing_hard_carrier" if part.strategy == "S3hc" else cfg.profile
+        strategy = ContractChecker(strategy, hard, profile)
     start = state.year
     obs = ObservedRegistry(state, genetics, setup, bidx)
     h2 = genetics.h2

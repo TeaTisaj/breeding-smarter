@@ -19,6 +19,8 @@ STRATEGY_LABEL = {
     "S2": "S2 compliant market",
     "S3": "S3 recommender",
     "S4": "S4 coordinated planner",
+    "S3hc": "S3, carrier x carrier blocked",
+    "S3xc": "S3, all known carriers excluded",
 }
 
 

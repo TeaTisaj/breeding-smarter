@@ -192,3 +192,17 @@ def test_blup_beats_phenotype(genetics_run):
     c_ebv = np.corrcoef(ebv.loc[sel], -tbv.loc[sel])[0, 1]
     c_phe = np.corrcoef(-score.loc[sel], -tbv.loc[sel])[0, 1]
     assert c_ebv > c_phe, (c_ebv, c_phe)
+
+
+def test_exclude_known_carriers_policy():
+    """E3 policy (c): known carriers (or affected) at a testable locus become ineligible."""
+    _setup, g, st, (s, d) = _model_with_parents()
+    g.geno[[s, d], :] = 0
+    g.geno[s, 0] = 1
+    g.tested[[s, d], 0] = True
+    gids = np.array([s, d])
+    assert g.is_eligible(st, gids, 2030).all()
+    g.exclude_known_carriers = True
+    assert list(g.is_eligible(st, gids, 2030)) == [False, True]
+    g.tested[s, 0] = False  # untested carrier is not known
+    assert g.is_eligible(st, gids, 2030).all()
