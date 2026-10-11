@@ -13,7 +13,7 @@ Standing instructions for the autonomous run: `plan/GOAL.md` (gates pre-approved
 | P5 Calibration | done | [P5](gates/P5_report.md) | pre-approved (GOAL.md) |
 | P6 Rules | done | [P6](gates/P6_report.md) | pre-approved (GOAL.md) |
 | P7 Matching | done | [P7](gates/P7_report.md) | pre-approved (GOAL.md) |
-| P8 Experiments | not started | | |
+| P8 Experiments | done (E3 after P11) | [P8](gates/P8_report.md) | pre-approved (GOAL.md) |
 | P9 Demo app | not started | | |
 | P10 Release | not started | | |
 | P11 Conference | not started | | |
@@ -45,6 +45,9 @@ Status values: not started, in progress, at gate (waiting for review), done.
 
 ### P7
 - [x] 7.1 DatasetContext  - [x] 7.2 Candidates  - [x] 7.3 Components  - [x] 7.4 Score  - [x] 7.5 Score card  - [x] 7.6 recommend_sires/score_pair  - [x] 7.6b rank_fast  - [x] 7.7 `bsm match`  - [x] 7.8 Demo dams (`configs/demo.yaml`)
+
+### P8
+- [x] 8.0 exp_pairing  - [x] 8.1 Strategies S0-S4 + IncrementalContext  - [x] 8.2 Runner  - [x] 8.3 Checkpointing  - [x] 8.4 Summary  - [x] 8.5 Figures A-F  - [x] 8.6 CLI  - [x] 8.7 Runtime planning (no reduction)  - [ ] E3 ablation (scheduled after P11 per GOAL.md)
 
 ## HUMAN tasks (Tea or colleague)
 - [ ] Email info@orthoing.com: confirm a slot (talk, poster or demo) and whether a late full paper by 15 Oct is possible.

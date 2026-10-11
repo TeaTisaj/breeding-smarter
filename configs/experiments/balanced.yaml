@@ -1,0 +1,17 @@
+id: E1b_balanced_weights
+description: "Additional analysis (not in the plan): S3 with a heavier sire-use weight (balanced scoring), same seeds as E1 for paired comparison."
+seed: 20261024
+dataset: v1
+generations: 10
+breeds:
+  SYN_S: {replicates: 20}
+  SYN_M: {replicates: 10}
+strategies: [S3]
+adoption: [1.0]
+profile: exp_pairing
+scoring: balanced
+coi_cap: {value: 0.065, source: eu-platform-guide}
+s3_top_probs: {value: [0.5, 0.3, 0.2], assumption: true, note: "breeders keep some freedom"}
+s4_lambda: {value: 1.0, assumption: true}
+ebv_every_years: {value: 5, assumption: true}
+registration_rate: {value: 1.0, assumption: true, note: "simplification: every live-born puppy is registered during experiments"}

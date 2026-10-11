@@ -46,7 +46,7 @@ def apply(poster: bool = False) -> None:
 def save(fig: Figure, path_stem: Path, note: str = SYNTHETIC_NOTE) -> list[Path]:
     """Save PNG (300 dpi) and SVG with a small provenance note; returns both paths."""
     if note:
-        fig.text(0.99, 0.005, note, ha="right", va="bottom", fontsize=7, color="#555555")
+        fig.text(0.99, -0.02, note, ha="right", va="top", fontsize=7, color="#555555")
     path_stem.parent.mkdir(parents=True, exist_ok=True)
     out = []
     for ext in ("png", "svg"):
