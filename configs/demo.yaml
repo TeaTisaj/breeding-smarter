@@ -1,0 +1,22 @@
+# Demo dams, selected automatically by `bsm demo select` (matching/examples.py). Synthetic data.
+dataset: v1
+mating_date: '2026-11-01'
+profile: hr_full
+dams:
+- reg_no: SYN-HR-2021-001849
+  name: Dumu od Mosa
+  breed: SYN_S
+  story: 'Small local breed: few good options.'
+- reg_no: SYN-HR-2021-000783
+  name: Romo od Samape
+  breed: SYN_M
+  story: 'The most popular sire is not on top: sire quota and kinship.'
+  popular_sire: SYN-HR-2017-001831
+- reg_no: SYN-HR-2020-002485
+  name: Solu od Loveze
+  breed: SYN_L
+  story: 'Top match is a foreign AI sire with a shallow recorded pedigree: the litter''s
+    recorded COI is probably underestimated.'
+  top_sire: SYN-FOREIGN-FI-001774
+  top_sire_eqg: 0.0
+  depth_warning: true

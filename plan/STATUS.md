@@ -12,7 +12,7 @@ Standing instructions for the autonomous run: `plan/GOAL.md` (gates pre-approved
 | P4 Genetics | done | [P4](gates/P4_report.md) | pre-approved (GOAL.md) |
 | P5 Calibration | done | [P5](gates/P5_report.md) | pre-approved (GOAL.md) |
 | P6 Rules | done | [P6](gates/P6_report.md) | pre-approved (GOAL.md) |
-| P7 Matching | not started | | |
+| P7 Matching | done | [P7](gates/P7_report.md) | pre-approved (GOAL.md) |
 | P8 Experiments | not started | | |
 | P9 Demo app | not started | | |
 | P10 Release | not started | | |
@@ -43,6 +43,9 @@ Status values: not started, in progress, at gate (waiting for review), done.
 ### P6
 - [x] 6.1 Models and loader  - [x] 6.2 RuleContext  - [x] 6.3 Rule types  - [x] 6.4 Engine  - [x] 6.5 `bsm check`  - [ ] 6.6 HUMAN verification (checklist generated: docs/rules_verification.md)  - [x] 6.7 Rules catalogue
 
+### P7
+- [x] 7.1 DatasetContext  - [x] 7.2 Candidates  - [x] 7.3 Components  - [x] 7.4 Score  - [x] 7.5 Score card  - [x] 7.6 recommend_sires/score_pair  - [x] 7.6b rank_fast  - [x] 7.7 `bsm match`  - [x] 7.8 Demo dams (`configs/demo.yaml`)
+
 ## HUMAN tasks (Tea or colleague)
 - [ ] Email info@orthoing.com: confirm a slot (talk, poster or demo) and whether a late full paper by 15 Oct is possible.
 - [ ] Verify EU Regulation 2026/1818 breeding provisions against the EUR-Lex text: work through `docs/rules_verification.md`, fill `article`/`in_application_from` in `configs/rules/eu_2026_1818.yaml`, set `verified: true`, run `uv run bsm rules docs`.
@@ -50,4 +53,5 @@ Status values: not started, in progress, at gate (waiting for review), done.
 - [ ] Create GitHub repo and Zenodo account link (see P10).
 - [ ] Print poster by 21 Oct (see P11).
 - [ ] Look at the key poster figure: `reports/validation/20261011-default-s42/figures/fig4_recorded_vs_true_f.png` (P5).
+- [ ] Review score card wording: `reports/matching/demo_dams.md` (P7).
 - [ ] Fill colleague's name (search the repo for `TODO colleague`).

@@ -132,6 +132,20 @@ def docs_assumptions() -> None:
     console.print(f"wrote {write_assumptions()}")
 
 
+demo_app = typer.Typer(help="Demo dams for the app and slides.", no_args_is_help=True)
+app.add_typer(demo_app, name="demo")
+
+
+@demo_app.command("select")
+def demo_select(dataset: str = typer.Option("v1", "--dataset")) -> None:
+    """Pick the 3 demo dams deterministically and write configs/demo.yaml."""
+    from breeding_smarter.matching import load_context
+    from breeding_smarter.matching.examples import write_demo
+
+    p = write_demo(load_context(dataset))
+    console.print(p.read_text())
+
+
 def _stub(name: str) -> None:
     console.print(f"{name}: not implemented yet")
 

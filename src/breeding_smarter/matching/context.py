@@ -91,6 +91,15 @@ class DatasetContext:
         return self.ped.breed_codes[int(self.ped.breed[i])]
 
     @property
+    def is_foreign(self) -> NDArray[np.bool_]:
+        """Foreign pedigree records (studbook FOREIGN, e.g. foreign AI sires); cached."""
+        v = self.__dict__.get("_is_foreign")
+        if v is None:
+            v = np.asarray(self.animals["studbook"].to_numpy() == "FOREIGN")
+            self.__dict__["_is_foreign"] = v
+        return v
+
+    @property
     def cache_key(self) -> str:
         return f"{self.tag}:{self.run.run_id}:engine{ENGINE_VERSION}"
 

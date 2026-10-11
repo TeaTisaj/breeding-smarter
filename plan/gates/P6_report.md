@@ -27,7 +27,7 @@ Date: 2026-10-11
 6. No HKS litter-interval rule (task note: only if the Pravilnik states one; listed in the verification checklist).
 
 ## Numbers worth knowing
-- hr_full: 14 rules, 9 of them unverified-or-sourced-from-press items flagged in the app (`verified: false`: eu_close_relatives, eu_dam_min_age, eu_dam_litter_frequency, hks_dam_min_age, hks_dam_max_age, dna_carrier_pairing, dna_affected_parent).
+- hr_full: 14 rules, 7 of them flagged unverified in the app (`verified: false`: eu_close_relatives, eu_dam_min_age, eu_dam_litter_frequency, hks_dam_min_age, hks_dam_max_age, dna_carrier_pairing, dna_affected_parent).
 - `evaluate_candidates` for one SYN_M dam vs all males: about 10 ms; 2000 sires < 200 ms in the test.
 
 ## Open questions for Tea

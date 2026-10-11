@@ -16,6 +16,8 @@ from breeding_smarter.pedigree import Pedigree, inbreeding, kinship_to_all
 from breeding_smarter.pedigree.core import FloatArray, IntArray
 
 ALIVE = np.iinfo(np.int64).max
+CSR_SHIFT = 1_000_000  # day numbers shifted to be positive (dates after 0710 AD)
+CSR_OFFSET = 4_000_000  # > any shifted day number
 GRADES = ("A", "B", "C", "D", "E")
 GENOTYPES = ("clear", "carrier", "affected")
 
@@ -49,15 +51,25 @@ class CSR:
         np.cumsum(np.bincount(k, minlength=n), out=ptr[1:])
         return cls(ptr, values[order].astype(np.int64), None if extra is None else extra[order])
 
+    @property
+    def _encoded(self) -> IntArray:
+        """Globally sorted `key * OFFSET + value` (values are day numbers)."""
+        enc = self.__dict__.get("_enc")
+        if enc is None:
+            n_keys = self.ptr.size - 1
+            keys = np.repeat(np.arange(n_keys, dtype=np.int64), np.diff(self.ptr))
+            enc = keys * CSR_OFFSET + (self.values + CSR_SHIFT)
+            object.__setattr__(self, "_enc", enc)
+        return enc
+
     def count_before(self, keys: IntArray, day: int, since: int | None = None) -> IntArray:
-        """Number of values in `[since, day)` (or `< day`) for each key."""
-        out = np.empty(keys.size, np.int64)
-        for j, k in enumerate(keys):
-            v = self.values[self.ptr[k] : self.ptr[k + 1]]
-            hi = np.searchsorted(v, day, side="left")
-            lo = 0 if since is None else np.searchsorted(v, since, side="left")
-            out[j] = hi - lo
-        return out
+        """Number of values in `[since, day)` (or `< day`) for each key (vectorised)."""
+        k = np.asarray(keys, dtype=np.int64) * CSR_OFFSET
+        enc = self._encoded
+        hi = np.searchsorted(enc, k + day + CSR_SHIFT, side="left")
+        lo_v = (since if since is not None else -CSR_SHIFT) + CSR_SHIFT
+        lo = np.searchsorted(enc, k + lo_v, side="left")
+        return np.asarray(hi - lo, dtype=np.int64)
 
     def last_before(self, key: int, day: int) -> int | None:
         v = self.values[self.ptr[key] : self.ptr[key + 1]]

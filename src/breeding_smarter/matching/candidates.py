@@ -28,7 +28,7 @@ def candidate_sires(
     age = (day - r.birth_day) / 365.25
     m &= age >= sp.min_breeding_age_months.male.value / 12.0
     m &= age <= sp.max_breeding_age_years.male.value
-    foreign = ctx.animals["studbook"].to_numpy() == "FOREIGN"
+    foreign = ctx.is_foreign
     if not include_foreign:
         m &= ~foreign
     idx = np.flatnonzero(m)
