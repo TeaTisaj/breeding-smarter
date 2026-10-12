@@ -19,3 +19,19 @@ Synthetic data only. Start the app before the talk: public URL `{link_demo_url}`
 
 Fallbacks in order: public URL; local app with the network off (`docs/deploy.md`); the
 recorded video on the desktop ([HUMAN]).
+
+## Kennel club desk (60 seconds)
+
+Prototype on synthetic data, not an official kennel club form (`docs/kennel_club_desk.md`).
+
+1. **Blocked (15 s).** Open **Kennel club desk** and click **Demo: dam with her half-brother**.
+   The status reads **Blocked: eu_close_relatives (eu_2026_1818)**, half siblings, with the
+   common parent named. Submit is disabled.
+2. **Allowed (15 s).** Switch the sire to **Ranked within club quotas** and keep the first sire:
+   **Allowed**, with the explanation in sentences and every check with its source.
+3. **Two signatures (10 s).** Click **Submit application**, then **Stud owner confirms**.
+4. **Breeding officer (15 s).** Tab **Breeding officer queue**: pick the new application, tick
+   the manual checks, **Approve**, and download the mating certificate (prototype).
+5. **Say (5 s):** "Today this is paper, and rules are checked after the puppies are born. Here
+   the club checks every rule before the mating, and every approved mating uses the sire's
+   quota."

@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+- Kennel club desk (prototype, app page 8): mating applications checked before the mating.
+  - Automatic rule and club-quota checks, with three outcomes (Allowed, Needs club review,
+    Blocked) and template-built explanations.
+  - Stud owner confirmation, then a breeding officer queue with manual checks.
+  - Quota booked on approval; mating certificate (prototype) download.
+  - Season overview: counts, blocks by rule, quota per sire, compliance report (CSV).
+  - See `docs/kennel_club_desk.md`.
+- Rule engine: new rule type `max_caesareans`; HKS profile adds `hks_max_caesareans` and
+  `hks_one_litter_12m` (unverified, source `hks-clubs-2026`). No EU caesarean rule until the
+  Official Journal text confirms it.
+- Mate finder: "Respect club quotas" is on by default.
+
 ## 0.1.0 (2026-10)
 First public release for BioMedVetMech 2026 (Zagreb, 24 to 25 October 2026).
 - Pedigree engine: Meuwissen and Luo inbreeding, Colleau kinship products, exact ancestor

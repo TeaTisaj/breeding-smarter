@@ -66,6 +66,9 @@ Status values: not started, in progress, at gate (waiting for review), done.
 ### P12
 - [x] 12.0 Solver spike + ADR-007  - [x] 12.1 Sources + config  - [x] 12.2 Targets  - [x] 12.3 OCS  - [x] 12.4 OCS tests  - [x] 12.5 Caps, quotas, allocation, ledger  - [x] 12.6 Planner  - [x] 12.7 Truth kinship  - [x] 12.8 Strategies + runner  - [x] 12.9 Metrics  - [x] 12.10 Experiments E5-E7  - [x] 12.11 Figures G-L  - [x] 12.12 CLI + app  - [x] 12.13 Docs  - [x] 12.14 Conference (conditional)
 
+### Kennel club desk (branch `feature/kennel-club-desk`, spec by Marija Perković)
+- [x] B1 Quotas on by default  - [x] B2 `max_caesareans` + HKS/EU rules (unverified)  - [x] B3 `desk.py`  - [x] B4 tabs 1-2 (application, officer queue, 3 examples, certificate)  - [x] B5 Docs (`docs/kennel_club_desk.md`, demo script, changelog)  - [x] B4 tab 3 (season overview, CSV)  - [ ] Freeze from 22 Oct: end-to-end demo rehearsal [HUMAN]
+
 ## HUMAN tasks (Tea or colleague)
 - [ ] Email info@orthoing.com: confirm a slot (talk, poster or demo) and whether a late full paper by 15 Oct is possible.
 - [ ] Verify EU Regulation 2026/1818 breeding provisions against the EUR-Lex text: work through `docs/rules_verification.md`, fill `article`/`in_application_from` in `configs/rules/eu_2026_1818.yaml`, set `verified: true`, run `uv run bsm rules docs`.
