@@ -87,7 +87,7 @@ def test_glossary_covers_every_tooltip():
 
     used = set()
     for f in APP.rglob("*.py"):
-        text = f.read_text()
+        text = f.read_text(encoding="utf-8")
         used |= set(re.findall(r'tip\("([^"]+)"\)', text))
         used |= set(re.findall(r'kpi\([^)]*,\s*"([^"]+)"\)', text))
     missing = used - set(GLOSSARY)
