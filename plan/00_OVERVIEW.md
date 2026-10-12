@@ -2,7 +2,7 @@
 
 **Title:** Breeding Smarter: A Data-Driven Matching System for Genetic Diversity in Dogs and Beyond
 **Venue:** BioMedVetMech 2026, 3rd European Congress on Biomedical and Veterinary Engineering, Zagreb, **24 to 25 October 2026**
-**Team:** Tea Ćetojević Tisaj (FER Zagreb) and FER colleague
+**Team:** Tea Ćetojević Tisaj (FER Zagreb) and Marija Perković (FER Zagreb)
 **Plan version:** 1.0 (2026-10-10)
 
 This file is the entry point. Read it fully before starting any phase. Each phase has its own file in `plan/`. Domain facts, numbers and sources live in `docs/research.md`.

@@ -4,7 +4,7 @@
 Numbers come from `conference/numbers.json` (rebuild with `conference/build_numbers.py`).
 
 ## 1. Title
-**On slide:** Breeding Smarter: a data-driven matching system for genetic diversity in dogs and beyond. Tea Ćetojević Tisaj, TODO colleague, FER Zagreb.
+**On slide:** Breeding Smarter: a data-driven matching system for genetic diversity in dogs and beyond. Tea Ćetojević Tisaj, Marija Perković, FER Zagreb.
 **Figure:** none (FER logo).
 **Notes:** Good morning. I will show you an open tool that helps breeders and kennel clubs choose mates that protect a breed's genetic diversity, the synthetic data we built to test it honestly, and what ten simulated generations say about whether it works. Everything you will see is synthetic: no real dog appears in this talk.
 

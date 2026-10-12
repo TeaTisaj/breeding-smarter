@@ -1,6 +1,6 @@
 # Breeding Smarter: A Data-Driven Matching System for Genetic Diversity in Dogs and Beyond
 
-Tea Ćetojević Tisaj¹, TODO colleague¹
+Tea Ćetojević Tisaj¹, Marija Perković¹
 ¹ University of Zagreb, Faculty of Electrical Engineering and Computing, Zagreb, Croatia
 
 *Draft for the IFMBE Proceedings (BioMedVetMech 2026), only if a late submission is accepted. Check the length limit and formatting in the IFMBE template; numbers come from conference/numbers.json.*

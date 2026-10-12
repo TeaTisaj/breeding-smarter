@@ -1,5 +1,5 @@
 # Breeding Smarter: A Data-Driven Matching System for Genetic Diversity in Dogs and Beyond
-Tea Ćetojević Tisaj, TODO colleague · University of Zagreb, FER
+Tea Ćetojević Tisaj, Marija Perković · University of Zagreb, FER
 
 ## The problem
 - Purebred dogs: mean genomic inbreeding {lit_genomic_f} across {lit_breeds_genotyped} breeds.
