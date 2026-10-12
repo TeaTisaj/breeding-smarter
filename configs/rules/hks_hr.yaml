@@ -23,3 +23,17 @@ rules:
     verified: false
     note: "source covers hunting breeds; unverified for other breeds"
   # min_interval_between_litters: [HUMAN] add only if the current Pravilnik states one
+  - id: hks_max_caesareans
+    type: max_caesareans
+    params: {n: 2}
+    severity: HARD
+    source: hks-clubs-2026
+    verified: false
+    note: "no further breeding after two caesarean sections (secondary source; check the Pravilnik)"
+  - id: hks_one_litter_12m
+    type: max_litters_in_window
+    params: {max: 1, window_months: 12}
+    severity: HARD
+    source: hks-clubs-2026
+    verified: false
+    note: "HKS says one litter per calendar year; a 12-month window is an approximation"

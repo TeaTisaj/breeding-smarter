@@ -85,7 +85,11 @@ def test_config_hash_stable_and_sensitive():
 
 
 def test_sources_cover_research_keys():
-    text = (repo_root() / "docs" / "research.md").read_text().split("## 9. Citation keys")[1]
+    text = (
+        (repo_root() / "docs" / "research.md")
+        .read_text(encoding="utf-8")
+        .split("## 9. Citation keys")[1]
+    )
     keys = {k for k in re.findall(r"^\| ([a-z0-9\-]+) \|", text, re.M) if k != "Key"}
     sources = set(yaml.safe_load((configs_dir() / "sources.yaml").read_text())["sources"])
     assert len(keys) >= 40

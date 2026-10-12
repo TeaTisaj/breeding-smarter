@@ -130,6 +130,56 @@ def test_litter_rules():
     assert not one(r, ctx, 1, 0)[0]
 
 
+def _three_litters(caesarean):
+    """Dam 1 of UNRELATED whelps on 2003-03-01, 2004-03-01 and 2005-03-01 (sire 0)."""
+
+    def fn(litters):
+        whelp = pd.to_datetime(["2003-03-01", "2004-03-01", "2005-03-01"])
+        base = litters.iloc[[0, 0, 0]].reset_index(drop=True)
+        return base.assign(
+            litter_id=[0, 1, 2],
+            whelp_date=whelp,
+            mating_date=whelp - pd.Timedelta(days=63),
+            caesarean=caesarean,
+        )
+
+    return fn
+
+
+def test_max_caesareans_known_answers():
+    """N = 2: 0 and 1 previous caesareans pass, 2 fail; a later caesarean does not count."""
+    ctx = ctx_of(UNRELATED, **{"registry/litters": _three_litters([True, False, True])})
+    r = rule("max_caesareans", n=2)
+    ok, val, _, msg = one(r, ctx, 1, 0, "2003-01-01")
+    assert ok and val == 0 and "0 previous caesarean" in msg
+    ok, val, _, _ = one(r, ctx, 1, 0, "2004-06-01")
+    assert ok and val == 1
+    ok, val, _, _ = one(r, ctx, 1, 0, "2005-02-01")  # 2005 caesarean is after the mating
+    assert ok and val == 1
+    ok, val, _, msg = one(r, ctx, 1, 0, "2005-06-01")
+    assert not ok and val == 2 and "bar further breeding" in msg
+    assert one(rule("max_caesareans", n=3), ctx, 1, 0, "2005-06-01")[0]
+
+
+def test_max_caesareans_without_caesarean_data_passes():
+    ctx = ctx_of(
+        UNRELATED,
+        **{
+            "registry/litters": lambda L: _three_litters([True, True, True])(L).drop(
+                columns="caesarean"
+            )
+        },
+    )
+    ok, val, _, _ = one(rule("max_caesareans", n=2), ctx, 1, 0, "2005-06-01")
+    assert ok and val == 0
+
+
+def test_max_caesareans_needs_n():
+    assert "max_caesareans" in RULE_TYPES
+    with pytest.raises(RuleConfigError):
+        RULE_TYPES["max_caesareans"].validate_params(rule("max_caesareans"))
+
+
 def _with_health(grades):
     def fn(_):
         return pd.DataFrame(
@@ -241,6 +291,8 @@ def test_hr_full_composition():
         "hks_hd_exclusion",
         "hks_dam_min_age",
         "hks_dam_max_age",
+        "hks_max_caesareans",
+        "hks_one_litter_12m",
         "guide_coi_6_5",
         "guide_coi_breed_mean",
         "dna_carrier_pairing",
@@ -249,6 +301,50 @@ def test_hr_full_composition():
     assert set(ids) == expected
     for name in ("uk_full", "nl_full", "kc_uk", "rvb_nl"):
         assert load_profile(name).rules
+
+
+def test_kennel_club_desk_rules_and_unchanged_existing_rules():
+    """B2: new HKS rules are HARD, sourced and unverified; earlier rules unchanged; no EU
+    caesarean rule until it is confirmed in the Official Journal text."""
+    sources = set(yaml.safe_load((rules_dir().parent / "sources.yaml").read_text())["sources"])
+    hks = {r.id: r for r in load_profile("hks_hr").rules}
+    eu = {r.id: r for r in load_profile("eu_2026_1818").rules}
+    new = {
+        "hks_max_caesareans": (hks, "max_caesareans", {"n": 2}),
+        "hks_one_litter_12m": (hks, "max_litters_in_window", {"max": 1, "window_months": 12}),
+    }
+    for rid, (prof, type_, params) in new.items():
+        r = prof[rid]
+        assert (r.type, r.params, r.severity) == (type_, params, Severity.HARD), rid
+        assert r.verified is False and r.source in sources, rid
+    assert "calendar year" in (hks["hks_one_litter_12m"].note or "")
+    old = {
+        "hks_hd_exclusion": ("health_grade_exclusion", {"test_type": "HD", "exclude": ["E"],
+                                                        "missing": "allow"}, True),
+        "hks_dam_min_age": ("min_age", {"sex": "F", "months": 15}, False),
+        "hks_dam_max_age": ("max_age", {"sex": "F", "years": 8}, False),
+        "eu_close_relatives": ("relationship_ban", {"relationships": BAN}, False),
+        "eu_dam_min_age": ("min_age", {"sex": "F", "months": 18}, False),
+        "eu_dam_litter_frequency": ("max_litters_in_window", {"max": 3, "window_months": 24},
+                                    False),
+    }  # fmt: skip
+    rules = {**hks, **eu}
+    for rid, (type_, params, verified) in old.items():
+        r = rules[rid]
+        assert (r.type, r.params, r.severity, r.verified) == (
+            type_, params, Severity.HARD, verified
+        ), rid  # fmt: skip
+    assert set(hks) == {
+        "hks_hd_exclusion",
+        "hks_dam_min_age",
+        "hks_dam_max_age",
+        "hks_max_caesareans",
+        "hks_one_litter_12m",
+    }
+    assert set(eu) == {"eu_close_relatives", "eu_dam_min_age", "eu_dam_litter_frequency"}
+    for name in ("eu_2026_1818", "hr_full", "nl_full"):
+        caes = [r.id for r in load_profile(name).rules if r.type == "max_caesareans"]
+        assert all(r.startswith("hks_") for r in caes), (name, caes)
 
 
 def test_status_aggregation():

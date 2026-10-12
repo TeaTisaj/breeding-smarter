@@ -17,6 +17,7 @@ Condensed from the deep-research report of 2026-10-10. Every number used in conf
 - Published in the Official Journal on 10 August 2026 [eurlex-2026-1818; consilium-2026].
 - Prohibits breeding between **parents and offspring, siblings, half-siblings, grandparents and grandchildren**. Derogation possible for **local breeds with a limited gene pool** (competent authority) [eurlex-2026-1818; ep-2026].
 - **UNVERIFIED** (press only, check OJ text): maximum 3 litters in 2 years per bitch, bitch at least 18 months old, transition periods (4 years for breeders/sellers, 15 years for owners of never-traded pets), the "2036" date in EUR-Lex metadata [euroweekly-2026; catster-2026].
+- **NOT USED IN ANY RULE PROFILE until checked in the OJ text**: only the project B2B assessment claims that the regulation bars breeding a bitch after two caesarean sections. Neither the OJ text nor the press sources above state it [b2b-assessment-2026].
 
 ### 2.2 FCI
 - FCI is a federation; national clubs keep studbooks and issue pedigrees. Limited registration is a tool against matador breeding [fci-strategies].
@@ -43,6 +44,7 @@ Condensed from the deep-research report of 2026-10-10. Every number used in conf
 - Mating certificate contains sire and dam names and registration numbers, sire owner's name and address [hks-pravilnik].
 - Stated breeding goal: preservation and, if possible, expansion of the breed's genetic diversity [hks-pravilnik].
 - **UNVERIFIED for non-hunting breeds**: exact age windows. Check the current Pravilnik.
+- **UNVERIFIED** (secondary: the Pravilnik as published on HKS breed-club pages, summarised in the project B2B assessment): a bitch may have **one litter per calendar year** and is not bred again **after two caesarean sections**; a valid breeding examination is needed before the mating, otherwise the litter is not recognised; the breeding officer (voditelj uzgoja) inspects the litter within 5 days of whelping and at registration, at 6 to 12 weeks [hks-clubs-2026; b2b-assessment-2026].
 
 ### 2.6 Finland (Kennelliitto)
 - Breeding database (KoiraNet) is openly browsable: pedigree, inbreeding over different generation depths, health, BLUP indices, breed statistics [fkc-db].
@@ -183,6 +185,8 @@ University of Zagreb Faculty of Veterinary Medicine and Faculty of Agriculture (
 | de-cara-2013 | de Cara et al. 2013, Heredity (purging and OC) (added in P12) |
 | legarra-2015 | Legarra et al. 2015, metafounders (added in P12) |
 | leroy-baumung-2011 | Leroy and Baumung 2011, Anim Genet 42:66-74 (popular sires, French breeds) (added in P12) |
+| hks-clubs-2026 | HKS Pravilnik o uzgoju as published on HKS breed-club pages (secondary) (added for the Kennel club desk) |
+| b2b-assessment-2026 | Project document "Dog Breeding, Pedigrees and Mate-Matching: A B2B Startup Assessment" (secondary, not in the repository) (added for the Kennel club desk) |
 
 Full URLs are in the original research report (`docs/research_report_full.md` if Tea adds it).
 

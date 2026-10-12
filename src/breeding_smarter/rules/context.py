@@ -92,6 +92,7 @@ class RuleContext:
     loci: tuple[str, ...]
     dna: NDArray[np.int8]  # [n, loci] risk alleles 0/1/2 from tests, -1 untested
     dam_litters: CSR  # whelp days per dam
+    dam_caesareans: CSR  # whelp days of litters delivered by caesarean section, per dam
     sire_litters: CSR  # mating days per sire
     sire_offspring: CSR  # birth days of registered offspring per sire
     breed_births: CSR  # birth days of registered domestic animals per breed code
@@ -161,6 +162,11 @@ class RuleContext:
         birth = _days(animals["birth_date"])
         whelp = _days(litters["whelp_date"])
         mating = _days(litters["mating_date"])
+        caes = (
+            litters["caesarean"].astype("boolean").fillna(False).to_numpy(dtype=bool)
+            if "caesarean" in litters.columns
+            else None
+        )
         dams = litters["dam_idx"].to_numpy(np.int64)
         sires = litters["sire_idx"].to_numpy(np.int64)
         domestic = animals["studbook"].to_numpy() != "FOREIGN"
@@ -189,6 +195,7 @@ class RuleContext:
             lit_n_registered=litters["n_registered"].to_numpy(dtype=float),
             lit_f=lit_f,
             domestic=domestic,
+            lit_caesarean=caes,
         )
 
     @classmethod
@@ -213,9 +220,12 @@ class RuleContext:
         lit_n_registered: FloatArray,
         lit_f: FloatArray,
         domestic: NDArray[np.bool_],
+        lit_caesarean: NDArray[np.bool_] | None = None,
     ) -> RuleContext:
         """Build from per-animal and per-litter arrays (registry idx order); `lit_f` is the
-        inbreeding of each litter's pups (nan if unknown)."""
+        inbreeding of each litter's pups (nan if unknown); `lit_caesarean` flags litters
+        delivered by caesarean section (None: no caesarean data, every litter counts as
+        natural)."""
         n = ped.n
         nb = len(ped.breed_codes)
         lit_breed = ped.breed[lit_dam].astype(np.int64)
@@ -226,6 +236,11 @@ class RuleContext:
             ]
         )
         has_sire = ped.sire >= 0
+        caes = (
+            np.zeros(lit_dam.size, bool)
+            if lit_caesarean is None
+            else np.asarray(lit_caesarean, dtype=bool)
+        )
         ok = ~np.isnan(lit_f)
         return cls(
             ped=ped,
@@ -241,6 +256,7 @@ class RuleContext:
             loci=loci,
             dna=dna,
             dam_litters=CSR.build(lit_dam, lit_whelp, n),
+            dam_caesareans=CSR.build(lit_dam[caes], lit_whelp[caes], n),
             sire_litters=CSR.build(lit_sire, lit_mating, n),
             sire_offspring=CSR.build(ped.sire[has_sire], birth_day[has_sire], n),
             breed_births=CSR.build(ped.breed[domestic].astype(np.int64), birth_day[domestic], nb),

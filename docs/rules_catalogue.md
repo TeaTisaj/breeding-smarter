@@ -26,6 +26,8 @@ demo app shows an 'unverified' badge next to them.
 | hks_hr | hks_hd_exclusion | health_grade_exclusion | test_type=HD, exclude=['E'], missing=allow | HARD | hks-pravilnik | yes | HD E/I and E/II exclude from a breeding licence |
 | hks_hr | hks_dam_min_age | min_age | sex=F, months=15 | HARD | hks-pravilnik | **unverified** | source covers hunting breeds (non-small); unverified for other breeds |
 | hks_hr | hks_dam_max_age | max_age | sex=F, years=8 | HARD | hks-pravilnik | **unverified** | source covers hunting breeds; unverified for other breeds |
+| hks_hr | hks_max_caesareans | max_caesareans | n=2 | HARD | hks-clubs-2026 | **unverified** | no further breeding after two caesarean sections (secondary source; check the Pravilnik) |
+| hks_hr | hks_one_litter_12m | max_litters_in_window | max=1, window_months=12 | HARD | hks-clubs-2026 | **unverified** | HKS says one litter per calendar year; a 12-month window is an approximation |
 | kc_uk | kc_close_relatives | relationship_ban | relationships=['PARENT_OFFSPRING', 'FULL_SIBLINGS'] | HARD | kc-coi | yes | KC does not register puppies from mother/son, father/daughter or brother/sister matings |
 | rvb_nl | rvb_close_relatives | relationship_ban | relationships=['PARENT_OFFSPRING', 'FULL_SIBLINGS', 'GRANDPARENT_GRANDCHILD'] | HARD | rvb-vfr | yes | template bans grandfather, father, brother, son, grandson; 'brother' read as full brother; some breed VFRs also ban half siblings |
 | rvb_nl | rvb_stud_lifetime_limit | max_lifetime_litters | sex=M, max=25 | SOFT | rvb-vfr | yes | example from one breed VFR (lifetime stud limit of 25 matings) |
@@ -42,6 +44,7 @@ demo app shows an 'unverified' badge next to them.
 - `eurlex-2026-1818`: eur-lex.europa.eu/eli/reg/2026/1818
 - `euroweekly-2026`: Euro Weekly News, 2 May 2026 (secondary)
 - `fci-strategies`: FCI International Breeding Strategies
+- `hks-clubs-2026`: HKS Pravilnik o uzgoju as published on HKS breed-club pages (secondary)
 - `hks-pravilnik`: HKS Pravilnik o uzgoju i upisu pasa / Pravilnik o stručnom radu
 - `kc-coi`: Kennel Club UK COI pages / Mate Select
 - `rvb-vfr`: Raad van Beheer VFR template (via breed club sites)

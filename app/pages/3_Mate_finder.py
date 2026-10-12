@@ -39,7 +39,7 @@ date = s1.date_input("Mating date", pd.Timestamp(ui.DEMO_DATE)).isoformat()
 profile = s2.selectbox("Rule profile", ["hr_full", "uk_full", "nl_full"])
 use_dist = s3.checkbox("Limit distance")
 max_km = s3.slider("max km", 50, 1000, 300) if use_dist else None
-quotas_on = s4.toggle("Respect club quotas", help=tip("club quota"))
+quotas_on = s4.toggle("Respect club quotas", value=True, help=tip("club quota"))
 base = load_scoring()
 with st.expander("Weights", expanded=False):
     st.caption("Weights are breeding priorities and should be set by the breed club.")

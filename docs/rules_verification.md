@@ -37,6 +37,8 @@ the parameters if needed, then set `verified: true` and regenerate the docs.
   - Check the current HKS Pravilnik o uzgoju for non-hunting breeds.
 - [ ] `hks_dam_max_age` (max_age: sex=F, years=8, HARD). Current source: `hks-pravilnik` (HKS Pravilnik o uzgoju i upisu pasa / Pravilnik o stručnom radu). source covers hunting breeds; unverified for other breeds
   - Check the current HKS Pravilnik o uzgoju for non-hunting breeds.
+- [ ] `hks_max_caesareans` (max_caesareans: n=2, HARD). Current source: `hks-clubs-2026` (HKS Pravilnik o uzgoju as published on HKS breed-club pages (secondary)). no further breeding after two caesarean sections (secondary source; check the Pravilnik)
+- [ ] `hks_one_litter_12m` (max_litters_in_window: max=1, window_months=12, HARD). Current source: `hks-clubs-2026` (HKS Pravilnik o uzgoju as published on HKS breed-club pages (secondary)). HKS says one litter per calendar year; a 12-month window is an approximation
 
 ## Not yet encoded
 
