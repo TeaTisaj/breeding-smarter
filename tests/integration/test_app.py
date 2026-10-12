@@ -4,6 +4,7 @@ import re
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import pytest
 import yaml
 
@@ -102,13 +103,22 @@ def test_mate_finder_respects_club_quotas(bundle_path, monkeypatch):
     monkeypatch.setenv("BSM_BUNDLE_PATH", str(bundle_path))
     at = AppTest.from_file(str(APP / "pages" / "3_Mate_finder.py"), default_timeout=180)
     at.run()
+    assert not at.exception, [e.value for e in at.exception]
+    assert at.toggle[0].value is True, "club quotas must be on by default"
+    default = at.dataframe[0].value
+    assert "quota left" in default.columns
+    assert (default["quota left"] > 0).all()
+    at.toggle[0].set_value(False).run()
+    assert not at.exception, [e.value for e in at.exception]
     n_all = len(at.dataframe[0].value)
+    assert "quota left" not in at.dataframe[0].value.columns
     at.toggle[0].set_value(True).run()
     assert not at.exception, [e.value for e in at.exception]
     table = at.dataframe[0].value
     assert "quota left" in table.columns
     assert (table["quota left"] > 0).all()
     assert len(table) <= n_all
+    pd.testing.assert_frame_equal(table, default)
 
 
 @pytest.mark.parametrize(
