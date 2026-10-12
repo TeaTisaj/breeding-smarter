@@ -130,6 +130,56 @@ def test_litter_rules():
     assert not one(r, ctx, 1, 0)[0]
 
 
+def _three_litters(caesarean):
+    """Dam 1 of UNRELATED whelps on 2003-03-01, 2004-03-01 and 2005-03-01 (sire 0)."""
+
+    def fn(litters):
+        whelp = pd.to_datetime(["2003-03-01", "2004-03-01", "2005-03-01"])
+        base = litters.iloc[[0, 0, 0]].reset_index(drop=True)
+        return base.assign(
+            litter_id=[0, 1, 2],
+            whelp_date=whelp,
+            mating_date=whelp - pd.Timedelta(days=63),
+            caesarean=caesarean,
+        )
+
+    return fn
+
+
+def test_max_caesareans_known_answers():
+    """N = 2: 0 and 1 previous caesareans pass, 2 fail; a later caesarean does not count."""
+    ctx = ctx_of(UNRELATED, **{"registry/litters": _three_litters([True, False, True])})
+    r = rule("max_caesareans", n=2)
+    ok, val, _, msg = one(r, ctx, 1, 0, "2003-01-01")
+    assert ok and val == 0 and "0 previous caesarean" in msg
+    ok, val, _, _ = one(r, ctx, 1, 0, "2004-06-01")
+    assert ok and val == 1
+    ok, val, _, _ = one(r, ctx, 1, 0, "2005-02-01")  # 2005 caesarean is after the mating
+    assert ok and val == 1
+    ok, val, _, msg = one(r, ctx, 1, 0, "2005-06-01")
+    assert not ok and val == 2 and "bar further breeding" in msg
+    assert one(rule("max_caesareans", n=3), ctx, 1, 0, "2005-06-01")[0]
+
+
+def test_max_caesareans_without_caesarean_data_passes():
+    ctx = ctx_of(
+        UNRELATED,
+        **{
+            "registry/litters": lambda L: _three_litters([True, True, True])(L).drop(
+                columns="caesarean"
+            )
+        },
+    )
+    ok, val, _, _ = one(rule("max_caesareans", n=2), ctx, 1, 0, "2005-06-01")
+    assert ok and val == 0
+
+
+def test_max_caesareans_needs_n():
+    assert "max_caesareans" in RULE_TYPES
+    with pytest.raises(RuleConfigError):
+        RULE_TYPES["max_caesareans"].validate_params(rule("max_caesareans"))
+
+
 def _with_health(grades):
     def fn(_):
         return pd.DataFrame(

@@ -335,6 +335,35 @@ class MaxLifetimeLitters(RuleType):
         )
 
 
+class MaxCaesareans(RuleType):
+    """Dam-level: a dam with `n` or more litters delivered by caesarean section before the
+    mating date may not be mated again."""
+
+    name = "max_caesareans"
+    required = ("n",)
+
+    def check_many(
+        self,
+        rule: RuleSpec,
+        ctx: RuleContext,
+        dam: int,
+        sires: IntArray,
+        day: int,
+        method: str | None = None,
+    ) -> Batch:
+        c = int(ctx.dam_caesareans.count_before(np.array([dam]), day)[0])
+        lim = float(rule.params["n"])
+        return Batch.of(np.full(sires.size, c < lim), c, lim)
+
+    def message(
+        self, rule: RuleSpec, ctx: RuleContext, dam: int, sire: int, b: Batch, k: int
+    ) -> str:
+        c = f"Dam has {b.value[k]:.0f} previous caesarean litter(s)"
+        if b.passed[k]:
+            return f"{c}; {b.threshold:g} or more would bar breeding."
+        return f"{c}; {b.threshold:g} or more bar further breeding."
+
+
 class HealthGradeExclusion(RuleType):
     name = "health_grade_exclusion"
     required = ("test_type", "exclude")
@@ -513,6 +542,7 @@ RULE_TYPES: dict[str, RuleType] = {
         MinIntervalBetweenLitters,
         MaxLittersInWindow,
         MaxLifetimeLitters,
+        MaxCaesareans,
         HealthGradeExclusion,
         AffectedExclusion,
         CarrierPairing,
