@@ -1,0 +1,18 @@
+id: E8_hips_quotas
+description: "E8 follow-up to P12: S3q with quotas from gain OCS (HD merit under a dF budget) and carrier x carrier HARD-blocked, vs S3q, S3 and S1 rerun with the E5 seed. Primary arm SYN_S S3q-gain025-hc, SYN_M S3q-gain010-hc; criteria in plan/14_E8_hips_quotas.md."
+seed: 20261024
+dataset: v1
+generations: 10
+breeds:
+  SYN_S: {replicates: 20}
+  SYN_M: {replicates: 10, extra_strategies: [S3q-gain010-hc, S3q-gain010]}
+strategies: [S1, S3, S3q, S3q-gain025-hc]
+adoption: [1.0]
+profile: exp_pairing
+scoring: default
+coordination: default
+coi_cap: {value: 0.065, source: eu-platform-guide}
+s3_top_probs: {value: [0.5, 0.3, 0.2], assumption: true, note: "breeders keep some freedom"}
+s4_lambda: {value: 1.0, assumption: true}
+ebv_every_years: {value: 5, assumption: true}
+registration_rate: {value: 1.0, assumption: true, note: "simplification: every live-born puppy is registered during experiments"}

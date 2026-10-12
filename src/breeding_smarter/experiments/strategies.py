@@ -16,6 +16,9 @@
 | S3q | P12 product mode: OCS quotas for the season, shared booking ledger, each adopting dam
        picks among the top 3 of `rank_fast` restricted to sires with quota left; non-adopters
        follow S2 first and their sires enter OCS as fixed contributions |
+| S3q[-gainNNN][-hc] | E8: S3q with quotas from gain OCS (HD merit under dF = NNN / 10^4 per
+       generation) instead of conservation OCS; `-hc` uses `exp_pairing_hard_carrier`
+       (carrier x carrier HARD-blocked) for the quotas and the ranking |
 
 Candidate sires are the simulator's eligible domestic males plus eligible foreign males that
 already have a registry record (a breeder can only evaluate dogs with a record). The market
@@ -308,12 +311,19 @@ class Coordinated(CoordinatedBase, ObservedStrategy):
 
 
 class RecommenderWithQuotas(CoordinatedBase, Recommender):
-    """S3q: the recommender inside OCS quotas (shared booking ledger)."""
+    """S3q: the recommender inside OCS quotas (shared booking ledger); E8 variants take the
+    quotas from gain OCS (`control="ocs_gain"`, `delta_f`)."""
 
-    name = "S3q"
-
-    def __init__(self, params: StrategyParams, scoring: ScoringConfig):
+    def __init__(
+        self,
+        params: StrategyParams,
+        scoring: ScoringConfig,
+        control: str = "ocs",
+        delta_f: float | None = None,
+        name: str = "S3q",
+    ):
         Recommender.__init__(self, params, scoring)
+        self.control, self.delta_f, self.name = control, delta_f, name
         self.truth = None
         self.last_plan = None
 
@@ -344,11 +354,13 @@ class RecommenderWithQuotas(CoordinatedBase, Recommender):
             d_idx,
             cand_idx,
             self.coordination(),
-            "ocs",
+            self.control,
             "none",
             profile=self.params.profile,
             kin=self.kin(ctx),
+            delta_f=self.delta_f,
             fixed=fixed,
+            prev_matings=self.prev_matings(ctx) if self.control == "ocs_gain" else None,
             rng=rng,
         )
         assert plan.quotas is not None
@@ -403,6 +415,26 @@ def parse_cc(sid: str) -> tuple[str, str, bool, float | None]:
     return control, mating, len(parts) == 4, delta_f
 
 
+def is_s3q(sid: str) -> bool:
+    return sid == "S3q" or sid.startswith("S3q-")
+
+
+def parse_s3q(sid: str) -> tuple[float | None, bool]:
+    """`S3q[-gainNNN][-hc]` -> (delta_f, hard_carrier); delta_f None means conservation OCS."""
+    parts = sid.split("-")
+    hc = parts[-1] == "hc"
+    if hc:
+        parts = parts[:-1]
+    if parts[0] != "S3q" or len(parts) > 2:
+        raise ValueError(f"bad S3q strategy id {sid!r}")
+    if len(parts) == 1:
+        return None, hc
+    gain = parts[1]
+    if not (gain.startswith("gain") and gain[4:].isdigit() and int(gain[4:]) > 0):
+        raise ValueError(f"bad S3q strategy id {sid!r}")
+    return int(gain[4:]) / 1e4, hc
+
+
 def make_strategy(sid: str, params: StrategyParams, scoring: ScoringConfig) -> Any:
     if sid == "S0":
         return RandomStrategy()
@@ -418,8 +450,12 @@ def make_strategy(sid: str, params: StrategyParams, scoring: ScoringConfig) -> A
         return Recommender(params, scoring)
     if sid == "S4":
         return CoordinatedPlanner(params, scoring)
-    if sid == "S3q":
-        return RecommenderWithQuotas(params, scoring)
+    if is_s3q(sid):
+        delta_f, hc = parse_s3q(sid)
+        if hc:
+            params = replace(params, profile="exp_pairing_hard_carrier")
+        control = "ocs" if delta_f is None else "ocs_gain"
+        return RecommenderWithQuotas(params, scoring, control, delta_f, name=sid)
     if sid.startswith("CC-"):
         control, mating, oracle, delta_f = parse_cc(sid)
         return Coordinated(params, scoring, control, mating, oracle, delta_f, name=sid)

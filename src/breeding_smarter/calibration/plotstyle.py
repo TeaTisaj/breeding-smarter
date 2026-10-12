@@ -36,6 +36,11 @@ STRATEGY_COLOURS = {
     "CC-gain025-mc1": "#9C3F7A",
     "CC-gain010-mc1": "#5E1A48",
     "S3q": "#56B4E9",
+    # E8: S3q on gain-OCS quotas, darker blues
+    "S3q-gain025": "#2B7BB9",
+    "S3q-gain025-hc": "#2B7BB9",
+    "S3q-gain010": "#123F6B",
+    "S3q-gain010-hc": "#123F6B",
 }
 SYNTHETIC_NOTE = "Synthetic data (no real dogs)."
 
