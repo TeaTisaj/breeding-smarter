@@ -25,7 +25,7 @@ from breeding_smarter.config.loader import load_config
 from breeding_smarter.config.sourced import Sourced, Strict
 from breeding_smarter.experiments.metrics import living_he, year_metrics
 from breeding_smarter.experiments.observed import ObservedRegistry
-from breeding_smarter.experiments.strategies import StrategyParams, make_strategy
+from breeding_smarter.experiments.strategies import StrategyParams, is_s3q, make_strategy
 from breeding_smarter.io.datasets import resolve_dataset
 from breeding_smarter.io.paths import repo_root
 from breeding_smarter.matching.config import load_scoring
@@ -91,7 +91,7 @@ def parts_of(cfg: ExperimentConfig) -> list[Part]:
     out = []
     for breed, br in cfg.breeds.items():
         for sid in [*cfg.strategies, *br.extra_strategies]:
-            adoptions = cfg.adoption if sid in ("S3", "S3q") else [1.0]
+            adoptions = cfg.adoption if sid == "S3" or is_s3q(sid) else [1.0]
             for ad in adoptions:
                 for r in range(br.replicates):
                     out.append(Part(breed, sid, ad, r))
@@ -121,7 +121,7 @@ def replicate_rng(seed: int, n_replicates: int, replicate: int) -> np.random.Gen
 
 def hard_rule_strategy(sid: str) -> bool:
     """Strategies that promise never to allocate a pair failing a HARD rule."""
-    return sid in ("S2", "S3", "S4", "S3hc", "S3xc", "S3q") or sid.startswith("CC-")
+    return sid in ("S2", "S3", "S4", "S3hc", "S3xc") or is_s3q(sid) or sid.startswith("CC-")
 
 
 class ContractChecker:
@@ -209,7 +209,7 @@ def run_part(
     strategy = make_strategy(part.strategy, params, load_scoring(cfg.scoring))
     if debug:
         hard = hard_rule_strategy(part.strategy)
-        profile = "exp_pairing_hard_carrier" if part.strategy == "S3hc" else cfg.profile
+        profile = strategy.params.profile if hasattr(strategy, "params") else cfg.profile
         strategy = ContractChecker(strategy, hard, profile)
     start = state.year
     obs = ObservedRegistry(state, genetics, setup, bidx)

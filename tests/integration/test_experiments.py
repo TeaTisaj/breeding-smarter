@@ -15,7 +15,7 @@ from breeding_smarter.experiments.runner import (
     prepared_state,
     run_part,
 )
-from breeding_smarter.experiments.strategies import StrategyParams, make_strategy
+from breeding_smarter.experiments.strategies import StrategyParams, make_strategy, parse_s3q
 from breeding_smarter.experiments.summary import ne_from_series, t_interval
 from breeding_smarter.io import configs_dir
 from breeding_smarter.matching import load_scoring
@@ -185,6 +185,36 @@ def test_p12_determinism(tiny, sid):
     a = a[a["metric"] != "D5_solver_seconds"].reset_index(drop=True)
     b = b[b["metric"] != "D5_solver_seconds"].reset_index(drop=True)
     pd.testing.assert_frame_equal(a, b)
+
+
+# ---------------------------------------------------------------- E8 hips within quotas
+
+
+@pytest.mark.parametrize("sid", ["S3q-gain025-hc", "S3q-gain010"])
+def test_e8_strategy_contract(tiny, sid):
+    """Gain-OCS quotas are planned (budget logged) and, for -hc, no carrier x carrier pair."""
+    _, cfg = tiny
+    df = run_part(cfg, Part("SYN_L", sid, 1.0, 0), debug=True)
+    assert {"D1_budget", "D2_achieved_C", "D8_C_now"} <= set(df["metric"])
+
+
+def test_parse_s3q():
+    assert parse_s3q("S3q") == (None, False)
+    assert parse_s3q("S3q-hc") == (None, True)
+    assert parse_s3q("S3q-gain025") == (0.0025, False)
+    assert parse_s3q("S3q-gain010-hc") == (0.001, True)
+    for bad in ("S3q-gain", "S3q-gainxx", "S3q-gain000", "S3q-gain025-mc1", "S3q-x-hc"):
+        with pytest.raises(ValueError):
+            parse_s3q(bad)
+
+
+def test_e8_make_strategy():
+    params, scoring = StrategyParams(), load_scoring()
+    s = make_strategy("S3q-gain025-hc", params, scoring)
+    assert (s.name, s.control, s.delta_f) == ("S3q-gain025-hc", "ocs_gain", 0.0025)
+    assert s.params.profile == "exp_pairing_hard_carrier"
+    s = make_strategy("S3q", params, scoring)
+    assert (s.name, s.control, s.delta_f, s.params.profile) == ("S3q", "ocs", None, "exp_pairing")
 
 
 def test_true_kinship_incremental_equals_rebuild(tiny):

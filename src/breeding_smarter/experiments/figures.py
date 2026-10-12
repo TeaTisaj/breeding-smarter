@@ -36,13 +36,19 @@ STRATEGY_LABEL = {
     "CC-gain025-mc1": "OCS gain, dF 0.25%",
     "CC-gain010-mc1": "OCS gain, dF 0.1%",
     "S3q": "S3q recommender within quotas",
+    "S3q-gain025": "S3q within gain quotas, dF 0.25%",
+    "S3q-gain025-hc": "S3q within gain quotas, dF 0.25%, carrier x carrier blocked",
+    "S3q-gain010": "S3q within gain quotas, dF 0.1%",
+    "S3q-gain010-hc": "S3q within gain quotas, dF 0.1%, carrier x carrier blocked",
 }
 CONTROLS = {"none": "none", "mkx": "MK exclusion", "cap": "MK-scaled cap", "ocs": "OCS"}
 
 
 def style(sid: str) -> tuple[str, str]:
-    """(colour, line style): random mating dashed, everything else solid."""
-    return plotstyle.STRATEGY_COLOURS.get(sid, "#333333"), "--" if sid.endswith("-rand") else "-"
+    """(colour, line style): random mating and E8 arms without the carrier block dashed,
+    everything else solid."""
+    dashed = sid.endswith("-rand") or (sid.startswith("S3q-gain") and not sid.endswith("-hc"))
+    return plotstyle.STRATEGY_COLOURS.get(sid, "#333333"), "--" if dashed else "-"
 
 
 def _save(fig: plt.Figure, out: Path, name: str, poster: bool) -> list[Path]:
