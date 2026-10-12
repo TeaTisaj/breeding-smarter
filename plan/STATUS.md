@@ -78,7 +78,7 @@ Status values: not started, in progress, at gate (waiting for review), done.
 - [ ] Review score card wording: `reports/matching/demo_dams.md` (P7).
 - [ ] Deploy the demo app: follow `docs/deploy.md` (Streamlit Community Cloud or Hugging Face Spaces); put the URL in `conference/links.yaml`.
 - [ ] Click through the demo once (`uv run streamlit run app/Home.py`) and approve wording; record a 3-minute screen video of `conference/demo_script.md` (P9 task 9.7).
-- [ ] Fill colleague's name (search the repo for `TODO colleague`).
+- [x] Fill colleague's name: Marija Perković, FER (2026-10-12). ORCIDs still open (Release step A5).
 
 ## Release steps (HUMAN, click by click)
 Prepared by Claude Code; nothing has been published.

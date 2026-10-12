@@ -5,7 +5,7 @@ description = "Open, explainable, rule-aware mate matching for genetic diversity
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.12,<3.13"
-authors = [{ name = "Tea Ćetojević Tisaj" }, { name = "TODO colleague" }]
+authors = [{ name = "Tea Ćetojević Tisaj" }, { name = "Marija Perković" }]
 dependencies = [
     "numpy",
     "pandas",

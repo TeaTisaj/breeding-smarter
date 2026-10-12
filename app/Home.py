@@ -33,7 +33,7 @@ try:
     m = ui.get_bundle().manifest
     st.caption(
         f"Dataset {m.get('dataset')} (run {m.get('source_run')}), DOI: TODO-DOI. "
-        "BioMedVetMech 2026, Zagreb. Tea Ćetojević Tisaj and TODO colleague, "
+        "BioMedVetMech 2026, Zagreb. Tea Ćetojević Tisaj and Marija Perković, "
         "University of Zagreb FER."
     )
 except FileNotFoundError as exc:
