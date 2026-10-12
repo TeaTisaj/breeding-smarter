@@ -173,3 +173,9 @@ sources:
     ref: "Leroy and Baumung 2011, Anim Genet 42:66-74 (popular sires, French breeds)"
     url: "https://agris.fao.org/search/fr/records/652f9eecd5e38ff7731f7902"
     added_in: P12 task 12.1
+  hks-clubs-2026:
+    ref: "HKS Pravilnik o uzgoju as published on HKS breed-club pages (secondary)"
+    added_in: Kennel club desk B2
+  b2b-assessment-2026:
+    ref: "Project document: Dog Breeding, Pedigrees and Mate-Matching: A B2B Startup Assessment (secondary, not in the repository)"
+    added_in: Kennel club desk B2

@@ -291,6 +291,8 @@ def test_hr_full_composition():
         "hks_hd_exclusion",
         "hks_dam_min_age",
         "hks_dam_max_age",
+        "hks_max_caesareans",
+        "hks_one_litter_12m",
         "guide_coi_6_5",
         "guide_coi_breed_mean",
         "dna_carrier_pairing",
@@ -299,6 +301,50 @@ def test_hr_full_composition():
     assert set(ids) == expected
     for name in ("uk_full", "nl_full", "kc_uk", "rvb_nl"):
         assert load_profile(name).rules
+
+
+def test_kennel_club_desk_rules_and_unchanged_existing_rules():
+    """B2: new HKS rules are HARD, sourced and unverified; earlier rules unchanged; no EU
+    caesarean rule until it is confirmed in the Official Journal text."""
+    sources = set(yaml.safe_load((rules_dir().parent / "sources.yaml").read_text())["sources"])
+    hks = {r.id: r for r in load_profile("hks_hr").rules}
+    eu = {r.id: r for r in load_profile("eu_2026_1818").rules}
+    new = {
+        "hks_max_caesareans": (hks, "max_caesareans", {"n": 2}),
+        "hks_one_litter_12m": (hks, "max_litters_in_window", {"max": 1, "window_months": 12}),
+    }
+    for rid, (prof, type_, params) in new.items():
+        r = prof[rid]
+        assert (r.type, r.params, r.severity) == (type_, params, Severity.HARD), rid
+        assert r.verified is False and r.source in sources, rid
+    assert "calendar year" in (hks["hks_one_litter_12m"].note or "")
+    old = {
+        "hks_hd_exclusion": ("health_grade_exclusion", {"test_type": "HD", "exclude": ["E"],
+                                                        "missing": "allow"}, True),
+        "hks_dam_min_age": ("min_age", {"sex": "F", "months": 15}, False),
+        "hks_dam_max_age": ("max_age", {"sex": "F", "years": 8}, False),
+        "eu_close_relatives": ("relationship_ban", {"relationships": BAN}, False),
+        "eu_dam_min_age": ("min_age", {"sex": "F", "months": 18}, False),
+        "eu_dam_litter_frequency": ("max_litters_in_window", {"max": 3, "window_months": 24},
+                                    False),
+    }  # fmt: skip
+    rules = {**hks, **eu}
+    for rid, (type_, params, verified) in old.items():
+        r = rules[rid]
+        assert (r.type, r.params, r.severity, r.verified) == (
+            type_, params, Severity.HARD, verified
+        ), rid  # fmt: skip
+    assert set(hks) == {
+        "hks_hd_exclusion",
+        "hks_dam_min_age",
+        "hks_dam_max_age",
+        "hks_max_caesareans",
+        "hks_one_litter_12m",
+    }
+    assert set(eu) == {"eu_close_relatives", "eu_dam_min_age", "eu_dam_litter_frequency"}
+    for name in ("eu_2026_1818", "hr_full", "nl_full"):
+        caes = [r.id for r in load_profile(name).rules if r.type == "max_caesareans"]
+        assert all(r.startswith("hks_") for r in caes), (name, caes)
 
 
 def test_status_aggregation():
