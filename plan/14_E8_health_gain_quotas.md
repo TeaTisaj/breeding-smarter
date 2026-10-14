@@ -67,3 +67,20 @@ Ne = 1/(2 × late ΔF of realised IBD) (`R_ne_f_late`); HD = `M8_mean_tbv_hd` (l
 
 ## 5. Out of scope
 No change to the P1 data contract, `configs/coordination/default.yaml` or existing strategies; E5 to E7 are not rerun. Conference texts change only after Tea approves the results (poster cutoff 17 Oct 2026).
+
+---
+
+## Addendum (14 Oct 2026, after the pilot, before the main run): β = 0.5
+
+Static price curve (`reports/experiments/E8_pilot/price_curve.md`, one season): without a limit, gain OCS plans *above-average* risk-allele transmission (SOD1_DM 0.228 vs candidate mean 0.202, ABCB1_MDR1 0.142 vs 0.107); every β was feasible; planned coancestry unchanged (≤ 4e-7); planned HD merit lost 0.01 (β 1.0) to 0.14 SD (β 0.25).
+
+Dynamic pilot (seed 20261101, SYN_M, 3 replicates, generation 10):
+
+| arm | late ΔF (%/gen) | ratio to S3q-gain010 | carrier limit relaxed | risk-allele freq (sum) | HD |
+|---|---|---|---|---|---|
+| S3q-gain010 | 0.169 | 1.00 | n/a | 0.165 | −0.81 |
+| S3q-gain010-c100 | 0.198 | 1.17 | 0 of 135 | 0.139 | −0.81 |
+| S3q-gain010-c075 | 0.168 | 1.00 | 0 of 135 | 0.068 | −0.79 |
+| S3q-gain010-c050 | 0.176 | 1.04 | 0 of 135 | 0.031 | −0.76 |
+
+Rule (section 2): smallest β in {1.0, 0.75, 0.5} with relaxed ≤ 5% and ratio ≤ 1.10 → **β = 0.5** (`-c050`). The non-monotone ΔF (c100 above c075) shows the pilot's noise at 3 replicates; it does not affect the choice. Main arms: S3q-c050 and S3q-gain010-c050.
