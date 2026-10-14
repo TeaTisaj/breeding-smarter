@@ -438,6 +438,9 @@ def fig_m(summ: pd.DataFrame, per_gen: pd.DataFrame, out: Path, poster: bool) ->
             if "S1" in order:
                 ax.axvline(m[order.index("S1")], color="#333333", lw=1, ls=":")
             ax.set_yticks(y, [strategy_label(x) for x in order] if c == 0 else [], fontsize="small")
+            if metric == "freq" and not np.nansum(m):
+                ax.text(0.5, 0.5, "no segregating tested locus", transform=ax.transAxes,
+                        ha="center", va="center", fontsize="small")  # fmt: skip
             ax.set(xlabel=f"{lab}\n({hint})", title=b if c == 1 else "")
     fig.suptitle("Diversity, hips and disease alleles at generation 10 (dotted line: S1)")
     fig.tight_layout()

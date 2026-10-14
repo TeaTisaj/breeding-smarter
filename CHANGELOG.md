@@ -1,6 +1,10 @@
 # Changelog
 
 ## Unreleased
+- E8 experiment (in silico): club quotas with a carrier limit (planned risk-allele
+  transmission per tested locus at most 0.5 x the candidate mean) and/or gain OCS. New
+  strategy ids `S3q[-gainNNN][-cBBB]`, `bsm experiment hypotheses --set e8`, figure M.
+  Results: `plan/gates/E8_report.md`.
 - Kennel club desk (prototype, app page 8): mating applications checked before the mating.
   - Automatic rule and club-quota checks, with three outcomes (Allowed, Needs club review,
     Blocked) and template-built explanations.

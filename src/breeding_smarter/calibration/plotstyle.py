@@ -36,6 +36,11 @@ STRATEGY_COLOURS = {
     "CC-gain025-mc1": "#9C3F7A",
     "CC-gain010-mc1": "#5E1A48",
     "S3q": "#56B4E9",
+    # E8: S3q + carrier limit (green), + gain OCS (purple), both (blue)
+    "S3q-c050": "#009E73",
+    "S3q-gain010": "#CC79A7",
+    "S3q-gain025": "#CC79A7",
+    "S3q-gain010-c050": "#0072B2",
 }
 SYNTHETIC_NOTE = "Synthetic data (no real dogs)."
 
