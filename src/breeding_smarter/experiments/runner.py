@@ -91,7 +91,7 @@ def parts_of(cfg: ExperimentConfig) -> list[Part]:
     out = []
     for breed, br in cfg.breeds.items():
         for sid in [*cfg.strategies, *br.extra_strategies]:
-            adoptions = cfg.adoption if sid in ("S3", "S3q") else [1.0]
+            adoptions = cfg.adoption if sid == "S3" or sid.startswith("S3q") else [1.0]
             for ad in adoptions:
                 for r in range(br.replicates):
                     out.append(Part(breed, sid, ad, r))
@@ -121,7 +121,7 @@ def replicate_rng(seed: int, n_replicates: int, replicate: int) -> np.random.Gen
 
 def hard_rule_strategy(sid: str) -> bool:
     """Strategies that promise never to allocate a pair failing a HARD rule."""
-    return sid in ("S2", "S3", "S4", "S3hc", "S3xc", "S3q") or sid.startswith("CC-")
+    return sid in ("S2", "S3", "S4", "S3hc", "S3xc") or sid.startswith(("CC-", "S3q"))
 
 
 class ContractChecker:
@@ -261,6 +261,8 @@ DIAGNOSTICS = {
     "overflow": "D7_overflow",
     "C_now": "D8_C_now",
     "L": "D9_generation_interval_used",
+    "carrier_relaxed": "D10_carrier_relaxed",
+    "carrier_planned": "D11_carrier_planned",
 }
 
 

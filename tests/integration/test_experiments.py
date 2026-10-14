@@ -156,6 +156,8 @@ P12_IDS = [
     "CC-ocs-mc1-oracle",
     "CC-gain050-mc1",
     "S3q",
+    "S3q-c075",
+    "S3q-gain010-c075",
 ]
 
 
@@ -166,10 +168,19 @@ def test_p12_strategy_contract(tiny, sid):
     df = run_part(cfg, Part("SYN_L", sid, 1.0, 0), debug=True)
     metrics = set(df["metric"])
     assert {"M12_realised_coancestry", "M13_generation_interval", "M14_top5_sire_share"} <= metrics
-    if "ocs" in sid or "gain" in sid or sid == "S3q":
+    if "ocs" in sid or "gain" in sid or sid.startswith("S3q"):
         assert "D2_achieved_C" in metrics
     if "gain" in sid:
         assert {"D1_budget", "D8_C_now"} <= metrics
+
+
+def test_s3q_carrier_limit_is_planned(tiny):
+    """The carrier limit reaches the planner and holds whenever it is not relaxed."""
+    _, cfg = tiny
+    df = run_part(cfg, Part("SYN_L", "S3q-c050", 1.0, 0), debug=True)
+    planned = df[df["metric"] == "D11_carrier_planned"]["value"]
+    relaxed = df[df["metric"] == "D10_carrier_relaxed"]["value"]
+    assert planned.size > 0 and relaxed.size == planned.size
 
 
 def test_s3q_partial_adoption_contract(tiny):
@@ -177,7 +188,7 @@ def test_s3q_partial_adoption_contract(tiny):
     run_part(cfg, Part("SYN_L", "S3q", 0.5, 0), debug=True)
 
 
-@pytest.mark.parametrize("sid", ["CC-ocs-mc1", "S3q"])
+@pytest.mark.parametrize("sid", ["CC-ocs-mc1", "S3q", "S3q-gain010-c075"])
 def test_p12_determinism(tiny, sid):
     _, cfg = tiny
     a = run_part(cfg, Part("SYN_L", sid, 1.0, 1)).drop(columns="seconds")

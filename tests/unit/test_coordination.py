@@ -169,6 +169,56 @@ def test_gain_loose_tight_and_infeasible():
     np.testing.assert_allclose(bad.litters, cons.litters, atol=1e-6)
 
 
+def test_carrier_constraint_binds_closed_form():
+    # sire 0 transmits the risk allele with prob 0.5, sire 1 never; bound 0.5 x mean(0.5, 0)
+    t = np.array([[0.5], [0.0]])
+    free = solve_conservation(_problem(_unrelated(2, 4), 2, 4))
+    np.testing.assert_allclose(free.litters, [2, 2], atol=1e-4)
+    res = solve_conservation(
+        _problem(_unrelated(2, 4), 2, 4, carrier_t=t, carrier_bound=np.array([0.125]))
+    )
+    np.testing.assert_allclose(res.litters, [1, 3], atol=1e-4)
+    assert res.relaxed == []
+
+
+def test_carrier_relaxed_first_and_reported():
+    t = np.array([[0.5], [0.0]])
+    p = _problem(
+        _unrelated(2, 4), 2, 4, carrier_t=t, carrier_bound=np.array([0.125]),
+        fixed_sire_litters=np.array([2.0, 0.0]),
+    )  # fmt: skip
+    res = solve_conservation(p)
+    assert res.relaxed == ["carrier"]
+    np.testing.assert_allclose(res.litters, [2, 2], atol=1e-3)
+
+
+def test_non_binding_carrier_bound_changes_nothing():
+    rng = np.random.default_rng(5)
+    m, n = 6, 8
+    ped = random_pedigree(60, 0.2, 5)
+    _, D = inbreeding(ped)
+    K = kinship_matrix(ped, D, np.arange(60 - m - n, 60, dtype=np.int64))
+    t = rng.uniform(0, 0.5, (m, 2))
+    base = solve_conservation(_problem(K, m, n, caps=np.full(m, 3.0)))
+    loose = solve_conservation(
+        _problem(K, m, n, caps=np.full(m, 3.0), carrier_t=t, carrier_bound=np.full(2, 1.0))
+    )
+    np.testing.assert_allclose(base.litters, loose.litters, atol=1e-4)
+    assert loose.relaxed == base.relaxed
+
+
+def test_gain_with_carrier_closed_form():
+    K = _unrelated(4, 4)
+    merit = np.array([2.0, 1.5, 0.0, -1.0])
+    t = np.array([[0.5], [0.0], [0.0], [0.0]])
+    p = _problem(K, 4, 4, caps=[2, 2, 2, 2], merit=merit, carrier_t=t, carrier_bound=[0.125])
+    res = solve_gain(p, budget=1.0)
+    np.testing.assert_allclose(res.litters, [1, 2, 1, 0], atol=1e-4)
+    assert res.litters @ t[:, 0] / 4 <= 0.125 + 1e-6
+    # C_min is the conservation minimum under the carrier constraint
+    assert res.c_min == pytest.approx(solve_conservation(p).coancestry, abs=1e-6)
+
+
 def test_expected_coancestry_equals_brute_force_offspring_kinship():
     sire = [-1, -1, -1, -1, 0, 0, -1]
     dam = [-1, -1, -1, -1, 2, 3, -1]
