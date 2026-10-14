@@ -56,3 +56,47 @@ def pytest_approx(x):
     import pytest
 
     return pytest.approx(x, rel=0.05)
+
+
+def test_e8_known_answers(tmp_path, monkeypatch):
+    """Both add-ons help (carrier: freq, gain: HD), Ne above S1: H8 passes; S3q alone does not."""
+    rng = np.random.default_rng(1)
+    rows = []
+    arms = {  # Ne, HD, freq per locus (two loci)
+        "S1": (200, 0.40, 0.07),
+        "S3q": (340, 0.40, 0.11),
+        "S3q-c075": (330, 0.42, 0.05),
+        "S3q-gain010": (340, -0.80, 0.13),
+        "S3q-gain010-c075": (330, -0.70, 0.05),
+    }
+    for sid, (ne, hd, fq) in arms.items():
+        z = rng.normal(0, 1, (3, 20))
+        rows += _rows("SYN_M", sid, "R_ne_f_late", ne + 5 * z[0])
+        rows += _rows("SYN_M", sid, "M8_mean_tbv_hd", hd + 0.02 * z[1])
+        for locus in ("L1", "L2"):
+            rows += _rows("SYN_M", sid, f"M6_freq_{locus}", fq + 0.002 * z[2])
+            rows += _rows("SYN_M", sid, f"M6_affected_{locus}", fq**2 + 0 * z[2])
+    for sid in ("S1", "S3q", "S3q-gain025"):
+        rows += _rows("SYN_S", sid, "R_ne_f_late", 50 + rng.normal(0, 1, 10))
+        rows += _rows("SYN_S", sid, "M8_mean_tbv_hd", rng.normal(0, 0.01, 10))
+    (tmp_path / hy.E8).mkdir()
+    pd.DataFrame(rows).to_csv(tmp_path / hy.E8 / "per_generation_replicates.csv.gz", index=False)
+    monkeypatch.setattr(hy, "report_dir", lambda e: tmp_path / e)
+
+    def no_results(exp_id):
+        raise ValueError("none")
+
+    monkeypatch.setattr(hy, "load_results", no_results)
+    pr = pd.read_csv(tmp_path / hy.E8 / "per_generation_replicates.csv.gz")
+    assert hy.e8_arms(pr)["carrier"] == "S3q-c075"
+    t = hy.evaluate_e8(pr)
+    got = t.set_index("id")
+    assert got.loc["H8a", "pass"] and got.loc["H8b", "pass"] and got.loc["H8c", "pass"]
+    assert got.loc["H8", "pass"]
+    h8c = got.loc["H8c"]
+    assert h8c["estimate"] == pytest_approx(2 * (0.05 - 0.07))
+    e = t[t["id"] == "H8e"].set_index("quantity")["estimate"]
+    assert e["carrier-limit effect on freq (mean over planners)"] == pytest_approx(-0.14)
+    assert e["gain-OCS effect on HD (mean over carrier levels)"] == pytest_approx(-1.16)
+    assert (t["id"] == "H8f").sum() == 4
+    assert "H8a" in hy.write_e8_report().read_text()

@@ -1,0 +1,17 @@
+id: E8_pilot
+description: "E8 step 2 (plan/14_E8_health_gain_quotas.md): pilot to choose the carrier-limit factor beta for S3q-gain010. Own seed, never pooled with E8. SYN_M, 3 replicates, 10 generations."
+seed: 20261101
+dataset: v1
+generations: 10
+breeds:
+  SYN_M: {replicates: 3}
+strategies: [S3q-gain010, S3q-gain010-c100, S3q-gain010-c075, S3q-gain010-c050]
+adoption: [1.0]
+profile: exp_pairing
+scoring: default
+coordination: default
+coi_cap: {value: 0.065, source: eu-platform-guide}
+s3_top_probs: {value: [0.5, 0.3, 0.2], assumption: true, note: "breeders keep some freedom"}
+s4_lambda: {value: 1.0, assumption: true}
+ebv_every_years: {value: 5, assumption: true}
+registration_rate: {value: 1.0, assumption: true, note: "simplification: every live-born puppy is registered during experiments"}

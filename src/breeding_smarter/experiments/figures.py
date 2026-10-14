@@ -1,4 +1,4 @@
-"""Experiment figures A to F (P8 task 8.5) and G to L (P12 task 12.11).
+"""Experiment figures A to F (P8 task 8.5), G to L (P12 task 12.11) and M (E8).
 
 Fixed strategy colours, colourblind-safe palette, PNG (300 dpi) and SVG, plus a poster
 variant with larger fonts. Every caption says the results are in silico."""
@@ -37,6 +37,25 @@ STRATEGY_LABEL = {
     "CC-gain010-mc1": "OCS gain, dF 0.1%",
     "S3q": "S3q recommender within quotas",
 }
+
+
+def strategy_label(sid: str) -> str:
+    """Legend label; S3q variants of E8 (`S3q-gainNNN-cBBB`) are described from their id."""
+    if sid in STRATEGY_LABEL:
+        return STRATEGY_LABEL[sid]
+    if sid.startswith("S3q-"):
+        from breeding_smarter.experiments.strategies import parse_s3q
+
+        _, delta_f, beta = parse_s3q(sid)
+        parts = ["S3q"]
+        if delta_f is not None:
+            parts.append(f"gain OCS dF {100 * delta_f:g}%")
+        if beta is not None:
+            parts.append(f"carrier limit {beta:g}")
+        return ", ".join(parts)
+    return sid
+
+
 CONTROLS = {"none": "none", "mkx": "MK exclusion", "cap": "MK-scaled cap", "ocs": "OCS"}
 
 
@@ -69,7 +88,7 @@ def fig_a(summ: pd.DataFrame, out: Path, poster: bool) -> list[Path]:
                 ax,
                 s[(s["breed"] == b) & (s["strategy"] == sid)],
                 style(sid)[0],
-                STRATEGY_LABEL[sid],
+                strategy_label(sid),
                 100,
                 style(sid)[1],
             )
@@ -123,7 +142,7 @@ def fig_c(summ: pd.DataFrame, out: Path, poster: bool) -> list[Path]:
                 ax,
                 s[s["strategy"] == sid],
                 style(sid)[0],
-                STRATEGY_LABEL[sid],
+                strategy_label(sid),
                 100,
                 style(sid)[1],
             )
@@ -161,7 +180,7 @@ def fig_d(
                 color=c,
                 s=120,
                 edgecolor="black",
-                label=STRATEGY_LABEL[sid],
+                label=strategy_label(sid),
                 zorder=3,
             )
         ax.set(
@@ -209,7 +228,7 @@ def fig_f(summ: pd.DataFrame, out: Path, poster: bool) -> list[Path]:
                 ax,
                 s[(s["breed"] == b) & (s["strategy"] == sid)],
                 style(sid)[0],
-                STRATEGY_LABEL[sid],
+                strategy_label(sid),
                 100,
                 style(sid)[1],
             )
@@ -232,7 +251,7 @@ def _lines(
         for sid in [x for x in sids if x in set(s["strategy"])]:
             c, ls = style(sid)
             _band(
-                ax, s[(s["breed"] == b) & (s["strategy"] == sid)], c, STRATEGY_LABEL[sid], 100, ls
+                ax, s[(s["breed"] == b) & (s["strategy"] == sid)], c, strategy_label(sid), 100, ls
             )
         ax.set(title=b, xlabel="generations after 2026", ylabel=ylabel)
     axes[0][0].legend(loc="upper left", fontsize="small")
@@ -279,7 +298,7 @@ def fig_h(summ: pd.DataFrame, out: Path, poster: bool) -> list[Path]:
                     100 * sb.loc[anchor, "mean"],
                     color=plotstyle.STRATEGY_COLOURS[anchor],
                     ls=":",
-                    label=STRATEGY_LABEL[anchor],
+                    label=strategy_label(anchor),
                 )
         ax.set_xticks(range(len(CONTROLS)), list(CONTROLS.values()))
         ax.set(title=b, xlabel="contribution control", ylabel="dF per generation, gen 5-10 (%)")
@@ -376,6 +395,55 @@ def fig_l(summ: pd.DataFrame, out: Path, poster: bool) -> list[Path]:
     return _save(fig, out, "figL_sire_use", poster)
 
 
+E8_PANELS = (
+    ("R_ne_f_late", "Ne (late window)", 1.0, "higher is better"),
+    ("M8_mean_tbv_hd", "mean true HD breeding value", 1.0, "lower is better"),
+    ("freq", "tested risk-allele frequency, sum (%)", 100.0, "lower is better"),
+)
+
+
+def fig_m(summ: pd.DataFrame, per_gen: pd.DataFrame, out: Path, poster: bool) -> list[Path]:
+    """E8: diversity, hips and disease alleles at generation 10 per arm, S1 as reference line."""
+    from breeding_smarter.experiments.summary import t_interval
+
+    sids = [x for x in summ["strategy"].unique() if x == "S1" or str(x).startswith("S3q")]
+    if not any(str(x).startswith("S3q-") for x in sids) or "S1" not in sids:
+        return []
+    g10 = summ[(summ["generation"] == 10) & (summ["adoption"] == 1.0)]
+    pr = per_gen[
+        (per_gen["generation"] == 10)
+        & (per_gen["adoption"] == 1.0)
+        & per_gen["metric"].str.startswith("M6_freq_")
+    ]
+    freq = pr.groupby(["breed", "strategy", "replicate"])["value"].sum().reset_index()
+    breeds = sorted(g10["breed"].unique())
+    fig, axes = plt.subplots(len(breeds), 3, figsize=(16, 3.2 * len(breeds) + 1), squeeze=False)
+    for r, b in enumerate(breeds):
+        order = sorted((x for x in sids if x in set(g10[g10["breed"] == b]["strategy"])), key=len)
+        for c, (metric, lab, scale, hint) in enumerate(E8_PANELS):
+            ax = axes[r][c]
+            if metric == "freq":
+                fb = freq[freq["breed"] == b]
+                stats = [t_interval(fb[fb["strategy"] == x]["value"].to_numpy()) for x in order]
+            else:
+                sb = g10[(g10["breed"] == b) & (g10["metric"] == metric)].set_index("strategy")
+                stats = [
+                    tuple(sb.loc[x, ["mean", "lo", "hi"]]) if x in sb.index else (np.nan,) * 3
+                    for x in order
+                ]
+            m, lo, hi = (scale * np.array(v, float) for v in zip(*stats, strict=True))
+            y = np.arange(len(order))
+            err = np.nan_to_num(np.vstack([m - lo, hi - m]))
+            ax.barh(y, m, xerr=err, capsize=3, color=[style(x)[0] for x in order])
+            if "S1" in order:
+                ax.axvline(m[order.index("S1")], color="#333333", lw=1, ls=":")
+            ax.set_yticks(y, [strategy_label(x) for x in order] if c == 0 else [], fontsize="small")
+            ax.set(xlabel=f"{lab}\n({hint})", title=b if c == 1 else "")
+    fig.suptitle("Diversity, hips and disease alleles at generation 10 (dotted line: S1)")
+    fig.tight_layout()
+    return _save(fig, out, "figM_health_gain_quotas", poster)
+
+
 def _e2_per_gen() -> pd.DataFrame | None:
     from breeding_smarter.experiments.runner import report_dir
 
@@ -404,6 +472,7 @@ def make_figures(
             paths += fig_j(summ, out, poster)
             paths += fig_k(per_gen, out, poster, _e2_per_gen())
             paths += fig_l(summ, out, poster)
+            paths += fig_m(summ, per_gen, out, poster)
         else:
             paths += fig_e(per_gen, out, poster)
     plotstyle.apply()
