@@ -23,6 +23,8 @@ from breeding_smarter.experiments.summary import t_interval
 
 E5, E6, E7 = "E5_coordination", "E6_budget_and_kinship", "E7_adoption_quotas"
 E8 = "E8_health_gain_quotas"
+E9, E10 = "E9_policy_dial", "E10_robustness"
+E9_ARM = "S3q-gain010-c050"  # the E8 winner, replicated in E9
 BREEDS = ("SYN_S", "SYN_M")
 CONTROLS = ("none", "mkx", "cap", "ocs")
 MATINGS = ("rand", "mc1")
@@ -60,12 +62,14 @@ def _tested_affected(pr: pd.DataFrame, breed: str, sid: str) -> pd.Series:
     return _summed(pr, breed, sid, "M6_affected_")
 
 
-def _summed(pr: pd.DataFrame, breed: str, sid: str, prefix: str) -> pd.Series:
+def _summed(
+    pr: pd.DataFrame, breed: str, sid: str, prefix: str, adoption: float = 1.0
+) -> pd.Series:
     """Per replicate: sum over tested loci of metric `prefix<locus>` at generation 10."""
     sub = pr[
         (pr["breed"] == breed)
         & (pr["strategy"] == sid)
-        & (pr["adoption"] == 1.0)
+        & (pr["adoption"] == adoption)
         & (pr["generation"] == 10)
         & pr["metric"].str.startswith(prefix)
     ]
@@ -312,5 +316,163 @@ def write_e8_report(exp_id: str = E8) -> Path:
             f"{_fmt(r['lo'], pct)} | {_fmt(r['hi'], pct)} | {r['n']} | {ok} |"
         )
     lines += ["", "## Planner diagnostics", "", *e8_diagnostics(exp_id), ""]
+    (out / "hypotheses.md").write_text("\n".join(lines))
+    return out / "hypotheses.md"
+
+
+# ---------------------------------------------------------------- E9 and E10
+
+
+def _ladder(pr: pd.DataFrame, breed: str) -> list[tuple[float, str]]:
+    """(dF budget, id) of the budget-ladder arms: `-c050` arms in SYN_M, plain gain arms else."""
+    pat = r"S3q-gain(\d{3})-c050" if breed == "SYN_M" else r"S3q-gain(\d{3})"
+    out = []
+    for sid in set(pr[pr["breed"] == breed]["strategy"]):
+        m = re.fullmatch(pat, sid)
+        if m:
+            out.append((int(m.group(1)) / 1e4, sid))
+    return sorted(out)
+
+
+def pareto_front(points: dict[str, tuple[float, float]]) -> list[str]:
+    """Ids not dominated in (Ne higher, HD lower)."""
+    return sorted(
+        a
+        for a, (ne, hd) in points.items()
+        if not any(
+            (ne2 >= ne and hd2 <= hd) and (ne2 > ne or hd2 < hd)
+            for b, (ne2, hd2) in points.items()
+            if b != a
+        )
+    )
+
+
+def evaluate_e9(pr9: pd.DataFrame, pr10: pd.DataFrame | None) -> pd.DataFrame:
+    rows: list[dict[str, Any]] = []
+
+    def add(h: str, breed: str, what: str, d: tuple[float, float, float, int], ok: Any) -> None:
+        m, lo, hi, n = d
+        rows.append(
+            {"id": h, "breed": breed, "quantity": what, "estimate": m, "lo": lo, "hi": hi,
+             "n": n, "pass": ok}
+        )  # fmt: skip
+
+    def three(b: str, sid: str, pr: pd.DataFrame, ad: float = 1.0) -> dict[str, pd.Series]:
+        return {
+            "Ne": _val(pr, b, sid, "R_ne_f_late", ad),
+            "HD": _val(pr, b, sid, "M8_mean_tbv_hd", ad),
+            "freq": _summed(pr, b, sid, "M6_freq_", ad),
+            "affected": _summed(pr, b, sid, "M6_affected_", ad),
+        }
+
+    def all_three(h: str, b: str, label: str, x: dict[str, pd.Series]) -> None:
+        d = {k: _paired(x[k], s1[k]) for k in ("Ne", "HD", "freq")}
+        add(f"{h}-Ne", b, f"Ne late: {label} - S1", d["Ne"], bool(d["Ne"][1] > 0))
+        add(f"{h}-HD", b, f"HD (gen 10): {label} - S1", d["HD"], bool(d["HD"][2] < 0))
+        add(f"{h}-freq", b, f"freq (gen 10): {label} - S1", d["freq"], bool(d["freq"][2] < 0))
+        ok = bool(d["Ne"][1] > 0 and d["HD"][2] < 0 and d["freq"][2] < 0)
+        add(h, b, f"{label}: Ne, HD and freq all better than S1", (np.nan,) * 3 + (0,), ok)
+
+    b = "SYN_M"
+    s1 = three(b, "S1", pr9)
+    s3q = three(b, "S3q", pr9)
+    all_three("H9-rep", b, E9_ARM, three(b, E9_ARM, pr9))
+
+    for breed in ("SYN_M", "SYN_S"):
+        ref1 = three(breed, "S1", pr9)
+        ref3 = three(breed, "S3q", pr9)
+        points = {"S1": ref1, "S3q": ref3}
+        for _, sid in _ladder(pr9, breed):
+            x = three(breed, sid, pr9)
+            points[sid] = x
+            for k in ("Ne", "HD") + (("freq",) if breed == "SYN_M" else ()):
+                add("H9-curve", breed, f"{k}: {sid} - S1", _paired(x[k], ref1[k]), None)
+                add("H9-curve", breed, f"{k}: {sid} - S3q", _paired(x[k], ref3[k]), None)
+        means = {
+            sid: (float(np.nanmean(v["Ne"][np.isfinite(v["Ne"])])), float(np.nanmean(v["HD"])))
+            for sid, v in points.items()
+            if v["Ne"].size
+        }
+        for sid in pareto_front(means):
+            ne, hd = means[sid]
+            add("H9-pareto", breed, f"on the (Ne, HD) frontier: {sid}", (ne, np.nan, hd, 0), None)
+
+    nolim = three(b, "S3q-gain010", pr9)
+    for beta in ("c100", "c075", "c050", "c025"):
+        sid = f"S3q-gain010-{beta}"
+        x = three(b, sid, pr9)
+        if not x["Ne"].size:
+            continue
+        add("H9-dose", b, f"freq: {sid} - S3q-gain010", _paired(x["freq"], nolim["freq"]), None)
+        add("H9-dose", b, f"Ne late: {sid} - S3q-gain010", _paired(x["Ne"], nolim["Ne"]), None)
+
+    arm, hc = three(b, E9_ARM, pr9), three(b, "S3q-gain010-hc", pr9)
+    if hc["Ne"].size:
+        d = _paired(arm["freq"], hc["freq"])
+        add("H9-hc", b, f"freq: {E9_ARM} - S3q-gain010-hc", d, bool(d[2] < 0))
+        add("H9-hc-support", b, f"affected: {E9_ARM} - S3q-gain010-hc",
+            _paired(arm["affected"], hc["affected"]), None)  # fmt: skip
+        add("H9-hc-support", b, f"Ne late: {E9_ARM} - S3q-gain010-hc",
+            _paired(arm["Ne"], hc["Ne"]), None)  # fmt: skip
+        add("H9-hc-support", b, "freq: S3q-gain010-hc - S3q-gain010",
+            _paired(hc["freq"], nolim["freq"]), None)  # fmt: skip
+
+    orc = three(b, f"{E9_ARM}-oracle", pr9)
+    if orc["Ne"].size:
+        d = _paired(orc["Ne"], arm["Ne"])
+        add("H10-dna", b, f"Ne late: {E9_ARM}-oracle - {E9_ARM}", d, bool(d[1] > 0))
+        add("H10-dna-support", b, f"HD: {E9_ARM}-oracle - {E9_ARM}",
+            _paired(orc["HD"], arm["HD"]), None)  # fmt: skip
+
+    if pr10 is not None:
+        for ad in (0.25, 0.5, 0.75):
+            x = three(b, E9_ARM, pr10, ad)
+            if not x["Ne"].size:
+                continue
+            if ad == 0.5:
+                all_three("H10-adopt", b, f"{E9_ARM} at adoption 0.5", x)
+            else:
+                for k in ("Ne", "HD", "freq"):
+                    add("H10-adopt-other", b, f"{k}: {E9_ARM} at adoption {ad:g} - S1",
+                        _paired(x[k], s1[k]), None)  # fmt: skip
+    add(
+        "support", b, "Ne late: S3q - S1 (sanity, as E5 and E8)", _paired(s3q["Ne"], s1["Ne"]), None
+    )
+    return pd.DataFrame(rows)
+
+
+def write_e9_report() -> Path:
+    from breeding_smarter.experiments.figures import fig_n, fig_o
+
+    pr9 = _per_rep(E9)
+    p10 = report_dir(E10) / "per_generation_replicates.csv.gz"
+    pr10 = pd.read_csv(p10) if p10.exists() else None
+    table = evaluate_e9(pr9, pr10)
+    out = report_dir("E9_hypotheses")
+    out.mkdir(parents=True, exist_ok=True)
+    table.to_csv(out / "hypotheses.csv", index=False)
+    lines = [
+        "# E9 and E10 pre-registered criteria (in-silico results on synthetic populations)",
+        "",
+        "Pre-registration: `plan/15_E9_E10_policy_dial.md`. Generation 10 (Ne: late window, "
+        "generations 5 to 10); paired by replicate (same seeds); 95% t-intervals. Frequencies "
+        "and affected shares are sums over tested loci, shown in %. HD: lower is better. "
+        "H9-pareto rows list mean Ne (estimate) and mean HD (hi).",
+        "",
+        "| id | breed | quantity | estimate | lo | hi | n | pass |",
+        "|---|---|---|---|---|---|---|---|",
+    ]
+    for _, r in table.iterrows():
+        pct = r["quantity"].startswith(("freq", "affected"))
+        ok = "" if r["pass"] is None or pd.isna(r["pass"]) else ("yes" if r["pass"] else "no")
+        lines.append(
+            f"| {r['id']} | {r['breed']} | {r['quantity']} | {_fmt(r['estimate'], pct)} | "
+            f"{_fmt(r['lo'], pct)} | {_fmt(r['hi'], pct)} | {r['n']} | {ok} |"
+        )
+    lines += ["", "## Planner diagnostics", "", "### E9", "", *e8_diagnostics(E9)]
+    if pr10 is not None:
+        lines += ["", "### E10", "", *e8_diagnostics(E10)]
+    figs = fig_n(pr9, out) + fig_o(pr9, pr10, out)
+    lines += ["", "## Figures", "", *(f"- `{f.name}`" for f in figs if f.suffix == ".png"), ""]
     (out / "hypotheses.md").write_text("\n".join(lines))
     return out / "hypotheses.md"
