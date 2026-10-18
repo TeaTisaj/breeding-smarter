@@ -46,12 +46,16 @@ def strategy_label(sid: str) -> str:
     if sid.startswith("S3q-"):
         from breeding_smarter.experiments.strategies import parse_s3q
 
-        _, delta_f, beta = parse_s3q(sid)
+        spec = parse_s3q(sid)
         parts = ["S3q"]
-        if delta_f is not None:
-            parts.append(f"gain OCS dF {100 * delta_f:g}%")
-        if beta is not None:
-            parts.append(f"carrier limit {beta:g}")
+        if spec.delta_f is not None:
+            parts.append(f"gain OCS dF {100 * spec.delta_f:g}%")
+        if spec.carrier_factor is not None:
+            parts.append(f"carrier limit {spec.carrier_factor:g}")
+        if spec.hard_carrier:
+            parts.append("carrier x carrier blocked")
+        if spec.oracle:
+            parts.append("true kinship")
         return ", ".join(parts)
     return sid
 

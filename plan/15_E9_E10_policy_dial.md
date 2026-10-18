@@ -17,7 +17,7 @@ Strategy ids `S3q[-gainNNN][-cBBB][-hc][-oracle]`: gain budget dF = NNN / 10⁴ 
 
 **E10 `E10_robustness`** (`configs/experiments/robustness.yaml`), same seed and replicate count as E9 for SYN_M, so its arms pair with E9's S1 and S3q:
 - S3q-gain010-c050 at adoption 0.25, 0.5, 0.75 (non-adopters follow S2 and enter OCS as fixed contributions, as S3q in E7);
-- S3q-gain010-c050-oracle at adoption 1.0.
+- S3q-gain010-c050-oracle at adoption 1.0. Config note (18 Oct, before any run): this arm is listed in `policy_dial.yaml` (E9), because the runner applies the adoption list to every S3q arm of a config; same seed, so it pairs exactly as planned. H10-dna is evaluated from the E9 table.
 
 Run order (checkpointed; if compute runs short, the last groups are cut and the cut is reported): anchors and budget ladder, E10 adoption, oracle, carrier dose, pair block, SYN_S.
 

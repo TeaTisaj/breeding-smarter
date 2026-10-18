@@ -1,0 +1,22 @@
+id: E9_policy_dial
+description: "E9 (plan/15_E9_E10_policy_dial.md): S3q budget ladder with carrier limit 0.5, carrier dose at dF 0.1%, carrier x carrier pair block (-hc), true-kinship planning (-oracle, H10-dna), anchors S1 and S3q; SYN_S budget ladder without carrier arms. Replicates E8 on an independent seed."
+seed: 20261115
+dataset: v1
+generations: 10
+breeds:
+  SYN_M:
+    replicates: 20
+    extra_strategies: [S3q-gain010-c050, S3q-gain005-c050, S3q-gain015-c050, S3q-gain025-c050, S3q-gain050-c050, S3q-gain010-c050-oracle, S3q-gain010, S3q-gain010-c100, S3q-gain010-c075, S3q-gain010-c025, S3q-gain010-hc]
+  SYN_S:
+    replicates: 20
+    extra_strategies: [S3q-gain025, S3q-gain050, S3q-gain100]
+strategies: [S1, S3q]
+adoption: [1.0]
+profile: exp_pairing
+scoring: default
+coordination: default
+coi_cap: {value: 0.065, source: eu-platform-guide}
+s3_top_probs: {value: [0.5, 0.3, 0.2], assumption: true, note: "breeders keep some freedom"}
+s4_lambda: {value: 1.0, assumption: true}
+ebv_every_years: {value: 5, assumption: true}
+registration_rate: {value: 1.0, assumption: true, note: "simplification: every live-born puppy is registered during experiments"}

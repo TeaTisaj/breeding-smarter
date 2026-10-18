@@ -158,6 +158,8 @@ P12_IDS = [
     "S3q",
     "S3q-c075",
     "S3q-gain010-c075",
+    "S3q-gain010-hc",
+    "S3q-gain010-c050-oracle",
 ]
 
 

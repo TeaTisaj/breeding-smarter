@@ -209,7 +209,7 @@ def run_part(
     strategy = make_strategy(part.strategy, params, load_scoring(cfg.scoring))
     if debug:
         hard = hard_rule_strategy(part.strategy)
-        profile = "exp_pairing_hard_carrier" if part.strategy == "S3hc" else cfg.profile
+        profile = strategy.params.profile if hasattr(strategy, "params") else cfg.profile
         strategy = ContractChecker(strategy, hard, profile)
     start = state.year
     obs = ObservedRegistry(state, genetics, setup, bidx)
