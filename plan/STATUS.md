@@ -23,6 +23,7 @@ Standing instructions for the autonomous run: `plan/GOAL.md` (gates pre-approved
 | P11 Conference | done (printing, links, submission are HUMAN) | [P11](gates/P11_report.md) | pre-approved (GOAL.md) |
 | P12 Coordination | done | [P12](gates/P12_report.md) | pre-approved (GOAL.md) |
 | E8 Health + hips in quotas | done (at gate) | [E8](gates/E8_report.md) | waiting |
+| E9/E10 Policy dial + robustness | done (at gate) | [E9](gates/E9_report.md) | waiting |
 
 Status values: not started, in progress, at gate (waiting for review), done.
 
@@ -66,6 +67,9 @@ Status values: not started, in progress, at gate (waiting for review), done.
 
 ### P12
 - [x] 12.0 Solver spike + ADR-007  - [x] 12.1 Sources + config  - [x] 12.2 Targets  - [x] 12.3 OCS  - [x] 12.4 OCS tests  - [x] 12.5 Caps, quotas, allocation, ledger  - [x] 12.6 Planner  - [x] 12.7 Truth kinship  - [x] 12.8 Strategies + runner  - [x] 12.9 Metrics  - [x] 12.10 Experiments E5-E7  - [x] 12.11 Figures G-L  - [x] 12.12 CLI + app  - [x] 12.13 Docs  - [x] 12.14 Conference (conditional)
+
+### E9/E10 policy dial and robustness (branch `feature/e9-policy-dial`, plan `plan/15_E9_E10_policy_dial.md`)
+- [x] Pre-registration  - [x] `-hc`/`-oracle` arms + tests  - [x] Report, figures N and O  - [x] Runs (420 parts)  - [x] Gate report (H9-rep, H9-hc pass; H10-dna, H10-adopt fail)  - [ ] Tea: poster wording; decide on E11 (carrier limit on adopters' share) [HUMAN]
 
 ### E8 diversity, health and hips at once (branch `feature/e8-health-gain-quotas`, plan `plan/14_E8_health_gain_quotas.md`)
 - [x] Pre-registration  - [x] Carrier limit in OCS + tests  - [x] S3q variants  - [x] Hypotheses report + figure M  - [x] Price curve + pilot (β = 0.5)  - [x] Main run (H8 passes)  - [x] Gate report  - [ ] Tea: product default and poster wording by 17 Oct [HUMAN]

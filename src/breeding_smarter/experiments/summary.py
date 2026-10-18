@@ -126,7 +126,8 @@ def paired_vs(
             dict(zip(["breed", "strategy", "generation", "metric"], k, strict=True))
             | {"diff_mean": m, "lo": lo, "hi": hi, "n": int(np.isfinite(joined).sum())}
         )
-    return pd.DataFrame(rows)
+    cols = ["breed", "strategy", "generation", "metric", "diff_mean", "lo", "hi", "n"]
+    return pd.DataFrame(rows, columns=cols)  # same columns when empty (no reference arm, E10)
 
 
 def _fmt(m: float, lo: float, hi: float, pct: bool = False) -> str:

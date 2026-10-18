@@ -144,7 +144,8 @@ def test_e9_known_answers(tmp_path, monkeypatch):
     assert t.loc["H10-dna", "pass"]
     assert t.loc["H10-adopt", "pass"]
     front = set(t.loc["H9-pareto"]["quantity"])
-    assert any("S3q-gain015-c050" in q for q in front) and not any(q.endswith(": S1") for q in front)
+    assert any("S3q-gain015-c050" in q for q in front)
+    assert not any(q.endswith(": S1") for q in front)
     assert hy._ladder(pr9, "SYN_M")[0] == (0.0005, "S3q-gain005-c050")
     assert hy._ladder(pr9, "SYN_S") == [(0.0025, "S3q-gain025")]
 
