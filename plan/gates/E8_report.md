@@ -90,7 +90,7 @@ Absolute values (means, generation 10):
 
 ## Open questions for Tea
 - **Product default.** Two candidates:
-  - (a) **S3q + carrier limit**: best diversity of the coordinated options, 80% fewer risk alleles than the market, hips as today, no detectable diversity cost vs S3q.
+  - (a) **S3q + carrier limit**: best diversity of the coordinated options, 79% fewer risk alleles than S3q (61% fewer than the market), hips as today, no detectable diversity cost vs S3q.
   - (b) **S3q + gain OCS + carrier limit**: the "all three at once" claim, but with about 40 lower Ne than S3q.
 
   My suggestion: (a) as the default; (b) as the "breeding for hips" option with a visible diversity budget.
