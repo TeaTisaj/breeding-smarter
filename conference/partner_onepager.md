@@ -34,5 +34,5 @@ short-term inbreeding, and that club quotas on sire use raise long-term diversit
 33 to 54 in a small breed): we want to test this with you on
 real breeds.
 
-**Contact:** TODO-CONTACT · Demo: TODO-DEMO-URL · Dataset: TODO-DOI ·
+**Contact:** TODO-CONTACT · Demo: https://breeding-smarter.streamlit.app/ · Dataset: TODO-DOI ·
 Code: https://github.com/TeaTisaj/breeding-smarter

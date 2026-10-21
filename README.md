@@ -3,7 +3,7 @@
 **A data-driven matching system for genetic diversity in dogs and beyond.**
 
 [![CI](https://github.com/TeaTisaj/breeding-smarter/actions/workflows/ci.yml/badge.svg)](https://github.com/TeaTisaj/breeding-smarter/actions)
-Dataset DOI: TODO-DOI · Demo: TODO-DEMO-URL
+**Live demo:** https://breeding-smarter.streamlit.app/ · Dataset and demo data: [release v0.1.0](https://github.com/TeaTisaj/breeding-smarter/releases/tag/v0.1.0)
 
 > **Synthetic data notice.** Every animal, kennel, registration number and microchip in this
 > project is synthetic. Nothing here describes a real dog. All results are in silico.
@@ -73,7 +73,7 @@ limit needs most breeders to take part; true-kinship planning did not raise Ne h
 `plan/gates/E8_report.md`, `plan/gates/E9_report.md`.
 
 ## Dataset
-- Zenodo: TODO-DOI (CC BY 4.0). Hugging Face mirror: TODO-HF.
+- GitHub release [v0.1.0](https://github.com/TeaTisaj/breeding-smarter/releases/tag/v0.1.0): `breeding-smarter-synthetic-v1.zip` (CC BY 4.0).
 - Datasheet: `docs/datasheet.md`; data dictionary: `docs/data_dictionary.md`;
   validation: `reports/validation/20261011-default-s42/validation_report.md`.
 
@@ -95,7 +95,7 @@ Code: Apache-2.0 (`LICENSE`). Generated datasets: CC BY 4.0 (`LICENSE-DATA`).
 ## Partner with us
 Kennel and breed clubs: a free pilot gives you a diversity report for one breed, a compliance
 check against EU 2026/1818 and mate recommendations; the code can run on your premises so no
-data leaves the club. Contact: TODO-CONTACT.
+data leaves the club. Contact: Tea Ćetojević Tisaj and Marija Perković, University of Zagreb FER.
 
 ## Acknowledgements
 University of Zagreb, Faculty of Electrical Engineering and Computing (FER).

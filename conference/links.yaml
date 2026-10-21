@@ -1,6 +1,6 @@
 # Public links. [HUMAN] Fill these after the GitHub, Zenodo, Hugging Face and deployment steps,
 # then run `uv run bsm links fill` and `uv run bsm links check` (fails while TODOs remain).
-demo_url: TODO-DEMO-URL
+demo_url: https://breeding-smarter.streamlit.app/
 github: https://github.com/TeaTisaj/breeding-smarter
 code_doi: TODO-DOI-CODE
 dataset_doi: TODO-DOI
