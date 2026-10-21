@@ -42,10 +42,10 @@ st.markdown(
     "- Score weights are policy choices."
 )
 st.subheader("Links")
-st.markdown("Code: https://github.com/TeaTisaj/breeding-smarter · Dataset DOI: TODO-DOI")
+st.markdown(f"Code: {ui.GITHUB} · Dataset and demo data: [release v0.1.0]({ui.RELEASE})")
 st.success(
     "**We are looking for partners with real data.** Kennel clubs and breed clubs: a "
     "free pilot gives you a diversity report, an EU 2026/1818 compliance check and mate "
     "recommendations; the code can run on your premises so no data leaves the club. "
-    "Contact: TODO-CONTACT"
+    "Contact: Tea Ćetojević Tisaj and Marija Perković, University of Zagreb FER."
 )
