@@ -11,6 +11,7 @@ from breeding_smarter import desk
 from breeding_smarter.coordination.club import club_plan
 from breeding_smarter.io import configs_dir
 from breeding_smarter.matching import recommend_sires
+from breeding_smarter.rules import load_profile
 
 PROFILE = "hr_full"
 SEASON = ui.DEMO_DATE
@@ -33,17 +34,45 @@ def source_refs() -> dict[str, str]:
 
 
 @st.cache_data(show_spinner="Planning this season's club quotas...", max_entries=8)
-def season_plan(breed: str, date: str) -> tuple[list[int], list[int]]:
-    cp = club_plan(ctx, breed, date, profile=PROFILE)
+def season_plan(
+    breed: str, date: str, mode: str, delta_f: float | None, carrier: float | None
+) -> tuple[list[int], list[int]]:
+    cp = club_plan(
+        ctx, breed, date, profile=PROFILE, mode=mode.lower(), delta_f=delta_f,
+        carrier_factor=carrier,
+    )  # fmt: skip
     return [int(s) for s in cp.plan.sires], [int(q) for q in cp.plan.quotas]
 
 
 def quota_for(breed: str) -> desk.SeasonQuota:
-    quotas = st.session_state.setdefault("desk_quotas", {})
+    """Season quota ledger per breed under the club policy set on the Club planner; a new
+    policy starts a fresh ledger (a new season plan)."""
+    pol = ui.club_policy()
+    key = (pol["mode"], pol["delta_f"], pol["carrier"])
+    if st.session_state.get("desk_quota_policy") != key:
+        st.session_state["desk_quota_policy"] = key
+        st.session_state["desk_quotas"] = {}
+    quotas = st.session_state["desk_quotas"]
     if breed not in quotas:
-        sires, q = season_plan(breed, SEASON)
+        sires, q = season_plan(breed, SEASON, pol["mode"], pol["delta_f"], pol["carrier"])
         quotas[breed] = desk.SeasonQuota.from_plan(sires, q)
     return quotas[breed]
+
+
+# Plain names for the HARD rules that can block a mating; the id stays in the checks table
+RULE_NAME = {
+    "base_same_breed": "Sire and dam must be of the same breed",
+    "base_alive": "Both parents must be alive on the mating date",
+    "eu_close_relatives": "Ban on close-relative matings",
+    "eu_dam_min_age": "Minimum age of the dam",
+    "eu_dam_litter_frequency": "Maximum number of litters of the dam",
+    "fci_registration_type": "Both parents need full registration",
+    "hks_hd_exclusion": "Hip dysplasia grade excludes breeding",
+    "hks_dam_min_age": "Minimum age of the dam",
+    "hks_dam_max_age": "Maximum age of the dam",
+    "hks_max_caesareans": "Too many caesarean litters",
+    "hks_one_litter_12m": "At most one litter in 12 months",
+}
 
 
 def assess(app: desk.MatingApplication) -> desk.Assessment:
@@ -74,8 +103,10 @@ def show_outcome(a: desk.Assessment) -> None:
     label = desk.OUTCOME_LABEL[a.outcome]
     if a.outcome == desk.Outcome.BLOCKED:
         first = a.failed_hard[0]
-        where = f"{first.rule_id} ({first.profile})" if first.profile else first.rule_id
-        st.error(f"### {label}: {where}\n{first.message}", icon="⛔")
+        name = RULE_NAME.get(first.rule_id, first.rule_id)
+        law = load_profile(first.profile).title if first.profile else ""
+        note = f"{law}{'' if first.verified else ' · unverified'}"
+        st.error(f"### {label}: {name}\n{note}\n\n{first.message}", icon="⛔")
     elif a.outcome == desk.Outcome.NEEDS_REVIEW:
         st.warning(f"### {label}\n" + "\n".join(f"- {r}" for r in a.reasons), icon="⚠️")
     else:
@@ -166,6 +197,7 @@ def new_application_form() -> None:
     st.markdown(f"Dam: **{ctx.rules.label(dam)}**, breed {breed}")
 
     st.markdown("**2. Sire**", help=tip("club quota"))
+    st.caption(ui.policy_line())
     quota = quota_for(breed)
     mode = st.radio(
         "How to choose the sire", [RANKED, MANUAL], horizontal=True, key="desk_sire_mode"

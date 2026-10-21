@@ -1,7 +1,5 @@
 """Club planner: litter quotas per sire for the season (P12) and the policy dial (E9)."""
 
-from pathlib import Path
-
 import components as ui
 import pandas as pd
 import plotly.express as px
@@ -9,7 +7,6 @@ import plotly.graph_objects as go
 import streamlit as st
 from glossary import tip
 
-from breeding_smarter.bundle import Bundle
 from breeding_smarter.coordination.club import club_plan
 
 # Budget options = the E9 budget ladder; a budget always comes with the E8/E9 carrier limit
@@ -36,11 +33,18 @@ codes = list(ctx.ped.breed_codes)
 c1, c2, c3, c4 = st.columns(4)
 breed = c1.selectbox("Breed", codes, index=codes.index("SYN_M") if "SYN_M" in codes else 0)
 date = c2.date_input("Season start", pd.Timestamp(ui.DEMO_DATE)).isoformat()
-mode = c3.radio("Mode", ["OCS", "cap"], horizontal=True, help=tip("optimum contributions"))
+policy = ui.club_policy()  # controls start from the session's policy (pages reset widgets)
+mode = c3.radio(
+    "Mode",
+    ["OCS", "cap"],
+    index=["OCS", "cap"].index(policy["mode"]),
+    horizontal=True,
+    help=tip("optimum contributions"),
+)
 budget = c4.select_slider(
     "Inbreeding budget per generation",
     options=list(BUDGETS),
-    value="lowest possible",
+    value=policy["budget"] if policy["budget"] in BUDGETS else "lowest possible",
     help=tip("inbreeding budget")
     + " A budget also switches on the carrier limit: the season's sires may pass on tested "
     "disease alleles at most half as often as the average candidate.",
@@ -48,35 +52,11 @@ budget = c4.select_slider(
 )
 delta_f = None if mode == "cap" else BUDGETS[budget]
 carrier = CARRIER_LIMIT if delta_f is not None else None
+ui.set_club_policy(mode, budget, delta_f, carrier)
+st.caption("The Mate finder and the Kennel club desk use this policy for the season's quotas.")
 
 
-@st.cache_data(show_spinner=False)
-def dial_table(bundle_path: str) -> pd.DataFrame | None:
-    """Generation-10 means per E9 arm (SYN_M): Ne, hip breeding value, disease-allele freq."""
-    pr = Bundle(Path(bundle_path)).experiment_table(
-        "E9_policy_dial", "per_generation_replicates.csv.gz"
-    )
-    if pr is None:
-        return None
-    g = pr[(pr["breed"] == "SYN_M") & (pr["generation"] == 10) & (pr["adoption"] == 1.0)]
-    rows = []
-    for sid in ["S1", *DIAL_ARMS.values()]:
-        sub = g[g["strategy"] == sid]
-        if sub.empty:
-            continue
-        freq = sub[sub["metric"].str.startswith("M6_freq_")].groupby("replicate")["value"].sum()
-        rows.append(
-            {
-                "strategy": sid,
-                "Ne": sub[sub["metric"] == "R_ne_f_late"]["value"].mean(),
-                "HD": sub[sub["metric"] == "M8_mean_tbv_hd"]["value"].mean(),
-                "freq": freq.mean(),
-            }
-        )
-    return pd.DataFrame(rows).set_index("strategy") if rows else None
-
-
-dial = dial_table(str(ui.get_bundle().path))
+dial = ui.e9_means(str(ui.get_bundle().path))
 arm = DIAL_ARMS[delta_f]
 if mode == "OCS" and dial is not None and {"S1", arm} <= set(dial.index):
     st.markdown("#### What this budget buys over 10 generations")

@@ -141,11 +141,9 @@ def test_club_planner_modes(bundle_path, monkeypatch, mode, budget):
     assert (sires["quota"].clip(lower=0).sum() >= (matings["sire"] != "").sum()) or mode == "cap"
 
 
-def test_club_planner_policy_dial(bundle_path, monkeypatch, tmp_path):
-    """The budget slider shows the E9 projection for the chosen budget (vs today's market)."""
+def _bundle_with_e9(bundle_path, tmp_path):
+    """Copy of the tiny bundle with a small E9 per-replicate table (known means)."""
     import shutil
-
-    from streamlit.testing.v1 import AppTest
 
     b = tmp_path / "bundle"
     shutil.copytree(bundle_path, b)
@@ -165,22 +163,79 @@ def test_club_planner_policy_dial(bundle_path, monkeypatch, tmp_path):
     pd.DataFrame(rows).to_csv(
         b / "experiments" / "E9_policy_dial" / "per_generation_replicates.csv.gz", index=False
     )
-    import streamlit as st
+    return b
 
-    monkeypatch.setenv("BSM_BUNDLE_PATH", str(b))
+
+def _run_page(page, bundle, monkeypatch, policy=None, actions=None):
+    """Run a page on `bundle` (fresh resource cache), optionally with a club policy and actions."""
+    import streamlit as st
+    from streamlit.testing.v1 import AppTest
+
+    monkeypatch.setenv("BSM_BUNDLE_PATH", str(bundle))
     st.cache_resource.clear()  # the app caches the loaded bundle for the whole process
     try:
-        at = AppTest.from_file(str(APP / "pages" / "7_Club_planner.py"), default_timeout=180)
+        at = AppTest.from_file(str(APP / page), default_timeout=300)
+        if policy is not None:
+            at.session_state["club_policy"] = policy
         at.run()
-        at.select_slider[0].set_value("0.1%")
-        at.run()
+        if actions:
+            actions(at)
     finally:
         st.cache_resource.clear()
+    assert not at.exception, [e.value for e in at.exception]
+    return at
+
+
+POLICY_010 = {"mode": "OCS", "budget": "0.1%", "delta_f": 0.001, "carrier": 0.5}
+
+
+def test_club_planner_policy_dial(bundle_path, monkeypatch, tmp_path):
+    """The budget slider shows the E9 projection for the chosen budget (vs today's market)."""
+    b = _bundle_with_e9(bundle_path, tmp_path)
+    at = _run_page(
+        "pages/7_Club_planner.py", b, monkeypatch,
+        actions=lambda at: at.select_slider[0].set_value("0.1%").run(),
+    )  # fmt: skip
     assert not at.exception, [e.value for e in at.exception]
     shown = {m.label: (m.value, m.delta) for m in at.metric}
     assert shown["Diversity (Ne)"] == ("290", "+85 vs today's market")
     assert shown["Hip breeding value"][0] == "-0.78"
     assert shown["Disease-allele frequency"][0] == "2.0%"
+    assert at.session_state["club_policy"] == POLICY_010  # the choice becomes the club policy
+
+
+def test_club_planner_starts_from_the_stored_policy(bundle_path, monkeypatch):
+    at = _run_page("pages/7_Club_planner.py", bundle_path, monkeypatch, policy=POLICY_010)
+    assert at.select_slider[0].value == "0.1%"
+    assert at.session_state["club_policy"] == POLICY_010
+
+
+@pytest.mark.parametrize("page", ["pages/3_Mate_finder.py", "pages/8_Kennel_club_desk.py"])
+def test_club_policy_reaches_mate_finder_and_desk(bundle_path, monkeypatch, page):
+    """Both tools plan their quotas with the policy set on the Club planner, and say so."""
+    import breeding_smarter.coordination.club as club
+
+    seen = []
+    real = club.club_plan
+
+    def spy(*args, **kwargs):  # type: ignore[no-untyped-def]
+        seen.append((kwargs.get("delta_f"), kwargs.get("carrier_factor")))
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(club, "club_plan", spy)
+    at = _run_page(page, bundle_path, monkeypatch, policy=POLICY_010)
+    assert (0.001, 0.5) in seen
+    assert any("inbreeding budget 0.1% per generation" in c.value for c in at.caption)
+
+
+def test_simulation_results_show_e9(bundle_path, monkeypatch, tmp_path):
+    b = _bundle_with_e9(bundle_path, tmp_path)
+    at = _run_page("pages/5_Simulation_results.py", b, monkeypatch)
+    tables = [d.value for d in at.dataframe if "Ne vs market" in d.value.columns]
+    if not tables:  # the tiny bundle has no E1 results, so the page stops before the section
+        assert any("not in this bundle" in i.value for i in at.info)
+        return
+    assert list(tables[0]["Ne vs market"]) == ["+0", "+118", "+85"]
 
 
 # ---------------------------------------------------------------- Kennel club desk (B4)
@@ -216,7 +271,8 @@ def test_desk_half_brother_is_blocked_and_cannot_be_submitted(bundle_path, monke
     at = _desk(bundle_path, monkeypatch)
     at.button(key="desk_demo_blocked").click().run()
     assert not at.exception, [e.value for e in at.exception]
-    assert any("Blocked: eu_close_relatives (eu_2026_1818)" in e.value for e in at.error)
+    blocked = [e.value for e in at.error if "Blocked: Ban on close-relative matings" in e.value]
+    assert blocked and "EU Regulation 2026/1818" in blocked[0] and "unverified" in blocked[0]
     assert at.button(key="desk_submit").disabled
 
 
