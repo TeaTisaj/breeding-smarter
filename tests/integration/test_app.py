@@ -385,3 +385,11 @@ def test_desk_blocked_application_needs_no_stud_owner_signature(bundle_path, mon
         blocked.app_id in e.value and "no stud owner signature is needed" in e.value
         for e in at.error
     )
+
+
+def test_about_shows_current_rules_catalogue(bundle_path, monkeypatch):
+    """The catalogue comes from the rule configs, not from the (possibly older) bundle."""
+    at = _run_page("pages/6_About.py", bundle_path, monkeypatch)
+    text = "\n".join(m.value for m in at.markdown)
+    assert "eu_max_caesareans" in text and "Art. 8(4)(a)" in text
+    assert "eu_dam_min_age" not in text
