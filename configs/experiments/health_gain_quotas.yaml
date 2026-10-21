@@ -1,0 +1,18 @@
+id: E8_health_gain_quotas
+description: "E8 (plan/14_E8_health_gain_quotas.md): S3q with quotas from gain OCS and/or a carrier limit (beta 0.5: planned risk-allele transmission per tested locus <= 0.5 x candidate mean; assumption: true, chosen by the pre-registered pilot rule). SYN_M 2x2 plus S1; SYN_S without carrier arms (no segregating tested locus in v1)."
+seed: 20261108
+dataset: v1
+generations: 10
+breeds:
+  SYN_M: {replicates: 20, extra_strategies: [S3q-c050, S3q-gain010, S3q-gain010-c050]}
+  SYN_S: {replicates: 10, extra_strategies: [S3q-gain025]}
+strategies: [S1, S3q]
+adoption: [1.0]
+profile: exp_pairing
+scoring: default
+coordination: default
+coi_cap: {value: 0.065, source: eu-platform-guide}
+s3_top_probs: {value: [0.5, 0.3, 0.2], assumption: true, note: "breeders keep some freedom"}
+s4_lambda: {value: 1.0, assumption: true}
+ebv_every_years: {value: 5, assumption: true}
+registration_rate: {value: 1.0, assumption: true, note: "simplification: every live-born puppy is registered during experiments"}

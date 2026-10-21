@@ -459,11 +459,20 @@ def experiment_report(
 
 
 @experiment_app.command("hypotheses")
-def experiment_hypotheses() -> None:
-    """Evaluate the pre-registered P12 criteria H1 to H6 from the E5 and E6 summaries."""
-    from breeding_smarter.experiments.hypotheses import write_report
+def experiment_hypotheses(
+    which: str = typer.Option("p12", "--set", help="p12 (H1-H6), e8 (H8a-H8f) or e9 (E9, E10)."),
+) -> None:
+    """Evaluate pre-registered criteria: P12 (E5, E6), E8 or E9/E10 (plan/14_*, plan/15_*)."""
+    from breeding_smarter.experiments.hypotheses import (
+        write_e8_report,
+        write_e9_report,
+        write_report,
+    )
 
-    console.print(f"wrote {write_report()}")
+    writers = {"p12": write_report, "e8": write_e8_report, "e9": write_e9_report}
+    if which not in writers:
+        raise typer.BadParameter("--set must be p12, e8 or e9")
+    console.print(f"wrote {writers[which]()}")
 
 
 export_app = typer.Typer(help="Export the demo bundle and the release.", no_args_is_help=True)

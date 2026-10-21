@@ -1,0 +1,17 @@
+id: E10_robustness
+description: "E10 (plan/15_E9_E10_policy_dial.md): S3q-gain010-c050 at adoption 0.25, 0.5, 0.75 (non-adopters follow S2). Same seed and SYN_M replicates as E9, so arms pair with E9's S1 and S3q."
+seed: 20261115
+dataset: v1
+generations: 10
+breeds:
+  SYN_M: {replicates: 20}
+strategies: [S3q-gain010-c050]
+adoption: [0.25, 0.5, 0.75]
+profile: exp_pairing
+scoring: default
+coordination: default
+coi_cap: {value: 0.065, source: eu-platform-guide}
+s3_top_probs: {value: [0.5, 0.3, 0.2], assumption: true, note: "breeders keep some freedom"}
+s4_lambda: {value: 1.0, assumption: true}
+ebv_every_years: {value: 5, assumption: true}
+registration_rate: {value: 1.0, assumption: true, note: "simplification: every live-born puppy is registered during experiments"}

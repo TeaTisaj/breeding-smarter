@@ -16,6 +16,9 @@
 | S3q | P12 product mode: OCS quotas for the season, shared booking ledger, each adopting dam
        picks among the top 3 of `rank_fast` restricted to sires with quota left; non-adopters
        follow S2 first and their sires enter OCS as fixed contributions |
+| S3q-gainNNN, S3q[-gainNNN]-cBBB | E8: S3q with quotas from gain OCS (dF = NNN / 10^4) and/or a
+       carrier limit (planned risk-allele transmission <= BBB / 100 x candidate mean per locus) |
+| S3q...-hc, S3q...-oracle | E9/E10: carrier x carrier pairs HARD-blocked; true kinship |
 
 Candidate sires are the simulator's eligible domestic males plus eligible foreign males that
 already have a registry record (a breeder can only evaluate dogs with a record). The market
@@ -24,8 +27,9 @@ part of S1/S2 also uses unregistered foreign AI sires, as in the history.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field, replace
-from typing import Any
+from typing import Any, NamedTuple
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
@@ -312,8 +316,18 @@ class RecommenderWithQuotas(CoordinatedBase, Recommender):
 
     name = "S3q"
 
-    def __init__(self, params: StrategyParams, scoring: ScoringConfig):
+    def __init__(
+        self,
+        params: StrategyParams,
+        scoring: ScoringConfig,
+        control: str = "ocs",
+        delta_f: float | None = None,
+        carrier_factor: float | None = None,
+        name: str = "S3q",
+    ):
         Recommender.__init__(self, params, scoring)
+        self.control, self.delta_f, self.carrier_factor = control, delta_f, carrier_factor
+        self.name = name
         self.truth = None
         self.last_plan = None
 
@@ -344,11 +358,14 @@ class RecommenderWithQuotas(CoordinatedBase, Recommender):
             d_idx,
             cand_idx,
             self.coordination(),
-            "ocs",
+            self.control,
             "none",
             profile=self.params.profile,
             kin=self.kin(ctx),
+            delta_f=self.delta_f,
             fixed=fixed,
+            prev_matings=self.prev_matings(ctx) if self.control == "ocs_gain" else None,
+            carrier_factor=self.carrier_factor,
             rng=rng,
         )
         assert plan.quotas is not None
@@ -403,6 +420,33 @@ def parse_cc(sid: str) -> tuple[str, str, bool, float | None]:
     return control, mating, len(parts) == 4, delta_f
 
 
+class S3qSpec(NamedTuple):
+    control: str  # "ocs" or "ocs_gain"
+    delta_f: float | None
+    carrier_factor: float | None
+    hard_carrier: bool = False
+    oracle: bool = False
+
+
+def parse_s3q(sid: str) -> S3qSpec:
+    """`S3q[-gainNNN][-cBBB][-hc][-oracle]` -> S3qSpec.
+
+    `-hc` HARD-blocks carrier x carrier pairs (profile `exp_pairing_hard_carrier`; Marija
+    Perkovic's E8 design, branch `feature/e8-hips-quotas`); `-oracle` plans on true-pedigree
+    kinship (as `CC-ocs-mc1-oracle`)."""
+    m = re.fullmatch(r"S3q(?:-gain(\d{3}))?(?:-c(\d{3}))?(-hc)?(-oracle)?", sid)
+    if m is None:
+        raise ValueError(f"bad S3q strategy id {sid!r}")
+    gain, carrier, hc, oracle = m.groups()
+    return S3qSpec(
+        "ocs_gain" if gain else "ocs",
+        int(gain) / 1e4 if gain else None,
+        int(carrier) / 100 if carrier else None,
+        hc is not None,
+        oracle is not None,
+    )
+
+
 def make_strategy(sid: str, params: StrategyParams, scoring: ScoringConfig) -> Any:
     if sid == "S0":
         return RandomStrategy()
@@ -418,8 +462,15 @@ def make_strategy(sid: str, params: StrategyParams, scoring: ScoringConfig) -> A
         return Recommender(params, scoring)
     if sid == "S4":
         return CoordinatedPlanner(params, scoring)
-    if sid == "S3q":
-        return RecommenderWithQuotas(params, scoring)
+    if sid == "S3q" or sid.startswith("S3q-"):
+        spec = parse_s3q(sid)
+        if spec.hard_carrier:
+            params = replace(params, profile="exp_pairing_hard_carrier")
+        s3q = RecommenderWithQuotas(
+            params, scoring, spec.control, spec.delta_f, spec.carrier_factor, name=sid
+        )
+        s3q.oracle = spec.oracle
+        return s3q
     if sid.startswith("CC-"):
         control, mating, oracle, delta_f = parse_cc(sid)
         return Coordinated(params, scoring, control, mating, oracle, delta_f, name=sid)

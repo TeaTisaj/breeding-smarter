@@ -14,6 +14,9 @@ Mate allocation (`mating`): `mc1` minimum total pair kinship + w x P(affected pu
 [sonesson-meuwissen-2000], `random` random within quotas, `none` quotas only (the product mode
 S3q lets breeders choose within them). HARD-rule pairs are never allocated.
 
+`carrier_factor` (beta, OCS controls only, E8): per tested locus the season's planned
+risk-allele transmission of the sires is at most beta x its mean over the candidate sires.
+
 Dams are registry indices; -1 marks a dam without a registry record (treated as an unrelated,
 non-inbred animal with unknown genotypes and no rule checks). Kinship comes from `kin`
 (default: recorded pedigree); the oracle arm passes true-pedigree kinship.
@@ -153,6 +156,7 @@ def plan_season(
     fixed: dict[int, int] | None = None,
     prev_matings: tuple[IntArray, IntArray] | None = None,
     L: float | None = None,
+    carrier_factor: float | None = None,
     rng: np.random.Generator | None = None,
 ) -> SeasonPlan:
     """Quotas and allocation for the season's `dams` (positions in `fixed` are already mated:
@@ -206,7 +210,7 @@ def plan_season(
     elif control in ("ocs", "ocs_gain"):
         quotas = _ocs_quotas(
             ctx, cfg, control, sires, all_sires, dams, K, mk, mk_ref, fixed, free, day,
-            kin, delta_f, prev_matings, L, diag,
+            kin, delta_f, prev_matings, L, diag, carrier_factor, ref.allele_freq,
         )  # fmt: skip
     if control == "none":
         diag["n_sires_with_quota"] = m
@@ -249,6 +253,8 @@ def _ocs_quotas(
     prev_matings: tuple[IntArray, IntArray] | None,
     L: float | None,
     diag: dict[str, Any],
+    carrier_factor: float | None = None,
+    allele_freq: FloatArray | None = None,
 ) -> IntArray:
     m, M, n_d = sires.size, all_sires.size, dams.size
     # dams whose fixed sire has no record leave the problem (their contribution is unknown)
@@ -274,6 +280,14 @@ def _ocs_quotas(
     eqg = np.r_[ctx.eqg[sires], ctx.eqg[all_sires[m:]] if m < M else np.zeros(0)]
     exp_reg = float(ctx.rules.expected_litter_registered[int(ctx.ped.breed[sires[0]])])
     n_new = dpos.size * max(exp_reg, 1.0) if cfg.small_cohort_term.value else 0.0
+    carrier_t = carrier_bound = None
+    if carrier_factor is not None and allele_freq is not None and ctx.geno.shape[1]:
+        t = transmission(ctx.geno[all_sires], allele_freq)
+        mean_t = np.nanmean(t[:m], axis=0)
+        loci = np.flatnonzero(mean_t > 0)
+        if loci.size:
+            carrier_t = np.nan_to_num(t[:, loci])
+            carrier_bound = carrier_factor * mean_t[loci]
     prob = OCSProblem(
         K=Kp,
         n_dams=int(dpos.size),
@@ -285,6 +299,8 @@ def _ocs_quotas(
         n_newborn=n_new,
         n_age_classes=cfg.youngest_age_classes_required.value,
         depth=cfg.depth_constraint.value,
+        carrier_t=carrier_t,
+        carrier_bound=carrier_bound,
     )
     solver = cfg.solver.value
     if control == "ocs":
@@ -308,6 +324,9 @@ def _ocs_quotas(
         relaxed_constraints=",".join(res.relaxed),
         solver_status=res.status,
     )
+    if carrier_t is not None:
+        diag["carrier_relaxed"] = float("carrier" in res.relaxed)
+        diag["carrier_planned"] = float(np.mean(res.litters @ carrier_t / prob.n_dams))
     free_l = np.maximum(res.litters[:m] - fixed_l[:m], 0.0)
     q = sainte_lague(
         free_l,

@@ -1,4 +1,4 @@
-"""Experiment figures A to F (P8 task 8.5) and G to L (P12 task 12.11).
+"""Experiment figures A to F (P8 task 8.5), G to L (P12 task 12.11) and M (E8).
 
 Fixed strategy colours, colourblind-safe palette, PNG (300 dpi) and SVG, plus a poster
 variant with larger fonts. Every caption says the results are in silico."""
@@ -37,6 +37,29 @@ STRATEGY_LABEL = {
     "CC-gain010-mc1": "OCS gain, dF 0.1%",
     "S3q": "S3q recommender within quotas",
 }
+
+
+def strategy_label(sid: str) -> str:
+    """Legend label; S3q variants of E8 (`S3q-gainNNN-cBBB`) are described from their id."""
+    if sid in STRATEGY_LABEL:
+        return STRATEGY_LABEL[sid]
+    if sid.startswith("S3q-"):
+        from breeding_smarter.experiments.strategies import parse_s3q
+
+        spec = parse_s3q(sid)
+        parts = ["S3q"]
+        if spec.delta_f is not None:
+            parts.append(f"gain OCS dF {100 * spec.delta_f:g}%")
+        if spec.carrier_factor is not None:
+            parts.append(f"carrier limit {spec.carrier_factor:g}")
+        if spec.hard_carrier:
+            parts.append("carrier x carrier blocked")
+        if spec.oracle:
+            parts.append("true kinship")
+        return ", ".join(parts)
+    return sid
+
+
 CONTROLS = {"none": "none", "mkx": "MK exclusion", "cap": "MK-scaled cap", "ocs": "OCS"}
 
 
@@ -69,7 +92,7 @@ def fig_a(summ: pd.DataFrame, out: Path, poster: bool) -> list[Path]:
                 ax,
                 s[(s["breed"] == b) & (s["strategy"] == sid)],
                 style(sid)[0],
-                STRATEGY_LABEL[sid],
+                strategy_label(sid),
                 100,
                 style(sid)[1],
             )
@@ -123,7 +146,7 @@ def fig_c(summ: pd.DataFrame, out: Path, poster: bool) -> list[Path]:
                 ax,
                 s[s["strategy"] == sid],
                 style(sid)[0],
-                STRATEGY_LABEL[sid],
+                strategy_label(sid),
                 100,
                 style(sid)[1],
             )
@@ -161,7 +184,7 @@ def fig_d(
                 color=c,
                 s=120,
                 edgecolor="black",
-                label=STRATEGY_LABEL[sid],
+                label=strategy_label(sid),
                 zorder=3,
             )
         ax.set(
@@ -209,7 +232,7 @@ def fig_f(summ: pd.DataFrame, out: Path, poster: bool) -> list[Path]:
                 ax,
                 s[(s["breed"] == b) & (s["strategy"] == sid)],
                 style(sid)[0],
-                STRATEGY_LABEL[sid],
+                strategy_label(sid),
                 100,
                 style(sid)[1],
             )
@@ -232,7 +255,7 @@ def _lines(
         for sid in [x for x in sids if x in set(s["strategy"])]:
             c, ls = style(sid)
             _band(
-                ax, s[(s["breed"] == b) & (s["strategy"] == sid)], c, STRATEGY_LABEL[sid], 100, ls
+                ax, s[(s["breed"] == b) & (s["strategy"] == sid)], c, strategy_label(sid), 100, ls
             )
         ax.set(title=b, xlabel="generations after 2026", ylabel=ylabel)
     axes[0][0].legend(loc="upper left", fontsize="small")
@@ -279,7 +302,7 @@ def fig_h(summ: pd.DataFrame, out: Path, poster: bool) -> list[Path]:
                     100 * sb.loc[anchor, "mean"],
                     color=plotstyle.STRATEGY_COLOURS[anchor],
                     ls=":",
-                    label=STRATEGY_LABEL[anchor],
+                    label=strategy_label(anchor),
                 )
         ax.set_xticks(range(len(CONTROLS)), list(CONTROLS.values()))
         ax.set(title=b, xlabel="contribution control", ylabel="dF per generation, gen 5-10 (%)")
@@ -376,6 +399,172 @@ def fig_l(summ: pd.DataFrame, out: Path, poster: bool) -> list[Path]:
     return _save(fig, out, "figL_sire_use", poster)
 
 
+E8_PANELS = (
+    ("R_ne_f_late", "Ne (late window)", 1.0, "higher is better"),
+    ("M8_mean_tbv_hd", "mean true HD breeding value", 1.0, "lower is better"),
+    ("freq", "tested risk-allele frequency, sum (%)", 100.0, "lower is better"),
+)
+
+
+def fig_m(summ: pd.DataFrame, per_gen: pd.DataFrame, out: Path, poster: bool) -> list[Path]:
+    """E8: diversity, hips and disease alleles at generation 10 per arm, S1 as reference line."""
+    from breeding_smarter.experiments.summary import t_interval
+
+    sids = [x for x in summ["strategy"].unique() if x == "S1" or str(x).startswith("S3q")]
+    if not any(str(x).startswith("S3q-") for x in sids) or "S1" not in sids:
+        return []
+    g10 = summ[(summ["generation"] == 10) & (summ["adoption"] == 1.0)]
+    pr = per_gen[
+        (per_gen["generation"] == 10)
+        & (per_gen["adoption"] == 1.0)
+        & per_gen["metric"].str.startswith("M6_freq_")
+    ]
+    freq = pr.groupby(["breed", "strategy", "replicate"])["value"].sum().reset_index()
+    breeds = sorted(g10["breed"].unique())
+    fig, axes = plt.subplots(len(breeds), 3, figsize=(16, 3.2 * len(breeds) + 1), squeeze=False)
+    for r, b in enumerate(breeds):
+        order = sorted((x for x in sids if x in set(g10[g10["breed"] == b]["strategy"])), key=len)
+        for c, (metric, lab, scale, hint) in enumerate(E8_PANELS):
+            ax = axes[r][c]
+            if metric == "freq":
+                fb = freq[freq["breed"] == b]
+                stats = [t_interval(fb[fb["strategy"] == x]["value"].to_numpy()) for x in order]
+            else:
+                sb = g10[(g10["breed"] == b) & (g10["metric"] == metric)].set_index("strategy")
+                stats = [
+                    tuple(sb.loc[x, ["mean", "lo", "hi"]]) if x in sb.index else (np.nan,) * 3
+                    for x in order
+                ]
+            m, lo, hi = (scale * np.array(v, float) for v in zip(*stats, strict=True))
+            y = np.arange(len(order))
+            err = np.nan_to_num(np.vstack([m - lo, hi - m]))
+            ax.barh(y, m, xerr=err, capsize=3, color=[style(x)[0] for x in order])
+            if "S1" in order:
+                ax.axvline(m[order.index("S1")], color="#333333", lw=1, ls=":")
+            ax.set_yticks(y, [strategy_label(x) for x in order] if c == 0 else [], fontsize="small")
+            if metric == "freq" and not np.nansum(m):
+                ax.text(0.5, 0.5, "no segregating tested locus", transform=ax.transAxes,
+                        ha="center", va="center", fontsize="small")  # fmt: skip
+            ax.set(xlabel=f"{lab}\n({hint})", title=b if c == 1 else "")
+    fig.suptitle("Diversity, hips and disease alleles at generation 10 (dotted line: S1)")
+    fig.tight_layout()
+    return _save(fig, out, "figM_health_gain_quotas", poster)
+
+
+def _rep_stats(
+    pr: pd.DataFrame, breed: str, sid: str, metric: str, ad: float = 1.0
+) -> tuple[float, float, float]:
+    """(mean, lo, hi) over replicates at generation 10; `freq` sums M6_freq_* per replicate."""
+    from breeding_smarter.experiments.summary import t_interval
+
+    sub = pr[
+        (pr["breed"] == breed)
+        & (pr["strategy"] == sid)
+        & (pr["adoption"] == ad)
+        & (pr["generation"] == 10)
+    ]
+    if metric == "freq":
+        v = sub[sub["metric"].str.startswith("M6_freq_")].groupby("replicate")["value"].sum()
+    else:
+        v = sub[sub["metric"] == metric]["value"]
+    return t_interval(v.to_numpy(dtype=float))
+
+
+def _err(stats: list[tuple[float, float, float]], scale: float = 1.0) -> np.ndarray:
+    """Asymmetric error bars (2, n) from (mean, lo, hi) triples; nan bounds become 0."""
+    lower = [scale * (m - lo) for m, lo, _ in stats]
+    upper = [scale * (hi - m) for m, _, hi in stats]
+    return np.nan_to_num(np.array([lower, upper]))
+
+
+def fig_n(pr9: pd.DataFrame, out: Path) -> list[Path]:
+    """E9 policy dial: Ne vs HD along the dF-budget ladder (S1, S3q as anchors) per breed,
+    plus tested risk-allele frequency per budget in SYN_M."""
+    from breeding_smarter.experiments.hypotheses import _ladder
+
+    breeds = [b for b in ("SYN_M", "SYN_S") if _ladder(pr9, b)]
+    if not breeds:
+        return []
+    dial = plotstyle.STRATEGY_COLOURS["S3q-gain010-c050"]
+    paths: list[Path] = []
+    for poster in (False, True):
+        plotstyle.apply(poster=poster)
+        fig, axes = plt.subplots(1, len(breeds) + 1, figsize=(6.2 * (len(breeds) + 1), 5.2))
+        for ax, b in zip(axes, breeds, strict=False):
+            lad = _ladder(pr9, b)
+            ne = [_rep_stats(pr9, b, sid, "R_ne_f_late") for _, sid in lad]
+            hd = [_rep_stats(pr9, b, sid, "M8_mean_tbv_hd") for _, sid in lad]
+            x = np.array([v[0] for v in ne])
+            y = np.array([v[0] for v in hd])
+            ax.plot(x, y, "-", color=dial, lw=2)
+            ax.errorbar(x, y, xerr=_err(ne), yerr=_err(hd), fmt="o", ms=7, capsize=3, color=dial)
+            for (budget, _), xi, yi in zip(lad, x, y, strict=True):
+                ax.annotate(
+                    f"{100 * budget:g}%", (xi, yi), textcoords="offset points", xytext=(6, 6)
+                )
+            for anchor, marker in (("S1", "s"), ("S3q", "D")):
+                a_ne = _rep_stats(pr9, b, anchor, "R_ne_f_late")[0]
+                a_hd = _rep_stats(pr9, b, anchor, "M8_mean_tbv_hd")[0]
+                ax.plot(
+                    a_ne, a_hd, marker, ms=10, color=style(anchor)[0], label=strategy_label(anchor)
+                )
+            ax.set(
+                title=f"{b}: budget ladder" + (", carrier limit 0.5" if b == "SYN_M" else ""),
+                xlabel="Ne, late window (higher is better)",
+                ylabel="mean true HD breeding value (lower is better)",
+            )
+            ax.legend(loc="best", fontsize="small")
+        ax = axes[-1]
+        lad = _ladder(pr9, "SYN_M")
+        ids = ["S1", "S3q", *[sid for _, sid in lad]]
+        st = [_rep_stats(pr9, "SYN_M", sid, "freq") for sid in ids]
+        m = np.array([100 * v[0] for v in st])
+        rows = np.arange(len(ids))
+        colours = [style(i)[0] if i in ("S1", "S3q") else dial for i in ids]
+        ax.barh(rows, m, xerr=_err(st, 100.0), capsize=3, color=colours)
+        labels = ["S1 market", "S3q quotas", *[f"budget {100 * bd:g}%" for bd, _ in lad]]
+        ax.set_yticks(rows, labels, fontsize="small")
+        ax.axvline(m[0], color="#333333", ls=":", lw=1)
+        ax.set(title="SYN_M disease alleles", xlabel="tested risk-allele frequency, sum (%)")
+        fig.suptitle("Policy dial: what each inbreeding budget buys (generation 10)")
+        fig.tight_layout()
+        paths += _save(fig, out, "figN_policy_dial", poster)
+    plotstyle.apply()
+    return paths
+
+
+def fig_o(pr9: pd.DataFrame, pr10: pd.DataFrame | None, out: Path) -> list[Path]:
+    """E10: S3q-gain010-c050 with 25 to 100% of breeders taking part, S1 (E9) as reference."""
+    if pr10 is None:
+        return []
+    sid, b = "S3q-gain010-c050", "SYN_M"
+    panels = (
+        ("R_ne_f_late", "Ne, late window", 1.0),
+        ("M8_mean_tbv_hd", "mean true HD breeding value", 1.0),
+        ("freq", "tested risk-allele frequency, sum (%)", 100.0),
+    )
+    paths: list[Path] = []
+    for poster in (False, True):
+        plotstyle.apply(poster=poster)
+        fig, axes = plt.subplots(1, 3, figsize=(16, 4.6))
+        for ax, (metric, lab, sc) in zip(axes, panels, strict=True):
+            stats = [_rep_stats(pr10, b, sid, metric, ad) for ad in (0.25, 0.5, 0.75)]
+            stats.append(_rep_stats(pr9, b, sid, metric))
+            xs = np.array([25, 50, 75, 100])
+            ms = np.array([sc * v[0] for v in stats])
+            colour = plotstyle.STRATEGY_COLOURS[sid]
+            ax.errorbar(xs, ms, yerr=_err(stats, sc), fmt="o-", capsize=4, color=colour)
+            ref = _rep_stats(pr9, b, "S1", metric)[0]
+            ax.axhline(sc * ref, color=style("S1")[0], ls=":", lw=1.5, label="S1 market")
+            ax.set(xlabel="breeders taking part (%)", ylabel=lab, xticks=list(xs))
+        axes[0].legend(loc="best", fontsize="small")
+        fig.suptitle("SYN_M: quotas with hips budget 0.1% and carrier limit 0.5")
+        fig.tight_layout()
+        paths += _save(fig, out, "figO_adoption", poster)
+    plotstyle.apply()
+    return paths
+
+
 def _e2_per_gen() -> pd.DataFrame | None:
     from breeding_smarter.experiments.runner import report_dir
 
@@ -404,6 +593,7 @@ def make_figures(
             paths += fig_j(summ, out, poster)
             paths += fig_k(per_gen, out, poster, _e2_per_gen())
             paths += fig_l(summ, out, poster)
+            paths += fig_m(summ, per_gen, out, poster)
         else:
             paths += fig_e(per_gen, out, poster)
     plotstyle.apply()

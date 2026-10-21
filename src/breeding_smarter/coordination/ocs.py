@@ -16,8 +16,11 @@ Internally `x = l / n` (sums to 1), so `C = x'K_SS x / 4 + x'(K_SD d) + d'K_DD d
 Constraints: `0 <= l_i <= cap_i`; `l_i >= fixed_i` (non-adopters' booked litters, D15); at least
 one litter to each of the youngest `n_age_classes` non-empty age classes
 [sonesson-meuwissen-2001]; contribution-weighted mean equivalent generations of the sires at
-least their unweighted mean [wellmann-2019]. A constraint that makes the problem infeasible is
-dropped (age classes first, then depth) and reported in `relaxed`.
+least their unweighted mean [wellmann-2019]; optionally (E8) a carrier limit per tested locus l,
+`sum_i x_i t_il <= b_l` with `t_il` the probability that sire i transmits the risk allele
+(`docs/research_coordination.md`: health goals as linear constraints; OCS alone keeps recessives
+at heterozygous frequencies [de-cara-2013]). A constraint that makes the problem infeasible is
+dropped (carrier first, then age classes, then depth) and reported in `relaxed`.
 """
 
 from __future__ import annotations
@@ -46,6 +49,12 @@ class OCSProblem:
     n_newborn: float = 0.0  # expected registered newborns (small-cohort term; 0 = off)
     n_age_classes: int = 2
     depth: bool = True
+    carrier_t: FloatArray | None = None  # (m, L) risk-allele transmission per sire and locus
+    carrier_bound: FloatArray | None = None  # (L,) upper bound of x't per locus
+
+    @property
+    def has_carrier(self) -> bool:
+        return self.carrier_t is not None and self.carrier_bound is not None
 
     @property
     def m(self) -> int:
@@ -121,14 +130,20 @@ def _constraints(p: OCSProblem, x: cp.Variable, drop: set[str]) -> list[cp.Const
         if cand.any():
             target = float(np.mean(p.eqg[cand]))
             cons.append(x @ np.asarray(p.eqg, float) >= target)
+    if "carrier" not in drop and p.has_carrier:
+        t = np.asarray(p.carrier_t, float)
+        cons.append(t.T @ x <= np.asarray(p.carrier_bound, float))
     return cons
 
 
 def _solve(
     p: OCSProblem, build: object, solver: str
 ) -> tuple[NDArray[np.float64] | None, str, list[str]]:
-    """Solve with all constraints; drop age, then depth, on infeasibility."""
-    for drop in ([], ["age"], ["age", "depth"]):
+    """Solve with all constraints; drop carrier, then age, then depth, on infeasibility."""
+    ladder: list[list[str]] = [[], ["age"], ["age", "depth"]]
+    if p.has_carrier:
+        ladder = [[], *[["carrier", *d] for d in ladder]]
+    for drop in ladder:
         x = cp.Variable(p.m)
         prob = build(x, _constraints(p, x, set(drop)))  # type: ignore[operator]
         try:
@@ -138,7 +153,7 @@ def _solve(
         if prob.status in ("optimal", "optimal_inaccurate") and x.value is not None:
             return np.asarray(x.value, float), str(prob.status), list(drop)
         last = str(prob.status)
-    return None, last, ["age", "depth"]
+    return None, last, ladder[-1]
 
 
 def _finish(p: OCSProblem, x: NDArray[np.float64]) -> FloatArray:
