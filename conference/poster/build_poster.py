@@ -62,7 +62,8 @@ def main() -> Path:
     textbox(s, 3, 1.5, 84, 8, title, 66, True, RGBColor(0xFF, 0xFF, 0xFF))
     textbox(s, 3, 10, 84, 3, authors + "  [FER logo]", 32, False, RGBColor(0xFF, 0xFF, 0xFF))
     y = 16.0
-    for name, h in [("The problem", 8), ("Why now", 4.5), ("What we built", 7.5)]:
+    tools = "One engine, three tools for a kennel club"
+    for name, h in [("The problem", 8), ("Why now", 5.5), (tools, 11)]:
         textbox(s, 3, y, 84, 2, name, 44, True, BLUE)
         textbox(s, 3, y + 2.3, 84, h - 2.3, sec.get(name, ""), 30)
         y += h
@@ -76,9 +77,12 @@ def main() -> Path:
     y += 5 + pic.height.cm + 1
     textbox(s, 3, y, 41, 2, "Does it work?", 44, True, BLUE)
     textbox(s, 3, y + 2.3, 41, 9, sec.get("Does it work?", ""), 28)
-    headline = HERE / "figG_coordination_poster.png"  # P12; falls back to the P8 figure
-    if not headline.exists():
-        headline = HERE / "figA_realised_inbreeding_poster.png"
+    # E9 policy dial; falls back to the P12 and then the P8 figure
+    candidates = ["figN_policy_dial_poster.png", "figG_coordination_poster.png"]
+    headline = next(
+        (HERE / c for c in candidates if (HERE / c).exists()),
+        HERE / "figA_realised_inbreeding_poster.png",
+    )
     a = s.shapes.add_picture(str(headline), Cm(3), Cm(y + 11.5), width=Cm(41))
     textbox(s, 46, y, 41, 2, "Explainable matches", 44, True, BLUE)
     b = s.shapes.add_picture(str(HERE / "scorecard.png"), Cm(46), Cm(y + 2.5), width=Cm(41))

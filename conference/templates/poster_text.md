@@ -7,21 +7,23 @@ Tea Ćetojević Tisaj, Marija Perković · University of Zagreb, FER
 - {lit_carrier_share} of {lit_dogs_screened} dogs carry a disease variant.
 
 ## Why now
-EU Regulation 2026/1818 bans close-relative matings across the EU.
+EU Regulation 2026/1818 bans close-relative matings. Clubs must check every mating, but today they have lookup tools, not decision tools.
 
-## What we built
-An open engine: exact inbreeding and kinship, EU, FCI and kennel-club rules, and an explained score for every candidate sire. Tested on a calibrated synthetic registry ({n_animals} dogs; {val_pass} of {val_n_checks} calibration checks pass, {val_warn} soft warnings, {val_fail} failures).
+## One engine, three tools for a kennel club
+- **Breeders: Mate finder.** Every candidate sire ranked and explained: inbreeding, breed diversity, DNA risk, hips, sire use, rules.
+- **Breeding officer: Kennel club desk.** Mating applications checked against EU, FCI and club rules before the mating.
+- **Breeding committee: Club planner.** Yearly litter quotas per sire: the club sets an inbreeding budget and sees what it buys.
 
 ## Recorded COI hides inbreeding
-2025 puppies of the small breed: recorded COI {recorded_f_2025_S}, true inbreeding {true_f_2025_S}.
+Small breed, 2025 puppies: recorded COI {recorded_f_2025_S}, true inbreeding {true_f_2025_S}.
 
 ## Does it work?
-Ten simulated generations: the recommender cut realised inbreeding by {e1_dibd_S_S3_abs} points in the small breed and nearly removed affected puppies at tested loci, but breeders all chose the same sires. Club quotas fix this: coordinated sire planning raised Ne from {p12_ne_S_s1} (today's market) to {p12_ne_S_cc_ocs_mc1} in the small breed and from {p12_ne_M_s1} to {p12_ne_M_cc_ocs_mc1} in the medium breed; the recommender within quotas did as well. Random mating still kept the most diversity in the medium breed.
+Ten simulated generations on a calibrated synthetic registry ({n_animals} dogs), with criteria fixed before every run. Club quotas with a hips budget (inbreeding rise at most 0.1% per generation) and a carrier limit beat today's market on all three at once in the medium breed: Ne {e9_rep_ne_est} ({e9_rep_ne_ci}), hip breeding value {e9_rep_hd_est}, disease-allele frequency {e9_freq_cut_vs_s1} lower. Replicated on an independent seed. At the lowest budget, diversity stayed at the level of plain quotas while hips and disease alleles still improved.
 
 ## Honesty box
-All dogs are synthetic. Results are in silico. Some EU rules are not yet verified.
+All dogs are synthetic; results are in silico. The carrier limit works when most breeders take part. Some EU rules are not yet verified.
 
 ## Partner with us
-Free pilot for kennel and breed clubs; code runs on your premises.
+Free pilot for kennel and breed clubs: one breed, your data stays on your servers. Scan for the live demo and code.
 
-Refs: Bannasch 2021; Lewis 2015; Donner 2023; Meuwissen and Luo 1992; Colleau 2002.
+Refs: Bannasch 2021; Lewis 2015; Donner 2023; Meuwissen and Luo 1992; Meuwissen 1997.
