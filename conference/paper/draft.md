@@ -41,7 +41,7 @@ Per-dam rankings concentrate use on the same low-kinship sires; club-level quota
 ## 6 Conclusion
 Explainable, rule-aware matching is feasible and fast, and a synthetic benchmark with ground truth exposes how much recorded COI hides. We invite kennel and breed clubs to pilot the tool on real data.
 
-**Statements.** No animals were used; all data are synthetic. Code: https://github.com/TODO/breeding-smarter; data: TODO-DOI. Author contributions: TODO. Conflicts of interest: none.
+**Statements.** No animals were used; all data are synthetic. Code: https://github.com/TeaTisaj/breeding-smarter; data: TODO-DOI. Author contributions: TODO. Conflicts of interest: none.
 
 ## References
 Bannasch D. et al. (2021) Canine Med Genet. · Lewis T.W. et al. (2015) Canine Genet Epidemiol. · Donner J. et al. (2023) PLoS Genet. · Meuwissen T.H.E., Luo Z. (1992) Genet Sel Evol. · Colleau J.J. (2002) Genet Sel Evol. · Gutiérrez J.P. et al. (2008) Genet Sel Evol. · Ballou J.D., Lacy R.C. (1995). · Lacy R.C. (2012) PMx. · Meuwissen T.H.E. (1997) J Anim Sci. · Borge K.S. et al. (2011) Theriogenology. · Regulation (EU) 2026/1818.

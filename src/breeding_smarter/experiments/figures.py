@@ -489,15 +489,19 @@ def fig_n(pr9: pd.DataFrame, out: Path) -> list[Path]:
     paths: list[Path] = []
     for poster in (False, True):
         plotstyle.apply(poster=poster)
-        fig, axes = plt.subplots(1, len(breeds) + 1, figsize=(6.2 * (len(breeds) + 1), 5.2))
-        for ax, b in zip(axes, breeds, strict=False):
+        shown = ["SYN_M"] if poster and "SYN_M" in breeds else breeds  # poster: headline breed
+        scale = 2.4 if poster else 1.0  # poster fonts are about 2.8 times larger
+        ncol = len(shown) + 1
+        fig, axes = plt.subplots(1, ncol, figsize=(6.2 * ncol * scale, 5.2 * scale))
+        for ax, b in zip(axes, shown, strict=False):
             lad = _ladder(pr9, b)
             ne = [_rep_stats(pr9, b, sid, "R_ne_f_late") for _, sid in lad]
             hd = [_rep_stats(pr9, b, sid, "M8_mean_tbv_hd") for _, sid in lad]
             x = np.array([v[0] for v in ne])
             y = np.array([v[0] for v in hd])
             ax.plot(x, y, "-", color=dial, lw=2)
-            ax.errorbar(x, y, xerr=_err(ne), yerr=_err(hd), fmt="o", ms=7, capsize=3, color=dial)
+            ms = 7 * scale
+            ax.errorbar(x, y, xerr=_err(ne), yerr=_err(hd), fmt="o", ms=ms, capsize=3, color=dial)
             for (budget, _), xi, yi in zip(lad, x, y, strict=True):
                 ax.annotate(
                     f"{100 * budget:g}%", (xi, yi), textcoords="offset points", xytext=(6, 6)
@@ -506,14 +510,19 @@ def fig_n(pr9: pd.DataFrame, out: Path) -> list[Path]:
                 a_ne = _rep_stats(pr9, b, anchor, "R_ne_f_late")[0]
                 a_hd = _rep_stats(pr9, b, anchor, "M8_mean_tbv_hd")[0]
                 ax.plot(
-                    a_ne, a_hd, marker, ms=10, color=style(anchor)[0], label=strategy_label(anchor)
+                    a_ne,
+                    a_hd,
+                    marker,
+                    ms=1.5 * ms,
+                    color=style(anchor)[0],
+                    label=strategy_label(anchor),
                 )
             ax.set(
                 title=f"{b}: budget ladder" + (", carrier limit 0.5" if b == "SYN_M" else ""),
-                xlabel="Ne, late window (higher is better)",
-                ylabel="mean true HD breeding value (lower is better)",
+                xlabel="Ne (higher is better)",
+                ylabel="hip breeding value (lower is better)",
             )
-            ax.legend(loc="best", fontsize="small")
+            ax.legend(loc="center left", fontsize="small")
         ax = axes[-1]
         lad = _ladder(pr9, "SYN_M")
         ids = ["S1", "S3q", *[sid for _, sid in lad]]
@@ -525,7 +534,7 @@ def fig_n(pr9: pd.DataFrame, out: Path) -> list[Path]:
         labels = ["S1 market", "S3q quotas", *[f"budget {100 * bd:g}%" for bd, _ in lad]]
         ax.set_yticks(rows, labels, fontsize="small")
         ax.axvline(m[0], color="#333333", ls=":", lw=1)
-        ax.set(title="SYN_M disease alleles", xlabel="tested risk-allele frequency, sum (%)")
+        ax.set(title="SYN_M disease alleles", xlabel="disease-allele frequency (%)")
         fig.suptitle("Policy dial: what each inbreeding budget buys (generation 10)")
         fig.tight_layout()
         paths += _save(fig, out, "figN_policy_dial", poster)

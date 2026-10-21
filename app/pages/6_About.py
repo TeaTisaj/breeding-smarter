@@ -42,7 +42,7 @@ st.markdown(
     "- Score weights are policy choices."
 )
 st.subheader("Links")
-st.markdown("Code: https://github.com/TODO/breeding-smarter · Dataset DOI: TODO-DOI")
+st.markdown("Code: https://github.com/TeaTisaj/breeding-smarter · Dataset DOI: TODO-DOI")
 st.success(
     "**We are looking for partners with real data.** Kennel clubs and breed clubs: a "
     "free pilot gives you a diversity report, an EU 2026/1818 compliance check and mate "

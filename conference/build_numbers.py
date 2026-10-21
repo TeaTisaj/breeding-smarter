@@ -180,6 +180,42 @@ def p12() -> dict[str, str]:
     return out
 
 
+def e9() -> dict[str, str]:
+    """E9 policy dial (medium breed): replication of E8 vs S1 and absolute values per arm."""
+    base = ROOT / "reports" / "experiments"
+    hyp = base / "E9_hypotheses" / "hypotheses.csv"
+    if not hyp.exists():
+        return {}
+    out: dict[str, str] = {}
+    h = pd.read_csv(hyp).set_index("id")
+    for hid, key, scale, fmt in (
+        ("H9-rep-Ne", "ne", 1, "{:+.0f}"),
+        ("H9-rep-HD", "hd", 1, "{:+.2f}"),
+        ("H9-rep-freq", "freq", 100, "{:+.1f}"),
+    ):
+        r = h.loc[hid]
+        out[f"e9_rep_{key}_est"] = fmt.format(scale * r["estimate"])
+        out[f"e9_rep_{key}_ci"] = f"{fmt.format(scale * r['lo'])} to {fmt.format(scale * r['hi'])}"
+    pr = pd.read_csv(base / "E9_policy_dial" / "per_generation_replicates.csv.gz")
+    g = pr[(pr["breed"] == "SYN_M") & (pr["generation"] == 10) & (pr["adoption"] == 1.0)]
+
+    def mean(sid: str, metric: str) -> float:
+        sub = g[g["strategy"] == sid]
+        if metric == "freq":
+            v = sub[sub["metric"].str.startswith("M6_freq_")].groupby("replicate")["value"].sum()
+        else:
+            v = sub[sub["metric"] == metric]["value"]
+        return float(v.mean())
+
+    arms = {"s1": "S1", "s3q": "S3q", "g005": "S3q-gain005-c050", "g010": "S3q-gain010-c050"}
+    for tag, sid in arms.items():
+        out[f"e9_ne_M_{tag}"] = f"{mean(sid, 'R_ne_f_late'):.0f}"
+        out[f"e9_hd_M_{tag}"] = f"{mean(sid, 'M8_mean_tbv_hd'):+.2f}"
+        out[f"e9_freq_M_{tag}"] = f"{mean(sid, 'freq'):.3f}"
+    out["e9_freq_cut_vs_s1"] = pct(1 - mean("S3q-gain010-c050", "freq") / mean("S1", "freq"), 0)
+    return out
+
+
 def benchmark() -> dict[str, str]:
     text = (ROOT / "reports" / "benchmarks" / "engine.md").read_text()
     row = re.search(r"\| 250,000 \| ([\d.]+) \| ([\d.]+) \| ([\d.]+) \| ([\d.]+) \|", text)
@@ -209,6 +245,7 @@ def main() -> None:
         benchmark(),
         demo(),
         p12(),
+        e9(),
     ):
         numbers.update(part)
     links = yaml.safe_load((ROOT / "conference" / "links.yaml").read_text())
