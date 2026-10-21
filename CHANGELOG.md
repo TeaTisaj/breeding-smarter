@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- EU 2026/1818 rules checked against the Official Journal text (OJ L 2026/1818, 10.8.2026):
+  `eu_close_relatives` (Art. 8(4)(a)) and `eu_dam_litter_frequency` (Annex I 3.3) verified;
+  `eu_max_caesareans` added (Annex I 3.5); `eu_dam_min_age` (18 months, press report) removed,
+  because the text says "not before the second oestrus" and has no age in months.
+- Rule sources link to the public text: app rule badges, Kennel club desk, mating
+  certificate and `docs/rules_catalogue.md` show the source and article.
+
 ## 0.1.0 (2026-10-21)
 First public release for BioMedVetMech 2026 (Zagreb, 24 to 25 October 2026).
 - E9 and E10 experiments (in silico): budget ladder ("policy dial"), carrier-limit strength,

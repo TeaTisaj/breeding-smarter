@@ -291,7 +291,7 @@ def test_compliance_report_rows_rules_and_sources(season):
     assert list(df["outcome"]) == ["READY", "NEEDS_REVIEW", "READY", "BLOCKED"]
     assert list(df["status"]) == ["APPROVED", "SUBMITTED", "REJECTED", "SUBMITTED"]
     assert df.loc[3, "failed_hard_rules"] == "eu_close_relatives (eurlex-2026-1818)"
-    assert "eu_close_relatives [eurlex-2026-1818; unverified]" in df.loc[3, "checks"]
+    assert "eu_close_relatives [eurlex-2026-1818; verified]" in df.loc[3, "checks"]
     assert df.loc[0, "quota_booked"] and not df.loc[2, "quota_booked"]
     assert (df["data"].str.startswith("synthetic")).all()
     csv = df.to_csv(index=False)
