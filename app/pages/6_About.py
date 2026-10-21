@@ -3,6 +3,8 @@
 import components as ui
 import streamlit as st
 
+from breeding_smarter.rules.docs import render_catalogue
+
 ui.page("About and methods")
 bundle = ui.get_bundle()
 st.markdown(
@@ -33,7 +35,7 @@ if val is not None:
         width="stretch",
     )
 st.subheader("Rules catalogue")
-st.markdown(bundle.rules_catalogue() or "Not available.")
+st.markdown(render_catalogue())  # from the rule configs, so it matches the code
 st.subheader("Limitations")
 st.markdown(
     "- All data is synthetic; numbers describe our model, not real breeds.\n"
