@@ -2,7 +2,7 @@
 
 **A data-driven matching system for genetic diversity in dogs and beyond.**
 
-[![CI](https://github.com/TODO/breeding-smarter/actions/workflows/ci.yml/badge.svg)](https://github.com/TODO/breeding-smarter/actions)
+[![CI](https://github.com/TeaTisaj/breeding-smarter/actions/workflows/ci.yml/badge.svg)](https://github.com/TeaTisaj/breeding-smarter/actions)
 Dataset DOI: TODO-DOI · Demo: TODO-DEMO-URL
 
 > **Synthetic data notice.** Every animal, kennel, registration number and microchip in this
@@ -59,6 +59,18 @@ status-quo market from 33 to 54 in the small breed and from 188 to
 were fixed before running. Least-related mating without quotas was the worst strategy, and
 random mating still kept more diversity in the medium breed. Details:
 `reports/experiments/P12_hypotheses/hypotheses.md`, `plan/gates/P12_report.md`.
+
+### Health and hips inside club quotas (E8 to E10)
+![Policy dial: what each inbreeding budget buys](reports/experiments/E9_hypotheses/figures/figN_policy_dial.png)
+
+*In-silico results on synthetic populations.* Club quotas planned with a hips budget
+(inbreeding rise at most 0.1% per generation) and a carrier limit beat the simulated
+status-quo market on diversity, hips and tested disease-allele frequency at once in the medium
+breed (Ne +85, 95% interval +48 to +122; hip breeding value -1.17; disease-allele frequency
+-8.9 points), replicated on an independent seed. The club chooses the budget: higher budgets buy
+better hips at a diversity cost. Pre-registered criteria, including two that failed (the carrier
+limit needs most breeders to take part; true-kinship planning did not raise Ne here):
+`plan/gates/E8_report.md`, `plan/gates/E9_report.md`.
 
 ## Dataset
 - Zenodo: TODO-DOI (CC BY 4.0). Hugging Face mirror: TODO-HF.

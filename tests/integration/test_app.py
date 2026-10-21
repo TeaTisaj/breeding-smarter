@@ -122,7 +122,8 @@ def test_mate_finder_respects_club_quotas(bundle_path, monkeypatch):
 
 
 @pytest.mark.parametrize(
-    ("mode", "budget"), [("OCS", "lowest possible"), ("OCS", "0.5%"), ("cap", "lowest possible")]
+    ("mode", "budget"),
+    [("OCS", "lowest possible"), ("OCS", "0.5%"), ("OCS", "0.1%"), ("cap", "lowest possible")],
 )
 def test_club_planner_modes(bundle_path, monkeypatch, mode, budget):
     from streamlit.testing.v1 import AppTest
@@ -138,6 +139,48 @@ def test_club_planner_modes(bundle_path, monkeypatch, mode, budget):
     assert {"sire", "MK", "cap", "quota"} <= set(sires.columns)
     matings = at.dataframe[1].value
     assert (sires["quota"].clip(lower=0).sum() >= (matings["sire"] != "").sum()) or mode == "cap"
+
+
+def test_club_planner_policy_dial(bundle_path, monkeypatch, tmp_path):
+    """The budget slider shows the E9 projection for the chosen budget (vs today's market)."""
+    import shutil
+
+    from streamlit.testing.v1 import AppTest
+
+    b = tmp_path / "bundle"
+    shutil.copytree(bundle_path, b)
+    rows = []
+    for sid, (ne, hd, fq) in {
+        "S1": (205, 0.39, 0.11),
+        "S3q": (323, 0.39, 0.21),
+        "S3q-gain010-c050": (290, -0.78, 0.02),
+    }.items():
+        for r in range(3):
+            for metric, v in (("R_ne_f_late", ne), ("M8_mean_tbv_hd", hd), ("M6_freq_L1", fq)):
+                rows.append(
+                    {"breed": "SYN_M", "strategy": sid, "adoption": 1.0, "replicate": r,
+                     "generation": 10, "metric": metric, "value": v}
+                )  # fmt: skip
+    (b / "experiments" / "E9_policy_dial").mkdir(parents=True)
+    pd.DataFrame(rows).to_csv(
+        b / "experiments" / "E9_policy_dial" / "per_generation_replicates.csv.gz", index=False
+    )
+    import streamlit as st
+
+    monkeypatch.setenv("BSM_BUNDLE_PATH", str(b))
+    st.cache_resource.clear()  # the app caches the loaded bundle for the whole process
+    try:
+        at = AppTest.from_file(str(APP / "pages" / "7_Club_planner.py"), default_timeout=180)
+        at.run()
+        at.select_slider[0].set_value("0.1%")
+        at.run()
+    finally:
+        st.cache_resource.clear()
+    assert not at.exception, [e.value for e in at.exception]
+    shown = {m.label: (m.value, m.delta) for m in at.metric}
+    assert shown["Diversity (Ne)"] == ("290", "+85 vs today's market")
+    assert shown["Hip breeding value"][0] == "-0.78"
+    assert shown["Disease-allele frequency"][0] == "2.0%"
 
 
 # ---------------------------------------------------------------- Kennel club desk (B4)

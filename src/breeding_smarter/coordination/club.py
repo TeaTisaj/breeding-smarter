@@ -112,9 +112,10 @@ def club_plan(
     cfg: CoordinationConfig | None = None,
     profile: str = "hr_full",
     seed: int = 0,
+    carrier_factor: float | None = None,
 ) -> ClubPlan:
-    """Quotas (mode `ocs`, `cap`; `ocs` with `delta_f` = gain under that budget) and an MC1
-    allocation for the season's dams on `date`."""
+    """Quotas (mode `ocs`, `cap`; `ocs` with `delta_f` = gain under that budget; optional carrier
+    limit `carrier_factor`, as in E8/E9) and an MC1 allocation for the season's dams on `date`."""
     cfg = cfg or load_coordination()
     day = day_number(date)
     rng = np.random.default_rng(seed)
@@ -124,7 +125,8 @@ def club_plan(
     prev = last_year_matings(ctx, breed, day) if control == "ocs_gain" else None
     plan = plan_season(
         ctx, breed, day, dams, sires, cfg, control, "mc1",
-        profile=profile, delta_f=delta_f, prev_matings=prev, rng=rng,
+        profile=profile, delta_f=delta_f, prev_matings=prev, carrier_factor=carrier_factor,
+        rng=rng,
     )  # fmt: skip
     ref = ctx.reference(breed, day)
     mk = ref.mk[sires]

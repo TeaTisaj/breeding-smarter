@@ -35,4 +35,4 @@ short-term inbreeding, and that club quotas on sire use raise long-term diversit
 real breeds.
 
 **Contact:** TODO-CONTACT · Demo: TODO-DEMO-URL · Dataset: TODO-DOI ·
-Code: https://github.com/TODO/breeding-smarter
+Code: https://github.com/TeaTisaj/breeding-smarter
