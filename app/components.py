@@ -15,6 +15,7 @@ from glossary import tip
 from theme import STATUS_ICON, TIER_COLOURS
 
 from breeding_smarter.bundle import Bundle
+from breeding_smarter.config.sourced import source_refs
 from breeding_smarter.matching import DatasetContext, ScoreCard
 
 BANNER = "Synthetic data: no real dogs. Proof of concept."
@@ -109,6 +110,13 @@ def tier_badge(tier: str) -> str:
     )
 
 
+def citation(source: str, article: object = None) -> str:
+    """Markdown citation of a rule: reference (linked if it has a public url) and article."""
+    ref, url = source_refs().get(source, (source, None))
+    cite = f"[{ref}]({url})" if url else ref
+    return f"{cite}, {article}" if article else cite
+
+
 def rule_badges(rules: list[dict[str, object]]) -> None:
     for r in rules:
         if r["passed"] and not r["warning"]:
@@ -121,7 +129,8 @@ def rule_badges(rules: list[dict[str, object]]) -> None:
             icon, word = STATUS_ICON["info"], "info"
         unverified = "" if r["verified"] else " · **unverified**"
         st.markdown(
-            f"{icon} **{word}** · `{r['rule_id']}` ({r['severity']}){unverified}: {r['message']}",
+            f"{icon} **{word}** · `{r['rule_id']}` ({r['severity']}){unverified}: {r['message']}"
+            f"  \n:gray[Source: {citation(str(r['source']), r.get('article'))}]",
             help=None if r["verified"] else tip("unverified"),
         )
 

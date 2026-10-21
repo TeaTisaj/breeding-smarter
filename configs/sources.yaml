@@ -1,12 +1,14 @@
 # Citation keys. Mirrors docs/research.md section 9 (test: tests/unit/test_config.py).
 # Extra keys added during implementation are marked `added_in`.
+# `url` (optional): a public link to the source; the app and the rules catalogue link to it.
 sources:
   bmvm-site:
     ref: "biomedvetmech.com (home, leadership, schedule pages)"
   bmvm-submission:
     ref: "biomedvetmech.com/paper-submission"
   eurlex-2026-1818:
-    ref: "eur-lex.europa.eu/eli/reg/2026/1818"
+    ref: "Regulation (EU) 2026/1818 on the welfare of dogs and cats and their traceability, OJ L 2026/1818, 10.8.2026"
+    url: "https://eur-lex.europa.eu/eli/reg/2026/1818/oj/eng"
   consilium-2026:
     ref: "Council press release, 22 May 2026"
   ep-2026:

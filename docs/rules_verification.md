@@ -9,26 +9,12 @@ the parameters if needed, then set `verified: true` and regenerate the docs.
 - [ ] `dna_carrier_pairing` (carrier_pairing: loci=all_tested, SOFT). Current source: `fci-strategies` (FCI International Breeding Strategies). both parents known carriers (or affected) at the same tested locus: risk of affected puppies
 - [ ] `dna_affected_parent` (affected_exclusion: loci=all_tested, SOFT). Current source: `fci-strategies` (FCI International Breeding Strategies). a parent known affected at a tested locus
 
-## eu_2026_1818: application date
-
-- [ ] Fill `in_application_from` and transition periods from the OJ text (eur-lex.europa.eu/eli/reg/2026/1818). Press reports mention 4 years for breeders and sellers (UNVERIFIED).
-
-## eu_2026_1818 (EU Regulation 2026/1818 (welfare and traceability of dogs and cats))
-
-- [ ] `eu_close_relatives` (relationship_ban: relationships=['PARENT_OFFSPRING', 'FULL_SIBLINGS', 'HALF_SIBLINGS', 'GRANDPARENT_GRANDCHILD'], HARD). Current source: `eurlex-2026-1818` (eur-lex.europa.eu/eli/reg/2026/1818). 
-- [ ] `eu_dam_min_age` (min_age: sex=F, months=18, HARD). Current source: `euroweekly-2026` (Euro Weekly News, 2 May 2026 (secondary)). 
-  - Press report only: find the article in the OJ text (eurlex-2026-1818) and replace the source key.
-- [ ] `eu_dam_litter_frequency` (max_litters_in_window: max=3, window_months=24, HARD). Current source: `euroweekly-2026` (Euro Weekly News, 2 May 2026 (secondary)). 
-  - Press report only: find the article in the OJ text (eurlex-2026-1818) and replace the source key.
-
 ## exp_pairing (Experiments: pair-level rules only (EU close-relative ban, carrier pairing, COI cap))
 
-- [ ] `exp_close_relatives` (relationship_ban: relationships=['PARENT_OFFSPRING', 'FULL_SIBLINGS', 'HALF_SIBLINGS', 'GRANDPARENT_GRANDCHILD'], HARD). Current source: `eurlex-2026-1818` (eur-lex.europa.eu/eli/reg/2026/1818). 
 - [ ] `exp_carrier_pairing` (carrier_pairing: loci=all_tested, SOFT). Current source: `fci-strategies` (FCI International Breeding Strategies). penalised (SOFT) by default; E3 policy (b) makes it HARD
 
 ## exp_pairing_hard_carrier (Experiments E3 policy (b): exp_pairing with carrier x carrier pairs HARD-blocked)
 
-- [ ] `exp_close_relatives_e3b` (relationship_ban: relationships=['PARENT_OFFSPRING', 'FULL_SIBLINGS', 'HALF_SIBLINGS', 'GRANDPARENT_GRANDCHILD'], HARD). Current source: `eurlex-2026-1818` (eur-lex.europa.eu/eli/reg/2026/1818). 
 - [ ] `exp_carrier_pairing_hard` (carrier_pairing: loci=all_tested, HARD). Current source: `fci-strategies` (FCI International Breeding Strategies). E3 policy (b): carrier x carrier pairs blocked
 
 ## hks_hr (Hrvatski kinološki savez (Croatia), Pravilnik o uzgoju)
@@ -43,4 +29,7 @@ the parameters if needed, then set `verified: true` and regenerate the docs.
 ## Not yet encoded
 
 - [ ] HKS minimum interval between litters: add a `min_interval_between_litters` rule to `hks_hr.yaml` only if the Pravilnik states one.
+- [ ] EU 2026/1818 Annex I 3.2: no breeding of a bitch before her second oestrus. Needs oestrus records, which the registry schema does not have.
+- [ ] EU 2026/1818 Annex I 3.4: at least one year of recuperation after three litters (stillborns included) in two years. Needs a new rule type.
+- [ ] EU 2026/1818 Annex I 3.6: veterinary check in writing before breeding a bitch aged 8 or more (a manual check, not a ban).
 

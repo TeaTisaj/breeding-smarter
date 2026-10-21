@@ -31,6 +31,14 @@ def known_sources(path: Path | None = None) -> frozenset[str]:
     return frozenset(data["sources"])
 
 
+@cache
+def source_refs(path: Path | None = None) -> dict[str, tuple[str, str | None]]:
+    """Source key -> (reference, public `url` or None) from `configs/sources.yaml`."""
+    p = path or configs_dir() / "sources.yaml"
+    data = yaml.safe_load(p.read_text(encoding="utf-8"))["sources"]
+    return {k: (v["ref"], v.get("url")) for k, v in data.items()}
+
+
 class Provenance(Strict):
     """Mixin fields: `source` (citation key) or `assumption: true`, plus a free-text note."""
 

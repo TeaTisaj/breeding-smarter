@@ -19,7 +19,7 @@ Genomic COI measures realised inbreeding and is better for individuals. Pedigree
 The breed club. Weights are breeding priorities, not science; the app shows sliders and says so. Our defaults are documented assumptions.
 
 **6. What about the EU regulation's application dates and the local-breed derogation?**
-Close-relative bans are encoded as HARD rules with the local-breed derogation as a switch. Application dates and some details (minimum dam age, litter limits) come from press reports and are marked unverified until we check the Official Journal text (`docs/rules_verification.md`).
+We checked the rules against the Official Journal text (Regulation (EU) 2026/1818, OJ L 2026/1818, 10.8.2026: https://eur-lex.europa.eu/eli/reg/2026/1818/oj/eng). The close-relative ban (Art. 8(4)(a)) is a HARD rule, with the local-breed derogation as a switch; it applies from 31 August 2028. The dam limits in Annex I (at most three litters in two years, no breeding after two caesareans) apply from 31 August 2029 (Art. 33). The regulation gives no minimum age in months: a bitch may not be bred before her second oestrus. Registries do not record oestrus, so we do not encode that rule; the 18 months quoted in the press is not in the text.
 
 **7. Does excluding carriers help or hurt?**
 Excluding all carriers lowers a tested disease faster but removes breeding animals, which costs diversity and can raise untestable variants. Our score penalises carrier x carrier pairs instead. In the medium breed the recommender cut affected puppies at MDR1 from 0.32% to 0.01%; the untestable variant stayed at 4.2% to 5.2% affected under every strategy. A dedicated ablation (E3) follows.

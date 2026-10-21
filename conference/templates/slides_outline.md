@@ -55,7 +55,7 @@ Numbers come from `conference/numbers.json` (rebuild with `conference/build_numb
 ## 11. Limitations, said plainly
 **On slide:** Synthetic data. Pedigree, not genomic, kinship. Policy weights. Some rules unverified. Quotas only tested in silico.
 **Figure:** none.
-**Notes:** Everything is synthetic and in silico. Kinship comes from pedigrees, which underestimate inbreeding when pedigrees are short; genomic data would help. The weights are policy and belong to breed clubs. Several EU details come from press reports. And our main lesson: a per-dam ranking alone does not protect long-term diversity; coordinating how often each sire is used does, in our model. Planning on true kinship would do even better (Ne higher by {p12_h6_S_est} in the small breed), which is why genomic data matters. Whether clubs and breeders accept quotas is untested.
+**Notes:** Everything is synthetic and in silico. Kinship comes from pedigrees, which underestimate inbreeding when pedigrees are short; genomic data would help. The weights are policy and belong to breed clubs. The EU rules are checked against the Official Journal text; two of its limits, the minimum breeding age and the recuperation period, are not modelled yet. And our main lesson: a per-dam ranking alone does not protect long-term diversity; coordinating how often each sire is used does, in our model. Planning on true kinship would do even better (Ne higher by {p12_h6_S_est} in the small breed), which is why genomic data matters. Whether clubs and breeders accept quotas is untested.
 
 ## 12. Call for partners
 **On slide:** Free pilot: diversity report, EU 2026/1818 check, mate recommendations. Code runs on your premises.

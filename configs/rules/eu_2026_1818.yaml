@@ -1,6 +1,15 @@
 profile: eu_2026_1818
 title: "EU Regulation 2026/1818 (welfare and traceability of dogs and cats)"
-in_application_from: null      # [HUMAN] fill from the OJ text
+# Checked against the OJ text (OJ L 2026/1818, 10.8.2026) on 2026-10-21. Art. 33: in force
+# 30 Aug 2026; applies from 31 Aug 2028, but Art. 16 (which makes Annex I point 3 binding)
+# only from 31 Aug 2029. Art. 5(1): Art. 8 and Annex I point 3 also bind breeders with at
+# most two litters a year.
+in_application_from: "2028-08-31"
+note: >-
+  Art. 33: Art. 8(4) applies from 31 Aug 2028; Art. 16 and Annex I point 3 (dam litter and
+  caesarean limits) from 31 Aug 2029. Not encoded: Annex I 3.2 (no breeding before the
+  second oestrus; the registry does not record oestrus), 3.4 (one-year recuperation after
+  three litters in two years) and 3.6 (veterinary check before breeding a bitch aged 8 or more).
 local_breed_derogation_granted: false   # derogation needs a competent-authority decision
 rules:
   - id: eu_close_relatives
@@ -9,17 +18,22 @@ rules:
     severity: HARD
     derogation: local_breed          # downgraded to SOFT if breed is local AND derogation granted
     source: eurlex-2026-1818
-    article: null                    # [HUMAN] fill
-    verified: false                  # set true once the article is checked in the OJ text
-  - id: eu_dam_min_age
-    type: min_age
-    params: {sex: F, months: 18}
-    severity: HARD
-    source: euroweekly-2026
-    verified: false                  # press report only
+    article: "Art. 8(4)(a)"
+    note: "applies from 31 Aug 2028 (Art. 33)"
+    verified: true
   - id: eu_dam_litter_frequency
     type: max_litters_in_window
     params: {max: 3, window_months: 24}
     severity: HARD
-    source: euroweekly-2026
-    verified: false                  # press report only
+    source: eurlex-2026-1818
+    article: "Art. 16(2)(c), Annex I point 3.3"
+    note: "stillborn litters count (Annex I 3.4); applies from 31 Aug 2029 (Art. 33(a))"
+    verified: true
+  - id: eu_max_caesareans
+    type: max_caesareans
+    params: {n: 2}
+    severity: HARD
+    source: eurlex-2026-1818
+    article: "Art. 16(2)(a), Annex I point 3.5"
+    note: "applies from 31 Aug 2029 (Art. 33(a))"
+    verified: true

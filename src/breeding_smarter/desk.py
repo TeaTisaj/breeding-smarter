@@ -30,6 +30,7 @@ from enum import StrEnum
 import numpy as np
 import pandas as pd
 
+from breeding_smarter.config.sourced import source_refs
 from breeding_smarter.coordination.ledger import BookingLedger
 from breeding_smarter.matching.candidates import candidate_sires
 from breeding_smarter.matching.context import DatasetContext
@@ -121,6 +122,7 @@ class Check:
     source: str
     verified: bool
     profile: str = ""  # the rule profile that defines the rule (e.g. eu_2026_1818)
+    article: str | None = None  # article of the source, e.g. "Art. 8(4)(a)"
 
     @property
     def symbol(self) -> str:
@@ -206,6 +208,7 @@ def assess(
             source=str(r["source"]),
             verified=bool(r["verified"]),
             profile=str(r.get("profile", "")),
+            article=r.get("article"),
         )
         for r in card.rules
     ]
@@ -406,6 +409,13 @@ def reject(app: MatingApplication, note: str = "") -> None:
 # ---------------------------------------------------------------- certificate
 
 
+def _source_cell(c: Check) -> str:
+    """HTML citation of a check: reference (linked if it has a public url) and article."""
+    ref, url = source_refs().get(c.source, (c.source, None))
+    cite = f'<a href="{html.escape(url)}">{html.escape(ref)}</a>' if url else html.escape(ref)
+    return f"{cite}, {html.escape(c.article)}" if c.article else cite
+
+
 def certificate_html(app: MatingApplication, assessment: Assessment, issued_on: str) -> str:
     """Mating certificate (prototype) of an approved application as a standalone HTML page."""
     if app.status != AppStatus.APPROVED:
@@ -414,7 +424,7 @@ def certificate_html(app: MatingApplication, assessment: Assessment, issued_on: 
     card = assessment.card
     rows = "".join(
         f"<tr><td>{e(c.symbol)}</td><td>{e(c.rule_id)}</td><td>{e(c.severity)}</td>"
-        f"<td>{e(c.message)}</td><td>{e(c.source)}</td>"
+        f"<td>{e(c.message)}</td><td>{_source_cell(c)}</td>"
         f"<td>{'yes' if c.verified else 'unverified'}</td></tr>"
         for c in assessment.checks
     )

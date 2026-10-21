@@ -14,10 +14,17 @@ Condensed from the deep-research report of 2026-10-10. Every number used in conf
 ## 2. Regulation and rules
 
 ### 2.1 EU Regulation 2026/1818 (welfare and traceability of dogs and cats)
-- Published in the Official Journal on 10 August 2026 [eurlex-2026-1818; consilium-2026].
-- Prohibits breeding between **parents and offspring, siblings, half-siblings, grandparents and grandchildren**. Derogation possible for **local breeds with a limited gene pool** (competent authority) [eurlex-2026-1818; ep-2026].
-- **UNVERIFIED** (press only, check OJ text): maximum 3 litters in 2 years per bitch, bitch at least 18 months old, transition periods (4 years for breeders/sellers, 15 years for owners of never-traded pets), the "2036" date in EUR-Lex metadata [euroweekly-2026; catster-2026].
-- **NOT USED IN ANY RULE PROFILE until checked in the OJ text**: only the project B2B assessment claims that the regulation bars breeding a bitch after two caesarean sections. Neither the OJ text nor the press sources above state it [b2b-assessment-2026].
+Checked against the OJ text on 21 October 2026: Regulation (EU) 2026/1818 of 17 June 2026 on the welfare of dogs and cats and their traceability, OJ L 2026/1818, 10.8.2026, <https://eur-lex.europa.eu/eli/reg/2026/1818/oj/eng> [eurlex-2026-1818].
+- Published in the Official Journal on 10 August 2026; in force on the twentieth day after publication (30 August 2026) [eurlex-2026-1818, Art. 33; consilium-2026].
+- **Art. 8(4)(a)**: prohibits breeding between **parents and offspring, siblings, half-siblings, grandparents and grandchildren**, "unless approved by the competent authority based on a specific need to preserve local breeds with a limited genetic pool" [eurlex-2026-1818; ep-2026].
+- **Annex I point 3** (binding through Art. 16(2)(a) to (c)) [eurlex-2026-1818]:
+  - 3.2: "Female dogs shall not be used for breeding from before their second oestrus." There is **no minimum age in months** for dogs (cats: at least 10 months, 3.1). The press figure of 18 months [euroweekly-2026] is **not** in the text.
+  - 3.3: "A bitch or queen shall not produce more than three litters within a period of two years."
+  - 3.4: after three litters (stillborns included) within two years, a recuperation period of at least one year.
+  - 3.5: "Any bitch or queen that has undergone two caesarean sections shall no longer be used for breeding." (This confirms the claim in [b2b-assessment-2026].)
+  - 3.6: a bitch aged 8 or more must be examined by a veterinarian, who confirms in writing that she can be bred.
+- **Art. 5(1)**: breeders with at most two litters per calendar year are still bound by Art. 8 and Annex I point 3.
+- **Art. 33, application dates**: generally from 31 August 2028 (this covers Art. 8(4)); Art. 16, and with it Annex I point 3, from 31 August 2029; Art. 8(1) (genotype rules, delegated acts) from 1 July 2036. The press "4 years for breeders" and the "2036" date refer to these staggered dates; the text has no single transition period [euroweekly-2026; catster-2026].
 
 ### 2.2 FCI
 - FCI is a federation; national clubs keep studbooks and issue pedigrees. Limited registration is a tool against matador breeding [fci-strategies].
@@ -124,7 +131,7 @@ University of Zagreb Faculty of Veterinary Medicine and Faculty of Agriculture (
 |---|---|
 | bmvm-site | biomedvetmech.com (home, leadership, schedule pages) |
 | bmvm-submission | biomedvetmech.com/paper-submission |
-| eurlex-2026-1818 | eur-lex.europa.eu/eli/reg/2026/1818 |
+| eurlex-2026-1818 | Regulation (EU) 2026/1818, OJ L 2026/1818, 10.8.2026, https://eur-lex.europa.eu/eli/reg/2026/1818/oj/eng |
 | consilium-2026 | Council press release, 22 May 2026 |
 | ep-2026 | European Parliament press release 20260423IPR41833 |
 | euroweekly-2026 | Euro Weekly News, 2 May 2026 (secondary) |

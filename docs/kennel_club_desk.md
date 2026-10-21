@@ -98,12 +98,9 @@ found in the data, not typed in:
 - Changes to the planner, the recommender or the experiments.
 
 ## Open questions
-- **EU caesarean rule.** The desk specification said that EU 2026/1818 also bars breeding
-  after two caesareans. Only the project's B2B assessment says so: neither the regulation
-  text nor any other source in `docs/research.md` does. The rule is therefore **not** in the
-  EU profile, and a test keeps it out. If the Official Journal text confirms it, add
-  `eu_max_caesareans` (`max_caesareans`, n = 2, HARD) to `configs/rules/eu_2026_1818.yaml`
-  with the article and source `eurlex-2026-1818`, and update that test.
+- **EU caesarean rule (resolved 21 October 2026).** The Official Journal text confirms it
+  (Annex I point 3.5, binding through Art. 16(2)(a)). `eu_max_caesareans` (`max_caesareans`,
+  n = 2, HARD, source `eurlex-2026-1818`) is now in the EU profile.
 - **The B2B assessment is not in the repository.** Only its title is cited.
 - **Quota planning time.** Planning quotas for SYN_L takes about 26 s on a laptop the first time
   a SYN_L dam is chosen. Later choices use the cached result. The same applies to the Mate

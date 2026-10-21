@@ -17,7 +17,7 @@ from breeding_smarter.rules import (
     evaluate_pair,
     load_profile,
 )
-from breeding_smarter.rules.loader import rules_dir
+from breeding_smarter.rules.loader import load_spec, rules_dir
 from breeding_smarter.rules.models import Profile, RuleSpec
 from breeding_smarter.rules.types import RULE_TYPES, check_one
 from tests.fixtures.pedigrees import (
@@ -284,8 +284,8 @@ def test_hr_full_composition():
         "base_same_breed",
         "base_alive",
         "eu_close_relatives",
-        "eu_dam_min_age",
         "eu_dam_litter_frequency",
+        "eu_max_caesareans",
         "fci_registration_type",
         "fci_sire_quota",
         "hks_hd_exclusion",
@@ -304,8 +304,8 @@ def test_hr_full_composition():
 
 
 def test_kennel_club_desk_rules_and_unchanged_existing_rules():
-    """B2: new HKS rules are HARD, sourced and unverified; earlier rules unchanged; no EU
-    caesarean rule until it is confirmed in the Official Journal text."""
+    """B2: new HKS rules are HARD, sourced and unverified; earlier rules unchanged. EU rules
+    were checked against the Official Journal text (OJ L 2026/1818): verified, with articles."""
     sources = set(yaml.safe_load((rules_dir().parent / "sources.yaml").read_text())["sources"])
     hks = {r.id: r for r in load_profile("hks_hr").rules}
     eu = {r.id: r for r in load_profile("eu_2026_1818").rules}
@@ -323,10 +323,10 @@ def test_kennel_club_desk_rules_and_unchanged_existing_rules():
                                                         "missing": "allow"}, True),
         "hks_dam_min_age": ("min_age", {"sex": "F", "months": 15}, False),
         "hks_dam_max_age": ("max_age", {"sex": "F", "years": 8}, False),
-        "eu_close_relatives": ("relationship_ban", {"relationships": BAN}, False),
-        "eu_dam_min_age": ("min_age", {"sex": "F", "months": 18}, False),
+        "eu_close_relatives": ("relationship_ban", {"relationships": BAN}, True),
         "eu_dam_litter_frequency": ("max_litters_in_window", {"max": 3, "window_months": 24},
-                                    False),
+                                    True),
+        "eu_max_caesareans": ("max_caesareans", {"n": 2}, True),
     }  # fmt: skip
     rules = {**hks, **eu}
     for rid, (type_, params, verified) in old.items():
@@ -341,10 +341,10 @@ def test_kennel_club_desk_rules_and_unchanged_existing_rules():
         "hks_max_caesareans",
         "hks_one_litter_12m",
     }
-    assert set(eu) == {"eu_close_relatives", "eu_dam_min_age", "eu_dam_litter_frequency"}
-    for name in ("eu_2026_1818", "hr_full", "nl_full"):
-        caes = [r.id for r in load_profile(name).rules if r.type == "max_caesareans"]
-        assert all(r.startswith("hks_") for r in caes), (name, caes)
+    assert set(eu) == {"eu_close_relatives", "eu_dam_litter_frequency", "eu_max_caesareans"}
+    for r in eu.values():
+        assert r.source == "eurlex-2026-1818" and r.article, r.id
+    assert load_spec("eu_2026_1818").in_application_from == "2028-08-31"
 
 
 def test_status_aggregation():
