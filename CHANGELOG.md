@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 (2026-10-21)
+First public release for BioMedVetMech 2026 (Zagreb, 24 to 25 October 2026).
+- E9 and E10 experiments (in silico): budget ladder ("policy dial"), carrier-limit strength,
+  carrier x carrier pair block (`-hc`), true-kinship planning (`-oracle`), 25 to 75% of
+  breeders taking part. E8 replicated on an independent seed. Figures N and O; results:
+  `plan/gates/E9_report.md`.
 - E8 experiment (in silico): club quotas with a carrier limit (planned risk-allele
   transmission per tested locus at most 0.5 x the candidate mean) and/or gain OCS. New
   strategy ids `S3q[-gainNNN][-cBBB]`, `bsm experiment hypotheses --set e8`, figure M.
@@ -17,8 +22,6 @@
   Official Journal text confirms it.
 - Mate finder: "Respect club quotas" is on by default.
 
-## 0.1.0 (2026-10)
-First public release for BioMedVetMech 2026 (Zagreb, 24 to 25 October 2026).
 - Pedigree engine: Meuwissen and Luo inbreeding, Colleau kinship products, exact ancestor
   decomposition of kinship, mean kinship, Ne, founder statistics, completeness.
 - Seeded synthetic registry simulator with hidden history, market, imports, gene drop,
