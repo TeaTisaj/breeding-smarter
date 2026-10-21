@@ -4,17 +4,16 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import yaml
-
-from breeding_smarter.io.paths import configs_dir, repo_root
+from breeding_smarter.config.sourced import source_refs
+from breeding_smarter.io.paths import repo_root
 from breeding_smarter.rules.loader import available_profiles, load_profile, load_spec
 
 COMPOSITES = ("hr_full", "uk_full", "nl_full")
 
 
 def _sources() -> dict[str, str]:
-    data = yaml.safe_load((configs_dir() / "sources.yaml").read_text())["sources"]
-    return {k: v["ref"] for k, v in data.items()}
+    """Source key -> reference, as a Markdown link when `configs/sources.yaml` gives a `url`."""
+    return {k: f"[{ref}]({url})" if url else ref for k, (ref, url) in source_refs().items()}
 
 
 def render_catalogue() -> str:
@@ -26,8 +25,8 @@ def render_catalogue() -> str:
         "Rules marked **unverified** have not been checked against the primary legal text; the",
         "demo app shows an 'unverified' badge next to them.",
         "",
-        "| Profile | Rule | Type | Parameters | Severity | Source | Verified | Note |",
-        "|---|---|---|---|---|---|---|---|",
+        "| Profile | Rule | Type | Parameters | Severity | Source | Article | Verified | Note |",
+        "|---|---|---|---|---|---|---|---|---|",
     ]
     for name in available_profiles():
         spec = load_spec(name)
@@ -36,7 +35,7 @@ def render_catalogue() -> str:
             ver = "yes" if r.verified else "**unverified**"
             lines.append(
                 f"| {name} | {r.id} | {r.type} | {params} | {r.severity} | "
-                f"{r.source} | {ver} | {r.note or ''} |"
+                f"{r.source} | {r.article or ''} | {ver} | {r.note or ''} |"
             )
     lines += ["", "## Composite profiles", ""]
     for c in COMPOSITES:
@@ -92,6 +91,12 @@ def render_verification() -> str:
         "",
         "- [ ] HKS minimum interval between litters: add a `min_interval_between_litters` "
         "rule to `hks_hr.yaml` only if the Pravilnik states one.",
+        "- [ ] EU 2026/1818 Annex I 3.2: no breeding of a bitch before her second oestrus. "
+        "Needs oestrus records, which the registry schema does not have.",
+        "- [ ] EU 2026/1818 Annex I 3.4: at least one year of recuperation after three "
+        "litters (stillborns included) in two years. Needs a new rule type.",
+        "- [ ] EU 2026/1818 Annex I 3.6: veterinary check in writing before breeding a bitch "
+        "aged 8 or more (a manual check, not a ban).",
         "",
     ]
     return "\n".join(lines) + "\n"

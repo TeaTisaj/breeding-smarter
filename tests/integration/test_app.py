@@ -272,7 +272,8 @@ def test_desk_half_brother_is_blocked_and_cannot_be_submitted(bundle_path, monke
     at.button(key="desk_demo_blocked").click().run()
     assert not at.exception, [e.value for e in at.exception]
     blocked = [e.value for e in at.error if "Blocked: Ban on close-relative matings" in e.value]
-    assert blocked and "EU Regulation 2026/1818" in blocked[0] and "unverified" in blocked[0]
+    assert blocked and "EU Regulation 2026/1818" in blocked[0] and "unverified" not in blocked[0]
+    assert "Art. 8(4)(a)" in blocked[0] and "eur-lex.europa.eu/eli/reg/2026/1818" in blocked[0]
     assert at.button(key="desk_submit").disabled
 
 

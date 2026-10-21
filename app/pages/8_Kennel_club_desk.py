@@ -64,8 +64,8 @@ RULE_NAME = {
     "base_same_breed": "Sire and dam must be of the same breed",
     "base_alive": "Both parents must be alive on the mating date",
     "eu_close_relatives": "Ban on close-relative matings",
-    "eu_dam_min_age": "Minimum age of the dam",
     "eu_dam_litter_frequency": "Maximum number of litters of the dam",
+    "eu_max_caesareans": "Too many caesarean litters",
     "fci_registration_type": "Both parents need full registration",
     "hks_hd_exclusion": "Hip dysplasia grade excludes breeding",
     "hks_dam_min_age": "Minimum age of the dam",
@@ -94,6 +94,7 @@ def checks_table(a: desk.Assessment) -> pd.DataFrame:
             "severity": [c.severity for c in a.checks],
             "result": [c.message for c in a.checks],
             "source": [refs.get(c.source, c.source) for c in a.checks],
+            "article": [c.article or "" for c in a.checks],
             "verified": ["yes" if c.verified else "unverified" for c in a.checks],
         }
     )
@@ -105,7 +106,10 @@ def show_outcome(a: desk.Assessment) -> None:
         first = a.failed_hard[0]
         name = RULE_NAME.get(first.rule_id, first.rule_id)
         law = load_profile(first.profile).title if first.profile else ""
-        note = f"{law}{'' if first.verified else ' · unverified'}"
+        note = (
+            f"{law}{'' if first.verified else ' · unverified'}\n\n"
+            f"Source: {ui.citation(first.source, first.article)}"
+        )
         st.error(f"### {label}: {name}\n{note}\n\n{first.message}", icon="⛔")
     elif a.outcome == desk.Outcome.NEEDS_REVIEW:
         st.warning(f"### {label}\n" + "\n".join(f"- {r}" for r in a.reasons), icon="⚠️")
