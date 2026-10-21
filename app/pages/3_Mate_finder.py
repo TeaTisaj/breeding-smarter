@@ -94,15 +94,19 @@ table, cards, excluded, n_c, n_x, n_w = run(dam, date, profile, tuple(sorted(w.i
 
 
 @st.cache_data(show_spinner="Planning club quotas for the season...", max_entries=8)
-def season_quotas(breed: str, date: str) -> dict[int, int]:
+def season_quotas(
+    breed: str, date: str, mode: str, delta_f: float | None, carrier: float | None
+) -> dict[int, int]:
     from breeding_smarter.coordination.club import club_plan
 
-    cp = club_plan(ctx, breed, date)
+    cp = club_plan(ctx, breed, date, mode=mode.lower(), delta_f=delta_f, carrier_factor=carrier)
     return {int(s): int(q) for s, q in zip(cp.plan.sires, cp.plan.quotas, strict=True)}
 
 
 if quotas_on and len(table):
-    q = season_quotas(ctx.breed_of(dam), date)
+    pol = ui.club_policy()
+    q = season_quotas(ctx.breed_of(dam), date, pol["mode"], pol["delta_f"], pol["carrier"])
+    st.caption(ui.policy_line())
     table["quota left"] = table["sire_idx"].map(lambda s: q.get(int(s), 0))
     keep = table["quota left"] > 0
     st.caption(

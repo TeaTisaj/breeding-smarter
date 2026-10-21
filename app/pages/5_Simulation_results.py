@@ -1,8 +1,10 @@
 """Simulation results: does the recommender help? (in-silico, synthetic populations)"""
 
 import components as ui
+import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+from streamlit.errors import StreamlitPageNotFoundError
 from theme import STRATEGY_COLOURS
 
 CAPTION = "In-silico results on synthetic populations."
@@ -141,6 +143,50 @@ if "E5_coordination" in exps:
         "least-related mating without quotas was the worst option; random mating still kept "
         "more diversity in the medium breed."
     )
+e9 = ui.e9_means(str(bundle.path))
+E9_ROWS = (
+    ("Today's market (S1)", "S1"),
+    ("Plain club quotas (S3q)", "S3q"),
+    ("Quotas + hips budget 0.1% + carrier limit", "S3q-gain010-c050"),
+)
+if e9 is not None and {sid for _, sid in E9_ROWS} <= set(e9.index):
+    st.subheader("Health and hips inside club quotas (E8 to E10)")
+    s1 = e9.loc["S1"]
+    st.dataframe(
+        pd.DataFrame(
+            [
+                {
+                    "strategy": label,
+                    "Ne (higher is better)": f"{e9.loc[sid, 'Ne']:.0f}",
+                    "Ne vs market": f"{e9.loc[sid, 'Ne'] - s1['Ne']:+.0f}",
+                    "hip breeding value (lower is better)": f"{e9.loc[sid, 'HD']:+.2f}",
+                    "hips vs market": f"{e9.loc[sid, 'HD'] - s1['HD']:+.2f}",
+                    "disease-allele frequency": f"{100 * e9.loc[sid, 'freq']:.1f}%",
+                    "disease alleles vs market": (
+                        f"{100 * (e9.loc[sid, 'freq'] - s1['freq']):+.1f} points"
+                    ),
+                }
+                for label, sid in E9_ROWS
+            ]
+        ),
+        hide_index=True,
+        width="stretch",
+    )
+    st.markdown(
+        "Synthetic medium breed, generation 10, 20 replicates (E9, an independent seed; E8 gave "
+        "the same result). Plain quotas protect diversity but let disease alleles rise; adding "
+        "a hips budget and a carrier limit beats today's market on diversity, hips and disease "
+        "alleles at once. The club chooses the budget on the Club planner.\n\n"
+        "**Honestly:** the carrier limit needs most breeders to take part (at 50% the health "
+        "gain disappears), and planning on true kinship did not raise diversity here. "
+        "Pre-registered criteria and results: `plan/gates/E9_report.md`."
+    )
+    try:  # page links resolve only in the multipage app started from Home.py
+        st.page_link("pages/7_Club_planner.py", label="Open the policy dial", icon="🎚️")
+    except StreamlitPageNotFoundError:
+        st.caption("The policy dial is on the Club planner page.")
+    st.caption(CAPTION)
+
 t10 = summ[
     (summ["generation"] == 10)
     & (summ["adoption"] == 1.0)

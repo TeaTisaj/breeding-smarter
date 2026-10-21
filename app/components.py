@@ -19,6 +19,62 @@ from breeding_smarter.matching import DatasetContext, ScoreCard
 
 BANNER = "Synthetic data: no real dogs. Proof of concept."
 DEMO_DATE = "2026-11-01"
+GITHUB = "https://github.com/TeaTisaj/breeding-smarter"
+RELEASE = f"{GITHUB}/releases/tag/v0.1.0"
+
+# The club's quota policy for this browser session: set on the Club planner, used by the Mate
+# finder and the Kennel club desk, so all three tools work inside the same plan.
+POLICY_KEY = "club_policy"
+DEFAULT_POLICY = {"mode": "OCS", "budget": "lowest possible", "delta_f": None, "carrier": None}
+
+
+def club_policy() -> dict:  # type: ignore[type-arg]
+    return dict(st.session_state.get(POLICY_KEY, DEFAULT_POLICY))
+
+
+def set_club_policy(mode: str, budget: str, delta_f: float | None, carrier: float | None) -> None:
+    st.session_state[POLICY_KEY] = {
+        "mode": mode,
+        "budget": budget,
+        "delta_f": delta_f,
+        "carrier": carrier,
+    }
+
+
+def policy_line() -> str:
+    p = club_policy()
+    if p["mode"] == "cap":
+        what = "simple caps per sire"
+    elif p["delta_f"] is None:
+        what = "lowest possible inbreeding"
+    else:
+        what = f"inbreeding budget {p['budget']} per generation, carrier limit on"
+    return f"Club policy: {what} (set on the Club planner)."
+
+
+@st.cache_data(show_spinner=False)
+def e9_means(bundle_path: str) -> pd.DataFrame | None:
+    """Generation-10 means per E9 arm, SYN_M: Ne, hip breeding value (HD), disease-allele freq."""
+    pr = Bundle(Path(bundle_path)).experiment_table(
+        "E9_policy_dial", "per_generation_replicates.csv.gz"
+    )
+    if pr is None:
+        return None
+    g = pr[(pr["breed"] == "SYN_M") & (pr["generation"] == 10) & (pr["adoption"] == 1.0)]
+    if g.empty:
+        return None
+    rows = []
+    for sid, sub in g.groupby("strategy"):
+        freq = sub[sub["metric"].str.startswith("M6_freq_")].groupby("replicate")["value"].sum()
+        rows.append(
+            {
+                "strategy": sid,
+                "Ne": sub[sub["metric"] == "R_ne_f_late"]["value"].mean(),
+                "HD": sub[sub["metric"] == "M8_mean_tbv_hd"]["value"].mean(),
+                "freq": freq.mean(),
+            }
+        )
+    return pd.DataFrame(rows).set_index("strategy")
 
 
 def page(title: str) -> None:
