@@ -216,6 +216,167 @@ def e9() -> dict[str, str]:
     return out
 
 
+def _fmt_ci(est: float, lo: float, hi: float, scale: float, fmt: str) -> tuple[str, str]:
+    """Estimate and interval; a bound that rounds to zero keeps one decimal (+0.3, not +0)."""
+
+    def f(x: float) -> str:
+        s = fmt.format(scale * x)
+        return f"{scale * x:+.1f}" if s in ("+0", "-0") and scale * x != 0 else s
+
+    return f(est), f"{f(lo)} to {f(hi)}"
+
+
+def paper() -> dict[str, str]:
+    """Numbers for the proceedings paper (E1b, E5, E8, E9, E11), read from the hypotheses and
+    paired tables by (id, breed, quantity); a missing row raises, nothing is typed by hand."""
+    base = ROOT / "reports" / "experiments"
+    if not (base / "E11_hypotheses" / "hypotheses.csv").exists():
+        return {}
+    out: dict[str, str] = {}
+    tables = {
+        e: pd.read_csv(base / f"{e}_hypotheses" / "hypotheses.csv") for e in ("E8", "E9", "E11")
+    }
+
+    def row(e: str, hid: str, breed: str, quantity: str) -> pd.Series:
+        t = tables[e]
+        sel = t[(t["id"] == hid) & (t["breed"] == breed) & (t["quantity"] == quantity)]
+        assert len(sel) == 1, (e, hid, breed, quantity, len(sel))
+        return sel.iloc[0]
+
+    def put(key: str, r: pd.Series, scale: float = 1, fmt: str = "{:+.0f}") -> None:
+        out[f"{key}_est"], out[f"{key}_ci"] = _fmt_ci(r["estimate"], r["lo"], r["hi"], scale, fmt)
+
+    def paired(exp: str, breed: str, sid: str, metric: str) -> pd.Series:
+        p = pd.read_csv(base / exp / "paired_vs_S1.csv")
+        sel = p[(p["breed"] == breed) & (p["strategy"] == sid) & (p["generation"] == 10)
+                & (p["metric"] == metric)]  # fmt: skip
+        assert len(sel) == 1, (exp, breed, sid, metric)
+        r = sel.iloc[0]
+        return pd.Series({"estimate": r["diff_mean"], "lo": r["lo"], "hi": r["hi"]})
+
+    # herding in E5 (10-generation trend Ne) and the E1b weight check
+    for b in ("SYN_S", "SYN_M"):
+        put(f"pp_e5_s3_m3ne_{b[-1]}", paired("E5_coordination", b, "S3", "M3_ne"))
+    from breeding_smarter.experiments import hypotheses as hy
+
+    # E1b has only S3 (sire-use weight 0.25); same seed and dataset as E1, so it pairs with E1's S1
+    e1b_s3 = hy._val(hy._per_rep("E1b_balanced_weights"), "SYN_M", "S3", "M3_ne")
+    est, lo, hi, _ = hy._paired(e1b_s3, hy._val(hy._per_rep("E1_headline"), "SYN_M", "S1", "M3_ne"))
+    out["pp_e1b_s3_m3ne_M_est"], out["pp_e1b_s3_m3ne_M_ci"] = _fmt_ci(est, lo, hi, 1, "{:+.0f}")
+    e1b = pd.read_csv(base / "E1b_balanced_weights" / "summary.csv")
+    m = e1b[(e1b["breed"] == "SYN_M") & (e1b["strategy"] == "S3") & (e1b["generation"] == 10)
+            & (e1b["metric"] == "M10_share_sires_used") & (e1b["adoption"] == 1.0)]  # fmt: skip
+    out["pp_e1b_males_M"] = pct(float(m["mean"].iloc[0]))
+
+    # E8 (first seed) and E9 (replication)
+    arm = "S3q-gain010-c050"
+    put("pp_e8_ne", row("E8", "H8a", "SYN_M", f"Ne late: {arm} - S1"))
+    put("pp_e8_hd", row("E8", "H8b", "SYN_M", f"true HD breeding value (gen 10): {arm} - S1"),
+        fmt="{:+.2f}")  # fmt: skip
+    h8c = tables["E8"][(tables["E8"]["id"] == "H8c") & (tables["E8"]["breed"] == "SYN_M")]
+    put("pp_e8_freq", h8c.iloc[0], 100, "{:+.1f}")
+    for budget in ("025", "050"):
+        sid = f"S3q-gain{budget}-c050"
+        put(f"pp_e9_ne_g{budget}", row("E9", "H9-curve", "SYN_M", f"Ne: {sid} - S1"))
+        put(f"pp_e9_hd_g{budget}", row("E9", "H9-curve", "SYN_M", f"HD: {sid} - S1"), fmt="{:+.2f}")
+    put("pp_e9_hc_freq", row("E9", "H9-hc", "SYN_M", f"freq: {arm} - S3q-gain010-hc"), 100,
+        "{:+.1f}")  # fmt: skip
+    put("pp_e9_hc_ne", row("E9", "H9-hc-support", "SYN_M", f"Ne late: {arm} - S3q-gain010-hc"))
+    put(
+        "pp_e9_hc_block_vs_none",
+        row("E9", "H9-hc-support", "SYN_M", "freq: S3q-gain010-hc - S3q-gain010"),
+        100,
+        "{:+.1f}",
+    )
+
+    # E11
+    pops = ("v1", "v1b", "v1c", "v1d")
+    for b in ("SYN_S", "SYN_M"):
+        k = b[-1]
+        for pop in pops:
+            put(f"pp_e11_{pop}_males_{k}", row("E11", "H11-pop-a", b, f"{pop}: S3 - S1 males used"),
+                100, "{:+.1f}")  # fmt: skip
+            put(f"pp_e11_{pop}_s3q_ne_{k}", row("E11", "H11-pop-b", b, f"{pop}: S3q - S1 Ne late"))
+            for q, scale, fmt in (("Ne", 1, "{:+.0f}"), ("HD", 1, "{:+.2f}"),
+                                  ("freq", 100, "{:+.1f}")):  # fmt: skip
+                put(f"pp_e11_{pop}_arm_{q.lower()}_{k}",
+                    row("E11", "H11-pop-c", b, f"{pop}: {arm} - S1 {q}"), scale, fmt)  # fmt: skip
+        for c, label in (("a", "S3 - S1 males used"), ("b", "S3q - S1 Ne late"),
+                         ("c", f"{arm} - S1 Ne, HD, freq")):  # fmt: skip
+            t = tables["E11"]
+            sel = t[(t["id"] == f"H11-pop-{c}") & (t["breed"] == b)
+                    & t["quantity"].str.startswith(f"{label}: holds in")]  # fmt: skip
+            out[f"pp_e11_held_{c}_{k}"] = sel["quantity"].iloc[0].split("holds in ")[1]
+        put(f"pp_e11_pooled_males_{k}",
+            row("E11", "H11-pop-pooled", b, "S3 - S1 males used (pooled, population as stratum)"),
+            100, "{:+.1f}")  # fmt: skip
+        put(
+            f"pp_e11_pooled_s3q_ne_{k}",
+            row("E11", "H11-pop-pooled", b, "S3q - S1 Ne late (pooled, population as stratum)"),
+        )
+        put(
+            f"pp_e11_pooled_arm_ne_{k}",
+            row("E11", "H11-pop-pooled", b, f"{arm} - S1 Ne late (pooled, population as stratum)"),
+        )
+        for ctl in ("cap", "mkx"):
+            put(f"pp_e11_cap_{ctl}_{k}", row("E11", "H11-cap", b, f"Ne late: S3q - S3q-{ctl}"))
+        for f in ("t1", "", "u5"):
+            suf, tag = (f"-{f}", f) if f else ("", "def")
+            put(
+                f"pp_e11_free_males_{tag}_{k}",
+                row("E11", "H11-free-a", b, f"S3{suf} - S1 males used"),
+                100,
+                "{:+.1f}",
+            )
+            put(f"pp_e11_free_ne_{tag}_{k}", row("E11", "H11-free-b", b, f"S3q{suf} - S1 Ne late"))
+    fa = f"{arm}f"
+    for ad in ("0.25", "0.5", "0.75", "1"):
+        tag = ad.replace(".", "")
+        hid = "H11-adopt" if ad == "0.5" else "H11-adopt-other"
+        q = f"freq: {fa} at adoption {ad} - S1"
+        put(f"pp_e11_adopt_freq_{tag}", row("E11", hid, "SYN_M", q), 100, "{:+.1f}")
+        put(
+            f"pp_e11_adopt_ne_{tag}",
+            row("E11", "H11-adopt-support", "SYN_M", f"Ne: {fa} at adoption {ad} - S1"),
+        )
+        put(
+            f"pp_e11_adopt_hd_{tag}",
+            row("E11", "H11-adopt-support", "SYN_M", f"HD: {fa} at adoption {ad} - S1"),
+            fmt="{:+.2f}",
+        )
+    from breeding_smarter.experiments.runner import load_results
+
+    d10 = load_results(hy.E11C)
+    d10 = d10[d10["metric"] == "D10_carrier_relaxed"]
+    for (sid, ad), g in d10.groupby(["strategy", "adoption"]):
+        tag = ("new" if sid.endswith("f") else "old") + f"_a{round(100 * ad)}"
+        out[f"pp_e11_dropped_{tag}"] = pct(float(g["value"].mean()), 0)
+    # additional (not pre-registered): S3 - S1 Ne on the 10-generation trend, per population
+    for pop, e in hy.E11_POPS.items():
+        pr = hy._per_rep(e)
+        for b in ("SYN_S", "SYN_M"):
+            est, lo, hi, _ = hy._paired(
+                hy._val(pr, b, "S3", "M3_ne"), hy._val(pr, b, "S1", "M3_ne")
+            )
+            out[f"pp_e11_{pop}_s3_m3ne_{b[-1]}_est"], out[f"pp_e11_{pop}_s3_m3ne_{b[-1]}_ci"] = (
+                _fmt_ci(est, lo, hi, 1, "{:+.0f}")
+            )
+    # populations: validation of v1b to v1d and recorded-pedigree Ne (T07)
+    tags = yaml.safe_load((ROOT / "configs" / "datasets.yaml").read_text())["datasets"]
+    for pop in pops:
+        rid = tags[pop]["run_id"]
+        rows = list(csv.DictReader((ROOT / "reports" / "validation" / rid
+                                    / "targets_vs_simulated.csv").open()))  # fmt: skip
+        st = pd.Series([r["status"] for r in rows if r["status"] != "REPORT"]).value_counts()
+        out[f"pp_val_{pop}"] = f"{st.get('PASS', 0)} PASS, {st.get('WARN', 0)} WARN, " + (
+            f"{st.get('FAIL', 0)} FAIL"
+        )
+        get = {(r["id"], r["breed"], r["component"]): r["value"] for r in rows}
+        for b in ("SYN_S", "SYN_M"):
+            out[f"pp_t07_{pop}_{b[-1]}"] = f"{float(get[('T07', b, 'ne')]):.0f}"
+    return out
+
+
 def benchmark() -> dict[str, str]:
     text = (ROOT / "reports" / "benchmarks" / "engine.md").read_text()
     row = re.search(r"\| 250,000 \| ([\d.]+) \| ([\d.]+) \| ([\d.]+) \| ([\d.]+) \|", text)
@@ -246,6 +407,7 @@ def main() -> None:
         demo(),
         p12(),
         e9(),
+        paper(),
     ):
         numbers.update(part)
     links = yaml.safe_load((ROOT / "conference" / "links.yaml").read_text())
