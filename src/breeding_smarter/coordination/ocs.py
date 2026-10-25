@@ -19,8 +19,10 @@ one litter to each of the youngest `n_age_classes` non-empty age classes
 least their unweighted mean [wellmann-2019]; optionally (E8) a carrier limit per tested locus l,
 `sum_i x_i t_il <= b_l` with `t_il` the probability that sire i transmits the risk allele
 (`docs/research_coordination.md`: health goals as linear constraints; OCS alone keeps recessives
-at heterozygous frequencies [de-cara-2013]). A constraint that makes the problem infeasible is
-dropped (carrier first, then age classes, then depth) and reported in `relaxed`.
+at heterozygous frequencies [de-cara-2013]). With `carrier_free_only` (E11) the limit covers only
+the free litters: `sum_i (x_i - f_i) t_il <= b_l (1 - sum_i f_i)`, `f = fixed / n`. A constraint
+that makes the problem infeasible is dropped (carrier first, then age classes, then depth) and
+reported in `relaxed`.
 """
 
 from __future__ import annotations
@@ -51,6 +53,7 @@ class OCSProblem:
     depth: bool = True
     carrier_t: FloatArray | None = None  # (m, L) risk-allele transmission per sire and locus
     carrier_bound: FloatArray | None = None  # (L,) upper bound of x't per locus
+    carrier_free_only: bool = False  # E11: bound only the litters not fixed by non-adopters
 
     @property
     def has_carrier(self) -> bool:
@@ -132,7 +135,12 @@ def _constraints(p: OCSProblem, x: cp.Variable, drop: set[str]) -> list[cp.Const
             cons.append(x @ np.asarray(p.eqg, float) >= target)
     if "carrier" not in drop and p.has_carrier:
         t = np.asarray(p.carrier_t, float)
-        cons.append(t.T @ x <= np.asarray(p.carrier_bound, float))
+        b = np.asarray(p.carrier_bound, float)
+        if p.carrier_free_only and p.fixed_sire_litters is not None:
+            f = np.asarray(p.fixed_sire_litters, float) / p.n_dams
+            cons.append(t.T @ (x - f) <= b * (1.0 - f.sum()))
+        else:
+            cons.append(t.T @ x <= b)
     return cons
 
 

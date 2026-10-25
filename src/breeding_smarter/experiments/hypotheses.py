@@ -7,6 +7,9 @@ Writes `reports/experiments/P12_hypotheses.md` and `.csv`. In-silico results onl
 
 E8 (plan/14_E8_health_gain_quotas.md): criteria H8a to H8f from the E8 per-replicate table,
 generation 10, written to `reports/experiments/E8_hypotheses/`.
+
+E11 (plan/16_E11_paper_robustness.md): H11-pop over four populations, H11-cap, H11-free and
+H11-adopt, written to `reports/experiments/E11_hypotheses/`.
 """
 
 from __future__ import annotations
@@ -25,6 +28,10 @@ E5, E6, E7 = "E5_coordination", "E6_budget_and_kinship", "E7_adoption_quotas"
 E8 = "E8_health_gain_quotas"
 E9, E10 = "E9_policy_dial", "E10_robustness"
 E9_ARM = "S3q-gain010-c050"  # the E8 winner, replicated in E9
+E11_POPS = {p: f"E11a_pop_{p}" for p in ("v1", "v1b", "v1c", "v1d")}
+E11B, E11C = "E11b_controls_freedom", "E11c_adoption"
+E11_FREEDOM = ("t1", "", "u5")  # "" = default 0.5 / 0.3 / 0.2
+E11_MARGIN = 0.2  # equivalence margin for H11-cap, share of mean S3q Ne (assumption, plan 16)
 BREEDS = ("SYN_S", "SYN_M")
 CONTROLS = ("none", "mkx", "cap", "ocs")
 MATINGS = ("rand", "mc1")
@@ -46,9 +53,13 @@ def _val(pr: pd.DataFrame, breed: str, sid: str, metric: str, adoption: float = 
     return s.set_index("replicate")["value"]
 
 
-def _paired(a: pd.Series, b: pd.Series) -> tuple[float, float, float, int]:
+def _diffs(a: pd.Series, b: pd.Series) -> np.ndarray:
     d = (a - b.reindex(a.index)).to_numpy(dtype=float)
-    d = d[np.isfinite(d)]
+    return d[np.isfinite(d)]
+
+
+def _paired(a: pd.Series, b: pd.Series) -> tuple[float, float, float, int]:
+    d = _diffs(a, b)
     m, lo, hi = t_interval(d)
     return m, lo, hi, int(d.size)
 
@@ -474,5 +485,199 @@ def write_e9_report() -> Path:
         lines += ["", "### E10", "", *e8_diagnostics(E10)]
     figs = fig_n(pr9, out) + fig_o(pr9, pr10, out)
     lines += ["", "## Figures", "", *(f"- `{f.name}`" for f in figs if f.suffix == ".png"), ""]
+    (out / "hypotheses.md").write_text("\n".join(lines))
+    return out / "hypotheses.md"
+
+
+# ---------------------------------------------------------------- E11
+
+
+def cap_reading(lo: float, hi: float, ref_ne: float, margin: float = E11_MARGIN) -> str:
+    """H11-cap reading of the interval of `Ne(S3q) - Ne(simple control)` (plan 16 §6)."""
+    if lo > 0:
+        return "OCS better"
+    if hi < 0:
+        return "simple control better"
+    if max(abs(lo), abs(hi)) <= margin * ref_ne:
+        return "as good"
+    return "inconclusive"
+
+
+def _arm_values(pr: pd.DataFrame, b: str, sid: str, ad: float = 1.0) -> dict[str, pd.Series]:
+    return {
+        "Ne": _val(pr, b, sid, "R_ne_f_late", ad),
+        "Ne_c": _val(pr, b, sid, "R_ne_c_late", ad),
+        "HD": _val(pr, b, sid, "M8_mean_tbv_hd", ad),
+        "freq": _summed(pr, b, sid, "M6_freq_", ad),
+        "males": _val(pr, b, sid, "M10_share_sires_used", ad),
+    }
+
+
+def evaluate_e11(
+    pops: dict[str, pd.DataFrame], prb: pd.DataFrame | None, prc: pd.DataFrame | None
+) -> pd.DataFrame:
+    """Rows id, breed, quantity, estimate, lo, hi, n, pass, reading (plan 16 §6)."""
+    rows: list[dict[str, Any]] = []
+
+    def add(
+        h: str,
+        b: str,
+        q: str,
+        d: tuple[float, float, float, int] = (np.nan, np.nan, np.nan, 0),
+        ok: bool | None = None,
+        reading: str = "",
+    ) -> None:
+        m, lo, hi, n = d
+        rows.append(
+            {"id": h, "breed": b, "quantity": q, "estimate": m, "lo": lo, "hi": hi, "n": n,
+             "pass": ok, "reading": reading}
+        )  # fmt: skip
+
+    def ne_pair(
+        h: str, b: str, label: str, x: dict[str, pd.Series], y: dict[str, pd.Series]
+    ) -> tuple[float, float, float, int]:
+        """Ne late (realised IBD) plus the coancestry cross-check; returns the IBD interval."""
+        d = _paired(x["Ne"], y["Ne"])
+        add(f"{h}-support", b, f"Ne late (coancestry): {label}", _paired(x["Ne_c"], y["Ne_c"]))
+        return d
+
+    # H11-pop: per population, then count, pooled and range
+    contrasts = {
+        "a": ("S3", "S3 - S1 males used"),
+        "b": ("S3q", "S3q - S1 Ne late"),
+        "c": (E9_ARM, f"{E9_ARM} - S1 Ne, HD, freq"),
+    }
+    for b in BREEDS:
+        held = {k: 0 for k in contrasts}
+        pooled: dict[str, list[np.ndarray]] = {"a": [], "b": [], "c": []}
+        est: dict[str, list[float]] = {"a": [], "b": [], "c": []}
+        n_pops = 0
+        for pop, pr in pops.items():
+            s1 = _arm_values(pr, b, "S1")
+            if not s1["Ne"].size:
+                continue
+            n_pops += 1
+            s3, s3q, arm = (_arm_values(pr, b, s) for s in ("S3", "S3q", E9_ARM))
+            da = _paired(s3["males"], s1["males"])
+            ok_a = bool(da[2] < 0)
+            add("H11-pop-a", b, f"{pop}: S3 - S1 males used", da, ok_a)
+            db = ne_pair("H11-pop-b", b, f"{pop}: S3q - S1", s3q, s1)
+            ok_b = bool(db[1] > 0)
+            add("H11-pop-b", b, f"{pop}: S3q - S1 Ne late", db, ok_b)
+            dc = {k: _paired(arm[k], s1[k]) for k in ("Ne", "HD", "freq")}
+            ne_pair("H11-pop-c", b, f"{pop}: {E9_ARM} - S1", arm, s1)
+            for k, v in dc.items():
+                add("H11-pop-c", b, f"{pop}: {E9_ARM} - S1 {k}", v)
+            ok_c = bool(dc["Ne"][1] > 0 and dc["HD"][2] < 0 and dc["freq"][2] < 0)
+            for k, ok in (("a", ok_a), ("b", ok_b), ("c", ok_c)):
+                held[k] += ok
+            for k, (x, y, metric) in {
+                "a": (s3, s1, "males"), "b": (s3q, s1, "Ne"), "c": (arm, s1, "Ne"),
+            }.items():  # fmt: skip
+                pooled[k].append(_diffs(x[metric], y[metric]))
+                est[k].append(float(np.mean(pooled[k][-1])) if pooled[k][-1].size else np.nan)
+        if not n_pops:
+            continue
+        for k, (_, label) in contrasts.items():
+            verdict = held[k] >= 3 if b == "SYN_M" else None
+            add(f"H11-pop-{k}", b, f"{label}: holds in {held[k]} of {n_pops}", ok=verdict)
+            all_d = np.concatenate(pooled[k])
+            add("H11-pop-pooled", b, f"{label} (pooled, population as stratum)",
+                (*t_interval(all_d), int(all_d.size)))  # fmt: skip
+            add("H11-pop-range", b, f"{label}: min and max of population estimates",
+                (np.nan, float(np.nanmin(est[k])), float(np.nanmax(est[k])), n_pops))  # fmt: skip
+
+    if prb is not None:
+        for b in BREEDS:
+            s1 = _arm_values(prb, b, "S1")
+            s3q = _arm_values(prb, b, "S3q")
+            if not s1["Ne"].size:
+                continue
+            ref = float(np.nanmean(s3q["Ne"]))
+            for ctl in ("cap", "mkx"):
+                x = _arm_values(prb, b, f"S3q-{ctl}")
+                if not x["Ne"].size:
+                    continue
+                d = ne_pair("H11-cap", b, f"S3q - S3q-{ctl}", s3q, x)
+                add("H11-cap", b, f"Ne late: S3q - S3q-{ctl}", d,
+                    reading=cap_reading(d[1], d[2], ref))  # fmt: skip
+            ok_a = ok_b = True
+            for f in E11_FREEDOM:
+                suf = f"-{f}" if f else ""
+                x3, xq = _arm_values(prb, b, f"S3{suf}"), _arm_values(prb, b, f"S3q{suf}")
+                da = _paired(x3["males"], s1["males"])
+                db = ne_pair("H11-free-b", b, f"S3q{suf} - S1", xq, s1)
+                add("H11-free-a", b, f"S3{suf} - S1 males used", da, bool(da[2] < 0))
+                add("H11-free-b", b, f"S3q{suf} - S1 Ne late", db, bool(db[1] > 0))
+                ok_a, ok_b = ok_a and bool(da[2] < 0), ok_b and bool(db[1] > 0)
+            m = b == "SYN_M"
+            add("H11-free-a", b, "S3-x - S1 males used < 0 for every x", ok=ok_a if m else None)
+            add("H11-free-b", b, "S3q-x - S1 Ne late > 0 for every x", ok=ok_b if m else None)
+
+        if prc is not None:
+            b = "SYN_M"
+            s1 = _arm_values(prb, b, "S1")
+            for ad in (0.25, 0.5, 0.75, 1.0):
+                new = _arm_values(prc, b, f"{E9_ARM}f", ad)
+                old = _arm_values(prc, b, E9_ARM, ad)
+                if not new["Ne"].size:
+                    continue
+                d = _paired(new["freq"], s1["freq"])
+                h = "H11-adopt" if ad == 0.5 else "H11-adopt-other"
+                add(h, b, f"freq: {E9_ARM}f at adoption {ad:g} - S1", d,
+                    bool(d[2] < 0) if ad == 0.5 else None)  # fmt: skip
+                for k in ("Ne", "HD"):
+                    add("H11-adopt-support", b, f"{k}: {E9_ARM}f at adoption {ad:g} - S1",
+                        _paired(new[k], s1[k]))  # fmt: skip
+                ne_pair("H11-adopt", b, f"{E9_ARM}f at adoption {ad:g} - S1", new, s1)
+                add("H11-adopt-support", b, f"freq: {E9_ARM}f - {E9_ARM} at adoption {ad:g}",
+                    _paired(new["freq"], old["freq"]))  # fmt: skip
+    return pd.DataFrame(rows)
+
+
+def carrier_dropped_lines(exp_id: str = E11C) -> list[str]:
+    """Share of seasons with the carrier limit dropped, per strategy and adoption level."""
+    lines = ["| strategy | adoption | seasons | carrier limit dropped |", "|---|---|---|---|"]
+    try:
+        df = load_results(exp_id)
+    except (ValueError, FileNotFoundError):
+        return lines
+    d = df[df["metric"] == "D10_carrier_relaxed"]
+    for (sid, ad), g in d.groupby(["strategy", "adoption"]):
+        v = g["value"].to_numpy(dtype=float)
+        lines.append(f"| {sid} | {ad:g} | {v.size} | {100 * v.mean():.0f}% |")
+    return lines
+
+
+def write_e11_report() -> Path:
+    def read(exp_id: str) -> pd.DataFrame | None:
+        p = report_dir(exp_id) / "per_generation_replicates.csv.gz"
+        return pd.read_csv(p) if p.exists() else None
+
+    pops = {k: pr for k, e in E11_POPS.items() if (pr := read(e)) is not None}
+    table = evaluate_e11(pops, read(E11B), read(E11C))
+    out = report_dir("E11_hypotheses")
+    out.mkdir(parents=True, exist_ok=True)
+    table.to_csv(out / "hypotheses.csv", index=False)
+    lines = [
+        "# E11 pre-registered criteria (in-silico results on synthetic populations)",
+        "",
+        "Pre-registration: `plan/16_E11_paper_robustness.md`. Generation 10 (Ne: late window, "
+        "generations 5 to 10); paired by replicate (same seeds); 95% t-intervals. Frequencies "
+        "and shares of males used in %. Pooled intervals treat replicates as independent and "
+        "understate between-population variation; range rows list the lowest (lo) and highest "
+        "(hi) population estimate.",
+        "",
+        "| id | breed | quantity | estimate | lo | hi | n | pass | reading |",
+        "|---|---|---|---|---|---|---|---|---|",
+    ]
+    for _, r in table.iterrows():
+        pct = any(w in r["quantity"] for w in ("freq", "males used"))
+        ok = "" if r["pass"] is None or pd.isna(r["pass"]) else ("yes" if r["pass"] else "no")
+        lines.append(
+            f"| {r['id']} | {r['breed']} | {r['quantity']} | {_fmt(r['estimate'], pct)} | "
+            f"{_fmt(r['lo'], pct)} | {_fmt(r['hi'], pct)} | {r['n']} | {ok} | {r['reading']} |"
+        )
+    lines += ["", "## Carrier limit dropped (E11c)", "", *carrier_dropped_lines(), ""]
     (out / "hypotheses.md").write_text("\n".join(lines))
     return out / "hypotheses.md"

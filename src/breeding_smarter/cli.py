@@ -460,18 +460,24 @@ def experiment_report(
 
 @experiment_app.command("hypotheses")
 def experiment_hypotheses(
-    which: str = typer.Option("p12", "--set", help="p12 (H1-H6), e8 (H8a-H8f) or e9 (E9, E10)."),
+    which: str = typer.Option(
+        "p12", "--set", help="p12 (H1-H6), e8 (H8a-H8f), e9 (E9, E10) or e11 (E11)."
+    ),
 ) -> None:
-    """Evaluate pre-registered criteria: P12 (E5, E6), E8 or E9/E10 (plan/14_*, plan/15_*)."""
+    """Evaluate pre-registered criteria: P12 (E5, E6), E8, E9/E10 or E11 (plan/14_* to 16_*)."""
     from breeding_smarter.experiments.hypotheses import (
         write_e8_report,
         write_e9_report,
+        write_e11_report,
         write_report,
     )
 
-    writers = {"p12": write_report, "e8": write_e8_report, "e9": write_e9_report}
+    writers = {
+        "p12": write_report, "e8": write_e8_report, "e9": write_e9_report,
+        "e11": write_e11_report,
+    }  # fmt: skip
     if which not in writers:
-        raise typer.BadParameter("--set must be p12, e8 or e9")
+        raise typer.BadParameter("--set must be p12, e8, e9 or e11")
     console.print(f"wrote {writers[which]()}")
 
 

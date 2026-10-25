@@ -19,6 +19,9 @@
 | S3q-gainNNN, S3q[-gainNNN]-cBBB | E8: S3q with quotas from gain OCS (dF = NNN / 10^4) and/or a
        carrier limit (planned risk-allele transmission <= BBB / 100 x candidate mean per locus) |
 | S3q...-hc, S3q...-oracle | E9/E10: carrier x carrier pairs HARD-blocked; true kinship |
+| S3q-cap, S3q-mkx | E11: the recommender inside MK-scaled caps or MK exclusion instead of OCS |
+| S3q...-cBBBf | E11: carrier limit on the adopters' own litters only |
+| S3-t1, S3-u5, S3q...-t1, S3q...-u5 | E11: breeders take the top sire, or one of the top 5 |
 
 Candidate sires are the simulator's eligible domestic males plus eligible foreign males that
 already have a registry record (a breeder can only evaluate dogs with a record). The market
@@ -50,6 +53,7 @@ from breeding_smarter.sim.market import MarketStrategy, sample_rows
 from breeding_smarter.sim.state import DOMESTIC
 
 HARD_COST = 1e6
+FREEDOM = {"t1": (1.0,), "u5": (0.2,) * 5}  # E11 breeder freedom (assumptions, plan 16 §3)
 
 
 @dataclass
@@ -324,9 +328,11 @@ class RecommenderWithQuotas(CoordinatedBase, Recommender):
         delta_f: float | None = None,
         carrier_factor: float | None = None,
         name: str = "S3q",
+        carrier_free_only: bool = False,
     ):
         Recommender.__init__(self, params, scoring)
         self.control, self.delta_f, self.carrier_factor = control, delta_f, carrier_factor
+        self.carrier_free_only = carrier_free_only
         self.name = name
         self.truth = None
         self.last_plan = None
@@ -366,6 +372,7 @@ class RecommenderWithQuotas(CoordinatedBase, Recommender):
             fixed=fixed,
             prev_matings=self.prev_matings(ctx) if self.control == "ocs_gain" else None,
             carrier_factor=self.carrier_factor,
+            carrier_free_only=self.carrier_free_only,
             rng=rng,
         )
         assert plan.quotas is not None
@@ -421,29 +428,39 @@ def parse_cc(sid: str) -> tuple[str, str, bool, float | None]:
 
 
 class S3qSpec(NamedTuple):
-    control: str  # "ocs" or "ocs_gain"
+    control: str  # "ocs", "ocs_gain", "cap" or "mkx"
     delta_f: float | None
     carrier_factor: float | None
     hard_carrier: bool = False
     oracle: bool = False
+    carrier_free_only: bool = False
+    freedom: str | None = None  # key of FREEDOM; None = params.top_probs
 
 
 def parse_s3q(sid: str) -> S3qSpec:
-    """`S3q[-gainNNN][-cBBB][-hc][-oracle]` -> S3qSpec.
+    """`S3q[-cap|-mkx|-gainNNN][-cBBB[f]][-hc][-oracle][-t1|-u5]` -> S3qSpec.
 
     `-hc` HARD-blocks carrier x carrier pairs (profile `exp_pairing_hard_carrier`; Marija
     Perkovic's E8 design, branch `feature/e8-hips-quotas`); `-oracle` plans on true-pedigree
-    kinship (as `CC-ocs-mc1-oracle`)."""
-    m = re.fullmatch(r"S3q(?:-gain(\d{3}))?(?:-c(\d{3}))?(-hc)?(-oracle)?", sid)
+    kinship (as `CC-ocs-mc1-oracle`). E11: `-cap`/`-mkx` replace OCS by the CC controls (no
+    carrier limit, which needs OCS), `f` bounds only the adopters' litters, `-t1`/`-u5` set
+    breeder freedom."""
+    m = re.fullmatch(
+        r"S3q(?:-(cap|mkx)|-gain(\d{3}))?(?:-c(\d{3})(f)?)?(-hc)?(-oracle)?(?:-(t1|u5))?", sid
+    )
     if m is None:
         raise ValueError(f"bad S3q strategy id {sid!r}")
-    gain, carrier, hc, oracle = m.groups()
+    simple, gain, carrier, free_only, hc, oracle, freedom = m.groups()
+    if simple and carrier:
+        raise ValueError(f"carrier limit needs OCS quotas: {sid!r}")
     return S3qSpec(
-        "ocs_gain" if gain else "ocs",
+        simple or ("ocs_gain" if gain else "ocs"),
         int(gain) / 1e4 if gain else None,
         int(carrier) / 100 if carrier else None,
         hc is not None,
         oracle is not None,
+        free_only is not None,
+        freedom,
     )
 
 
@@ -456,6 +473,8 @@ def make_strategy(sid: str, params: StrategyParams, scoring: ScoringConfig) -> A
         return CompliantMarket(params, scoring)
     if sid == "S3":
         return Recommender(params, scoring)
+    if sid.startswith("S3-") and sid[3:] in FREEDOM:  # E11 breeder freedom
+        return Recommender(replace(params, top_probs=FREEDOM[sid[3:]]), scoring)
     if sid == "S3hc":  # E3 (b): carrier x carrier HARD-blocked
         return Recommender(replace(params, profile="exp_pairing_hard_carrier"), scoring)
     if sid == "S3xc":  # E3 (c): all known carriers excluded (genetics eligibility, runner)
@@ -466,9 +485,12 @@ def make_strategy(sid: str, params: StrategyParams, scoring: ScoringConfig) -> A
         spec = parse_s3q(sid)
         if spec.hard_carrier:
             params = replace(params, profile="exp_pairing_hard_carrier")
+        if spec.freedom:
+            params = replace(params, top_probs=FREEDOM[spec.freedom])
         s3q = RecommenderWithQuotas(
-            params, scoring, spec.control, spec.delta_f, spec.carrier_factor, name=sid
-        )
+            params, scoring, spec.control, spec.delta_f, spec.carrier_factor, name=sid,
+            carrier_free_only=spec.carrier_free_only,
+        )  # fmt: skip
         s3q.oracle = spec.oracle
         return s3q
     if sid.startswith("CC-"):

@@ -207,6 +207,26 @@ def test_non_binding_carrier_bound_changes_nothing():
     assert loose.relaxed == base.relaxed
 
 
+def test_carrier_bound_on_free_part_closed_form():
+    # E11: sire 0 has 1 fixed litter of 4; bound covers only the 3 free litters:
+    # 0.5 (x0 - 0.25) <= 0.125 x 0.75  ->  x0 <= 0.4375, litters [1.75, 2.25]
+    t = np.array([[0.5], [0.0]])
+    kw = {"carrier_t": t, "carrier_bound": np.array([0.125]), "fixed_sire_litters": [1.0, 0.0]}
+    res = solve_conservation(_problem(_unrelated(2, 4), 2, 4, carrier_free_only=True, **kw))
+    np.testing.assert_allclose(res.litters, [1.75, 2.25], atol=1e-4)
+    assert res.relaxed == []
+    old = solve_conservation(_problem(_unrelated(2, 4), 2, 4, **kw))  # bound on all litters
+    np.testing.assert_allclose(old.litters, [1.0, 3.0], atol=1e-4)
+
+
+def test_carrier_free_only_without_fixed_is_the_old_bound():
+    t = np.array([[0.5], [0.0]])
+    kw = {"carrier_t": t, "carrier_bound": np.array([0.125])}
+    a = solve_conservation(_problem(_unrelated(2, 4), 2, 4, **kw))
+    b = solve_conservation(_problem(_unrelated(2, 4), 2, 4, carrier_free_only=True, **kw))
+    np.testing.assert_allclose(a.litters, b.litters, atol=1e-6)
+
+
 def test_gain_with_carrier_closed_form():
     K = _unrelated(4, 4)
     merit = np.array([2.0, 1.5, 0.0, -1.0])

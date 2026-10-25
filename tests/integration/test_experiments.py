@@ -160,6 +160,11 @@ P12_IDS = [
     "S3q-gain010-c075",
     "S3q-gain010-hc",
     "S3q-gain010-c050-oracle",
+    "S3q-cap",
+    "S3q-mkx",
+    "S3q-t1",
+    "S3-u5",
+    "S3q-gain010-c050f",
 ]
 
 
@@ -170,7 +175,11 @@ def test_p12_strategy_contract(tiny, sid):
     df = run_part(cfg, Part("SYN_L", sid, 1.0, 0), debug=True)
     metrics = set(df["metric"])
     assert {"M12_realised_coancestry", "M13_generation_interval", "M14_top5_sire_share"} <= metrics
-    if "ocs" in sid or "gain" in sid or sid.startswith("S3q"):
+    if (
+        "ocs" in sid
+        or "gain" in sid
+        or (sid.startswith("S3q") and "-cap" not in sid and "-mkx" not in sid)
+    ):
         assert "D2_achieved_C" in metrics
     if "gain" in sid:
         assert {"D1_budget", "D8_C_now"} <= metrics
@@ -183,6 +192,13 @@ def test_s3q_carrier_limit_is_planned(tiny):
     planned = df[df["metric"] == "D11_carrier_planned"]["value"]
     relaxed = df[df["metric"] == "D10_carrier_relaxed"]["value"]
     assert planned.size > 0 and relaxed.size == planned.size
+
+
+def test_s3q_free_only_carrier_partial_adoption_contract(tiny):
+    """E11: the adopter-only carrier bound runs with non-adopters' fixed litters."""
+    _, cfg = tiny
+    df = run_part(cfg, Part("SYN_L", "S3q-gain010-c050f", 0.5, 0), debug=True)
+    assert (df["metric"] == "D11_carrier_planned").any()
 
 
 def test_s3q_partial_adoption_contract(tiny):
@@ -286,3 +302,18 @@ def test_none_mc1_is_per_dam_least_cost(season):
     forb, p_any = pair_inputs(ctx, sires, dams, day, "exp_pairing")
     cost = np.where(forb, np.inf, K + cfg.health_weight_in_allocation.value * p_any)
     np.testing.assert_array_equal(plan.assignment, sires[np.argmin(cost, axis=1)])
+
+
+def test_mkx_quotas_for_breeder_choice(season):
+    """E11 `S3q-mkx`: with mating `none`, sires above the candidates' mean MK get quota 0 and
+    the others can take every dam."""
+    from breeding_smarter.coordination.config import load_coordination
+    from breeding_smarter.coordination.planner import plan_season
+    from breeding_smarter.rules import day_number
+
+    ctx, obs, year, dams, sires = season
+    day = day_number(f"{year}-07-01")
+    plan = plan_season(ctx, obs.breed_id, day, dams, sires, load_coordination(), "mkx", "none")
+    mk = ctx.reference(obs.breed_id, day).mk[sires]
+    assert plan.quotas is not None
+    np.testing.assert_array_equal(plan.quotas, np.where(mk > np.nanmean(mk), 0, dams.size))

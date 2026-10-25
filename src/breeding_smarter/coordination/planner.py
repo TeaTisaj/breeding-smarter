@@ -12,10 +12,12 @@ Contribution control (`control`):
 
 Mate allocation (`mating`): `mc1` minimum total pair kinship + w x P(affected puppy)
 [sonesson-meuwissen-2000], `random` random within quotas, `none` quotas only (the product mode
-S3q lets breeders choose within them). HARD-rule pairs are never allocated.
+S3q lets breeders choose within them). HARD-rule pairs are never allocated. With `mkx` and
+`none` (E11 `S3q-mkx`) excluded sires get quota 0 and the others can take every dam.
 
 `carrier_factor` (beta, OCS controls only, E8): per tested locus the season's planned
-risk-allele transmission of the sires is at most beta x its mean over the candidate sires.
+risk-allele transmission of the sires is at most beta x its mean over the candidate sires;
+`carrier_free_only` (E11) applies it to the litters not fixed by non-adopters only.
 
 Dams are registry indices; -1 marks a dam without a registry record (treated as an unrelated,
 non-inbred animal with unknown genotypes and no rule checks). Kinship comes from `kin`
@@ -157,6 +159,7 @@ def plan_season(
     prev_matings: tuple[IntArray, IntArray] | None = None,
     L: float | None = None,
     carrier_factor: float | None = None,
+    carrier_free_only: bool = False,
     rng: np.random.Generator | None = None,
 ) -> SeasonPlan:
     """Quotas and allocation for the season's `dams` (positions in `fixed` are already mated:
@@ -199,6 +202,8 @@ def plan_season(
         keep = ~(mk > mk_ref)
         allowed = allowed & keep[None, :]
         diag["n_sires_with_quota"] = int(keep.sum())
+        if mating == "none":
+            quotas = np.where(keep, free.size, 0).astype(np.int64)
     elif control == "cap":
         caps = mk_scaled_caps(
             mk, mk_ref, cfg.cap_base_litters_per_year.value, cfg.cap_mk_scaling.value
@@ -211,6 +216,7 @@ def plan_season(
         quotas = _ocs_quotas(
             ctx, cfg, control, sires, all_sires, dams, K, mk, mk_ref, fixed, free, day,
             kin, delta_f, prev_matings, L, diag, carrier_factor, ref.allele_freq,
+            carrier_free_only,
         )  # fmt: skip
     if control == "none":
         diag["n_sires_with_quota"] = m
@@ -255,6 +261,7 @@ def _ocs_quotas(
     diag: dict[str, Any],
     carrier_factor: float | None = None,
     allele_freq: FloatArray | None = None,
+    carrier_free_only: bool = False,
 ) -> IntArray:
     m, M, n_d = sires.size, all_sires.size, dams.size
     # dams whose fixed sire has no record leave the problem (their contribution is unknown)
@@ -301,6 +308,7 @@ def _ocs_quotas(
         depth=cfg.depth_constraint.value,
         carrier_t=carrier_t,
         carrier_bound=carrier_bound,
+        carrier_free_only=carrier_free_only,
     )
     solver = cfg.solver.value
     if control == "ocs":

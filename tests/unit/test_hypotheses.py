@@ -153,3 +153,68 @@ def test_e9_known_answers(tmp_path, monkeypatch):
 
     assert any(p.name == "figN_policy_dial.png" for p in fig_n(pr9, tmp_path))
     assert any(p.name == "figO_adoption.png" for p in fig_o(pr9, pr10, tmp_path))
+
+
+def test_e11_cap_reading_known_answers():
+    assert hy.cap_reading(5, 40, 300) == "OCS better"
+    assert hy.cap_reading(-40, -5, 300) == "simple control better"
+    assert hy.cap_reading(-50, 50, 300) == "as good"  # within 20% of 300
+    assert hy.cap_reading(-70, 50, 300) == "inconclusive"
+
+
+def _arm(rng, breed, sid, ne, hd, fq, males, n, adoption=1.0):
+    z = rng.normal(0, 1, (5, n))
+    rows = _rows(breed, sid, "R_ne_f_late", ne + 2 * z[0])
+    rows += _rows(breed, sid, "R_ne_c_late", ne + 2 * z[1])
+    rows += _rows(breed, sid, "M8_mean_tbv_hd", hd + 0.01 * z[2])
+    rows += _rows(breed, sid, "M6_freq_L1", fq + 0.001 * z[3])
+    rows += _rows(breed, sid, "M10_share_sires_used", males + 0.001 * z[4])
+    return [{**r, "adoption": adoption} for r in rows]
+
+
+def test_e11_known_answers():
+    rng = np.random.default_rng(11)
+    base = {  # Ne, HD, freq, share of males used
+        "S1": (200, 0.4, 0.06, 0.13),
+        "S3": (180, 0.1, 0.03, 0.07),
+        "S3q": (320, 0.4, 0.10, 0.15),
+        "S3q-gain010-c050": (280, -0.8, 0.01, 0.14),
+    }
+    pops = {}
+    for pop in ("v1", "v1b", "v1c", "v1d"):
+        rows = []
+        for b in hy.BREEDS:
+            for sid, v in base.items():
+                # population v1d: quotas do not beat the market (one failure of four)
+                ne = 190 if (pop == "v1d" and sid == "S3q") else v[0]
+                rows += _arm(rng, b, sid, ne, *v[1:], n=10)
+        pops[pop] = pd.DataFrame(rows)
+    rb = []
+    arms_b = dict(base)
+    arms_b |= {"S3q-cap": (320, 0.4, 0.1, 0.15), "S3q-mkx": (200, 0.4, 0.1, 0.10)}
+    for x in ("t1", "u5"):
+        arms_b[f"S3-{x}"] = (170, 0.1, 0.03, 0.06 if x == "t1" else 0.135)  # u5: no herding
+        arms_b[f"S3q-{x}"] = (320, 0.4, 0.1, 0.15)
+    for b in hy.BREEDS:
+        for sid, v in arms_b.items():
+            rb += _arm(rng, b, sid, *v, n=20)
+    rc = []
+    for ad in (0.25, 0.5, 0.75, 1.0):
+        rc += _arm(rng, "SYN_M", "S3q-gain010-c050", 300, -0.5, 0.07, 0.14, 20, ad)
+        rc += _arm(rng, "SYN_M", "S3q-gain010-c050f", 300, -0.5, 0.02, 0.14, 20, ad)
+    t = hy.evaluate_e11(pops, pd.DataFrame(rb), pd.DataFrame(rc))
+    one = t.set_index(["id", "breed", "quantity"])
+
+    def row(h, q, b="SYN_M"):
+        return one.loc[(h, b, q)]
+
+    assert row("H11-pop-a", "S3 - S1 males used: holds in 4 of 4")["pass"]
+    assert row("H11-pop-b", "S3q - S1 Ne late: holds in 3 of 4")["pass"]  # 3 of 4 is enough
+    assert row("H11-pop-c", "S3q-gain010-c050 - S1 Ne, HD, freq: holds in 4 of 4")["pass"]
+    assert row("H11-cap", "Ne late: S3q - S3q-cap")["reading"] == "as good"
+    assert row("H11-cap", "Ne late: S3q - S3q-mkx")["reading"] == "OCS better"
+    assert not row("H11-free-a", "S3-x - S1 males used < 0 for every x")["pass"]  # u5 fails
+    assert row("H11-free-b", "S3q-x - S1 Ne late > 0 for every x")["pass"]
+    assert row("H11-adopt", "freq: S3q-gain010-c050f at adoption 0.5 - S1")["pass"]
+    assert (t["id"] == "H11-pop-pooled").any() and (t["id"] == "H11-pop-range").any()
+    assert t[t["quantity"].str.contains("coancestry")].shape[0] > 0  # Ne cross-check rows
