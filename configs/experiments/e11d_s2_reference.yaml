@@ -1,0 +1,17 @@
+id: E11d_s2_reference
+description: "Additional (not pre-registered, added after E11 results, 2026-10-25): regulated market S2 as the 0%-participation reference for E11c; same seed and dataset as E11b and E11c so it pairs with them."
+seed: 20261125
+dataset: v1
+generations: 10
+breeds:
+  SYN_M: {replicates: 20}
+strategies: [S2]
+adoption: [1.0]
+profile: exp_pairing
+scoring: default
+coordination: default
+coi_cap: {value: 0.065, source: eu-platform-guide}
+s3_top_probs: {value: [0.5, 0.3, 0.2], assumption: true, note: "breeders keep some freedom"}
+s4_lambda: {value: 1.0, assumption: true}
+ebv_every_years: {value: 5, assumption: true}
+registration_rate: {value: 1.0, assumption: true, note: "simplification: every live-born puppy is registered during experiments"}

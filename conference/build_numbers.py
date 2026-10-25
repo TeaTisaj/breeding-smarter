@@ -221,7 +221,12 @@ def _fmt_ci(est: float, lo: float, hi: float, scale: float, fmt: str) -> tuple[s
 
     def f(x: float) -> str:
         s = fmt.format(scale * x)
-        return f"{scale * x:+.1f}" if s in ("+0", "-0") and scale * x != 0 else s
+        if scale * x != 0 and float(s) == 0:  # keep the sign visible: +0.02, not +0.0
+            digits = len(s.split(".")[1]) + 1 if "." in s else 1
+            while float(f"{scale * x:.{digits}f}") == 0:
+                digits += 1
+            return f"{scale * x:+.{digits}f}"
+        return s
 
     return f(est), f"{f(lo)} to {f(hi)}"
 
@@ -377,6 +382,139 @@ def paper() -> dict[str, str]:
     return out
 
 
+def paper_revision() -> dict[str, str]:
+    """Paper revision (additional, not pre-registered): rates per year and per realised generation,
+    realised inbreeding at generation 10, population-level intervals, failed hypotheses."""
+    base = ROOT / "reports" / "experiments"
+    if not (base / "E11_hypotheses" / "hypotheses.csv").exists():
+        return {}
+    from breeding_smarter.experiments import hypotheses as hy
+    from breeding_smarter.experiments import rates as R
+
+    out: dict[str, str] = {}
+
+    def put(key: str, d: tuple[float, float, float, int], scale: float, fmt: str) -> None:
+        out[f"{key}_est"], out[f"{key}_ci"] = _fmt_ci(d[0], d[1], d[2], scale, fmt)
+
+    def contrast(key, pr, a, b, ad=1.0, adb=1.0, prb=None, breed="SYN_M"):  # type: ignore[no-untyped-def]
+        x = R.late_rates(pr, breed, a, ad)
+        y = R.late_rates(prb if prb is not None else pr, breed, b, adb)
+        put(f"{key}_dfy", R.paired(x["dF_year"], y["dF_year"]), 1e4, "{:+.1f}")
+        put(f"{key}_neg", R.paired(x["Ne_gen"], y["Ne_gen"]), 1, "{:+.0f}")
+        put(f"{key}_f10", R.paired(x["F10"], y["F10"]), 100, "{:+.1f}")
+        for tag, v in (("a", x), ("b", y)):
+            out[f"{key}_L{tag}"] = f"{v['L'].mean():.1f}"
+            out[f"{key}_neg{tag}"] = f"{v['Ne_gen'].mean():.0f}"
+            out[f"{key}_dfy{tag}"] = f"{1e4 * v['dF_year'].mean():.1f}"
+            out[f"{key}_f10{tag}"] = pct(float(v["F10"].mean()))
+        return x, y
+
+    pb = hy._per_rep(hy.E11B)
+    for a in ("S3", "S3q", "S3q-cap", "S3q-mkx", "S3-t1", "S3-u5", "S3q-t1", "S3q-u5"):
+        contrast(f"rv_b_{a.replace('-', '_').lower()}", pb, a, "S1")
+    contrast("rv_b_s3q_vs_cap", pb, "S3q", "S3q-cap")
+    contrast("rv_b_s3q_vs_mkx", pb, "S3q", "S3q-mkx")
+    p9 = hy._per_rep(hy.E9)
+    for g in ("005", "010", "015", "025", "050"):
+        contrast(f"rv_9_g{g}", p9, f"S3q-gain{g}-c050", "S1")
+        contrast(f"rv_9_g{g}_vs_s3q", p9, f"S3q-gain{g}-c050", "S3q")
+    contrast("rv_9_s3q", p9, "S3q", "S3q-gain010-c050")
+    p5 = hy._per_rep(hy.E5)
+    for a in ("S0", "CC-mkx-rand", "CC-cap-rand", "CC-none-rand", "CC-ocs-rand", "CC-ocs-mc1",
+              "CC-none-mc1", "S3q", "S3"):  # fmt: skip
+        contrast(f"rv_5_{a.replace('-', '_').lower()}", p5, a, "S1")
+    pops = {p: hy._per_rep(e) for p, e in hy.E11_POPS.items()}
+    lev: dict[str, list[float]] = {"s3": [], "s3q": [], "arm": []}
+    held = {k: 0 for k in lev}
+    for pop, pr in pops.items():
+        for k, sid in (("s3", "S3"), ("s3q", "S3q"), ("arm", hy.E9_ARM)):
+            x, y = contrast(f"rv_{pop}_{k}", pr, sid, "S1")
+            d = R.paired(x["dF_year"], y["dF_year"])
+            lev[k].append(d[0])
+            held[k] += bool(d[2] < 0) if k != "s3" else bool(d[1] > 0)
+    f10 = [
+        float(
+            R.paired(
+                R.late_rates(pr, "SYN_M", "S3q")["F10"], R.late_rates(pr, "SYN_M", "S1")["F10"]
+            )[0]
+        )
+        for pr in pops.values()
+    ]
+    out["rv_range_s3q_f10"] = (
+        f"{100 * min(abs(x) for x in f10):.1f} to {100 * max(abs(x) for x in f10):.1f}"
+    )
+    males = [
+        float(
+            t_[
+                (t_["id"] == "H11-pop-a")
+                & (t_["breed"] == "SYN_M")
+                & (t_["quantity"] == f"{p}: S3 - S1 males used")
+            ]["estimate"].iloc[0]
+        )
+        for p in pops
+        for t_ in [pd.read_csv(base / "E11_hypotheses" / "hypotheses.csv")]
+    ]
+    out["rv_range_males"] = (
+        f"{100 * min(abs(x) for x in males):.1f} to {100 * max(abs(x) for x in males):.1f}"
+    )
+    for k, v in lev.items():
+        put(f"rv_poplevel_{k}_dfy", R.population_level(v), 1e4, "{:+.1f}")
+        out[f"rv_held_{k}_dfy"] = f"{held[k]} of {len(v)}"
+    # population-level interval of the pre-registered contrasts (populations as units)
+    t = pd.read_csv(base / "E11_hypotheses" / "hypotheses.csv")
+    for c, hid, q, scale, fmt in (
+        ("males", "H11-pop-a", "S3 - S1 males used", 100, "{:+.1f}"),
+        ("s3q", "H11-pop-b", "S3q - S1 Ne late", 1, "{:+.0f}"),
+        ("arm", "H11-pop-c", f"{hy.E9_ARM} - S1 Ne", 1, "{:+.0f}"),
+    ):
+        est = [
+            float(
+                t[(t["id"] == hid) & (t["breed"] == "SYN_M") & (t["quantity"] == f"{p}: {q}")][
+                    "estimate"
+                ].iloc[0]
+            )
+            for p in pops
+        ]
+        put(f"rv_poplevel_{c}", R.population_level(est), scale, fmt)  # fmt: skip
+    cross = t[
+        (t["id"] == "H11-pop-c-support")
+        & (t["breed"] == "SYN_M")
+        & (t["quantity"] == f"Ne late (coancestry): v1d: {hy.E9_ARM} - S1")
+    ].iloc[0]
+    put("rv_v1d_arm_coanc", (cross["estimate"], cross["lo"], cross["hi"], 10), 1, "{:+.0f}")
+    # adoption against the regulated market S2 (E11d, additional) if it has been run
+    p_s2 = base / "E11d_s2_reference" / "per_generation_replicates.csv.gz"
+    if p_s2.exists():
+        prs2, prc = pd.read_csv(p_s2), hy._per_rep(hy.E11C)
+        s2f = hy._summed(prs2, "SYN_M", "S2", "M6_freq_")
+        for ad in (0.25, 0.5, 0.75, 1.0):
+            tag = f"{round(100 * ad)}"
+            contrast(f"rv_c_new_a{tag}_vs_s2", prc, f"{hy.E9_ARM}f", "S2", ad, prb=prs2)
+            put(f"rv_c_new_a{tag}_vs_s2_freq",
+                hy._paired(hy._summed(prc, "SYN_M", f"{hy.E9_ARM}f", "M6_freq_", ad), s2f),
+                100, "{:+.1f}")  # fmt: skip
+        contrast("rv_c_s2_vs_s1", prs2, "S2", "S1", prb=pb)
+    # summed tested risk-allele frequency (percentage points) and realised dF per generation
+    g9 = p9[(p9["breed"] == "SYN_M") & (p9["generation"] == 10) & (p9["adoption"] == 1.0)]
+    for tag, sid in (("s1", "S1"), ("s3q", "S3q"), ("arm", hy.E9_ARM)):
+        f = g9[(g9["strategy"] == sid) & g9["metric"].str.startswith("M6_freq_")]
+        out[f"rv_9_freq_{tag}"] = f"{100 * f.groupby('replicate')['value'].sum().mean():.1f}"
+    arm9 = R.late_rates(p9, "SYN_M", hy.E9_ARM)
+    out["rv_9_arm_dfgen_pct"] = f"{100 * arm9['dF_gen'].mean():.2f}"
+    h9 = pd.read_csv(base / "E9_hypotheses" / "hypotheses.csv")
+    r = h9[(h9["id"] == "H10-dna")].iloc[0]
+    put("rv_h10dna", (r["estimate"], r["lo"], r["hi"], int(r["n"])), 1, "{:+.0f}")
+    # simulation diagnostics: overflow dams and infeasible (fallback) gain seasons
+    from breeding_smarter.experiments.runner import load_results
+
+    for e in (hy.E11B, hy.E11C, hy.E9):
+        df = load_results(e)
+        out[f"rv_overflow_{e[:4]}"] = f"{int(df[df['metric'] == 'D7_overflow']['value'].sum())}"
+        out[f"rv_infeasible_{e[:4]}"] = f"{int(df[df['metric'] == 'D3_infeasible']['value'].sum())}"
+        out[f"rv_seasons_{e[:4]}"] = f"{int((df['metric'] == 'D3_infeasible').sum())}"
+    return out
+
+
 def benchmark() -> dict[str, str]:
     text = (ROOT / "reports" / "benchmarks" / "engine.md").read_text()
     row = re.search(r"\| 250,000 \| ([\d.]+) \| ([\d.]+) \| ([\d.]+) \| ([\d.]+) \|", text)
@@ -408,6 +546,7 @@ def main() -> None:
         p12(),
         e9(),
         paper(),
+        paper_revision(),
     ):
         numbers.update(part)
     links = yaml.safe_load((ROOT / "conference" / "links.yaml").read_text())
