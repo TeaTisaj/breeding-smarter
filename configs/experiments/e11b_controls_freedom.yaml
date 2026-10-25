@@ -1,0 +1,18 @@
+id: E11b_controls_freedom
+description: "E11 R2 and R3 (plan/16_E11_paper_robustness.md): recommender inside simple caps or MK exclusion vs OCS quotas, and breeder freedom (t1 = top sire, u5 = uniform top 5; assumptions)."
+seed: 20261125
+dataset: v1
+generations: 10
+breeds:
+  SYN_S: {replicates: 20}
+  SYN_M: {replicates: 20}
+strategies: [S1, S3, S3q, S3q-cap, S3q-mkx, S3-t1, S3-u5, S3q-t1, S3q-u5]
+adoption: [1.0]
+profile: exp_pairing
+scoring: default
+coordination: default
+coi_cap: {value: 0.065, source: eu-platform-guide}
+s3_top_probs: {value: [0.5, 0.3, 0.2], assumption: true, note: "breeders keep some freedom"}
+s4_lambda: {value: 1.0, assumption: true}
+ebv_every_years: {value: 5, assumption: true}
+registration_rate: {value: 1.0, assumption: true, note: "simplification: every live-born puppy is registered during experiments"}

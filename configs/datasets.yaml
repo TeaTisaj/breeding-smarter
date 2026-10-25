@@ -7,3 +7,24 @@ datasets:
     seed: 42
     frozen_on: '2026-10-11'
     note: P5 frozen dataset; all hard calibration targets pass
+  v1b:
+    run_id: e11-default-s101
+    config_hash: 68d35948916204bde48c1c50ab64ca7cef465c01961821f0dd3aac318cd0a72a
+    git_commit: 20e1961c53c99da1df1237d670bb081ae70f5d37
+    seed: 101
+    frozen_on: '2026-10-25'
+    note: E11 population (plan/16_E11_paper_robustness.md); same config as v1
+  v1c:
+    run_id: e11-default-s102
+    config_hash: 68d35948916204bde48c1c50ab64ca7cef465c01961821f0dd3aac318cd0a72a
+    git_commit: 20e1961c53c99da1df1237d670bb081ae70f5d37
+    seed: 102
+    frozen_on: '2026-10-25'
+    note: E11 population (plan/16_E11_paper_robustness.md); same config as v1
+  v1d:
+    run_id: e11-default-s103
+    config_hash: 68d35948916204bde48c1c50ab64ca7cef465c01961821f0dd3aac318cd0a72a
+    git_commit: 20e1961c53c99da1df1237d670bb081ae70f5d37
+    seed: 103
+    frozen_on: '2026-10-25'
+    note: E11 population (plan/16_E11_paper_robustness.md); same config as v1

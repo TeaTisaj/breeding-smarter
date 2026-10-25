@@ -124,4 +124,12 @@ validation report per new population, and a robustness figure for the paper.
 
 ## Addendum
 
-(none yet)
+**2026-10-25, before the main run (no hypothesis, arm or seed changed).**
+- Populations v1b, v1c, v1d generated at commit `20e1961` (seeds 101, 102, 103), regenerated
+  from that clean commit byte-identical to a first generation. Validation: 40 PASS, 7 WARN,
+  0 FAIL each. Recorded-pedigree Ne of the 2016 to 2025 cohort (T07), SYN_M / SYN_S: v1 137 / 42,
+  v1b 101 / 37, v1c 98 / 28, v1d 108 / 38. v1 is at the high end for SYN_M.
+- Pilot (one SYN_M replicate of every E11b and E11c arm and of `S3q-gain010-c050` on v1b, 6
+  workers): 55 to 501 s per part. Extrapolated to all 840 parts: about 26 CPU-hours, about 4.5
+  hours wall-clock on 6 workers, below the 14-hour limit, so no reduction is applied. Pilot
+  results were discarded and are not part of E11.
