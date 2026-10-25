@@ -578,9 +578,12 @@ def evaluate_e11(
                 est[k].append(float(np.mean(pooled[k][-1])) if pooled[k][-1].size else np.nan)
         if not n_pops:
             continue
+        pooled_label = {"a": "S3 - S1 males used", "b": "S3q - S1 Ne late",
+                        "c": f"{E9_ARM} - S1 Ne late"}  # fmt: skip
         for k, (_, label) in contrasts.items():
             verdict = held[k] >= 3 if b == "SYN_M" else None
             add(f"H11-pop-{k}", b, f"{label}: holds in {held[k]} of {n_pops}", ok=verdict)
+            label = pooled_label[k]
             all_d = np.concatenate(pooled[k])
             add("H11-pop-pooled", b, f"{label} (pooled, population as stratum)",
                 (*t_interval(all_d), int(all_d.size)))  # fmt: skip

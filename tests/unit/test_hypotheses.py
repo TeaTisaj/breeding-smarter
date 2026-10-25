@@ -218,3 +218,21 @@ def test_e11_known_answers():
     assert row("H11-adopt", "freq: S3q-gain010-c050f at adoption 0.5 - S1")["pass"]
     assert (t["id"] == "H11-pop-pooled").any() and (t["id"] == "H11-pop-range").any()
     assert t[t["quantity"].str.contains("coancestry")].shape[0] > 0  # Ne cross-check rows
+
+
+def test_e11_pooled_rows_are_not_shown_as_percent():
+    """The pooled H11-pop-c row is an Ne difference; its label must not trigger % format."""
+    rng = np.random.default_rng(3)
+    rows = []
+    for sid, v in {
+        "S1": (200, 0.4, 0.06, 0.13),
+        "S3": (180, 0.1, 0.03, 0.07),
+        "S3q": (320, 0.4, 0.1, 0.15),
+        "S3q-gain010-c050": (280, -0.8, 0.01, 0.14),
+    }.items():
+        rows += _arm(rng, "SYN_M", sid, *v, n=10)
+    t = hy.evaluate_e11({"v1": pd.DataFrame(rows)}, None, None)
+    pooled = t[t["id"] == "H11-pop-pooled"]
+    assert not pooled["quantity"].str.contains("freq").any()
+    c = pooled[pooled["quantity"].str.startswith("S3q-gain010-c050")]
+    assert 70 < float(c["estimate"].iloc[0]) < 90  # Ne difference about 80

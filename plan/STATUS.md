@@ -24,6 +24,7 @@ Standing instructions for the autonomous run: `plan/GOAL.md` (gates pre-approved
 | P12 Coordination | done | [P12](gates/P12_report.md) | pre-approved (GOAL.md) |
 | E8 Health + hips in quotas | done (at gate) | [E8](gates/E8_report.md) | waiting |
 | E9/E10 Policy dial + robustness | done (at gate) | [E9](gates/E9_report.md) | waiting |
+| E11 Robustness for the paper | done (at gate) | [E11](gates/E11_report.md) | waiting |
 
 Status values: not started, in progress, at gate (waiting for review), done.
 
@@ -67,6 +68,9 @@ Status values: not started, in progress, at gate (waiting for review), done.
 
 ### P12
 - [x] 12.0 Solver spike + ADR-007  - [x] 12.1 Sources + config  - [x] 12.2 Targets  - [x] 12.3 OCS  - [x] 12.4 OCS tests  - [x] 12.5 Caps, quotas, allocation, ledger  - [x] 12.6 Planner  - [x] 12.7 Truth kinship  - [x] 12.8 Strategies + runner  - [x] 12.9 Metrics  - [x] 12.10 Experiments E5-E7  - [x] 12.11 Figures G-L  - [x] 12.12 CLI + app  - [x] 12.13 Docs  - [x] 12.14 Conference (conditional)
+
+### E11 robustness for the paper (branch `feature/e11-paper-robustness`, plan `plan/16_E11_paper_robustness.md`)
+- [x] Pre-registration (pushed)  - [x] New ids, adopter-only carrier bound, evaluation + tests  - [x] Populations v1b to v1d  - [x] Pilot  - [x] Runs (840 parts)  - [x] Gate report (all four pass; additional: herding lowers Ne on the 10-generation measure in most populations)  - [ ] Tea: claim wording for the paper [HUMAN]
 
 ### E9/E10 policy dial and robustness (branch `feature/e9-policy-dial`, plan `plan/15_E9_E10_policy_dial.md`)
 - [x] Pre-registration  - [x] `-hc`/`-oracle` arms + tests  - [x] Report, figures N and O  - [x] Runs (420 parts)  - [x] Gate report (H9-rep, H9-hc pass; H10-dna, H10-adopt fail)  - [ ] Tea: poster wording; decide on E11 (carrier limit on adopters' share) [HUMAN]
